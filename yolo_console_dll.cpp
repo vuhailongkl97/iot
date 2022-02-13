@@ -180,7 +180,7 @@ std::vector<bbox_t> get_3d_coordinates(std::vector<bbox_t> bbox_vect, cv::Mat xy
 void draw_boxes(cv::Mat mat_img, std::vector<bbox_t> result_vec, std::vector<std::string> obj_names,
     int current_det_fps = -1, int current_cap_fps = -1)
 {
-    int const colors[6][3] = { { 1,0,1 },{ 0,0,1 },{ 0,1,1 },{ 0,1,0 },{ 1,1,0 },{ 1,0,0 } };
+    // int const colors[6][3] = { { 1,0,1 },{ 0,0,1 },{ 0,1,1 },{ 0,1,0 },{ 1,1,0 },{ 1,0,0 } };
 
     for (auto &i : result_vec) {
         cv::Scalar color = obj_id_to_color(i.obj_id);
@@ -300,11 +300,25 @@ public:
     {}
 };
 
+struct detection_data_t {
+    cv::Mat cap_frame;
+    std::shared_ptr<image_t> det_image;
+    std::vector<bbox_t> result_vec;
+    cv::Mat draw_frame;
+    bool new_detection;
+    uint64_t frame_id;
+    bool exit_flag;
+    cv::Mat zed_cloud;
+    std::queue<cv::Mat> track_optflow_queue;
+    detection_data_t() : new_detection(false), exit_flag(false) {}
+};
+
 int main(int argc, char *argv[])
 {
+
     std::string  names_file = "data/coco.names";
-    std::string  cfg_file = "cfg/yolov3.cfg";
-    std::string  weights_file = "yolov3.weights";
+    std::string  cfg_file = "cfg/yolov4-tiny.cfg";
+    std::string  weights_file = "yolov4-tiny.weights";
     std::string filename;
     DataUpdateListener<DataResult<bbox_t,std::string>> listener;
 
@@ -323,7 +337,7 @@ int main(int argc, char *argv[])
 
     auto obj_names = objects_names_from_file(names_file);
     std::string out_videofile = "result.avi";
-    bool const save_output_videofile = false;   // true - for history
+    // bool const save_output_videofile = false;   // true - for history
     bool const send_network = false;        // true - for remote detection
     bool const use_kalman_filter = false;   // true - for stationary camera
 
@@ -331,9 +345,11 @@ int main(int argc, char *argv[])
 
     while (true)
     {
-        std::cout << "input image or video filename: ";
-        if(filename.size() == 0) std::cin >> filename;
-        if (filename.size() == 0) break;
+        if (filename.size() == 0) 
+        {
+            std::cout << "file name is empty, this program is exitting" << std::endl;
+            break;   
+        }
 
         try {
             preview_boxes_t large_preview(100, 150, false), small_preview(50, 50, true);
@@ -372,23 +388,6 @@ int main(int argc, char *argv[])
                 cv::Size const frame_size = cur_frame.size();
                 std::cout << "\n Video size: " << frame_size << std::endl;
 
-                cv::VideoWriter output_video;
-                if (save_output_videofile)
-                    output_video.open(out_videofile, cv::VideoWriter::fourcc('D', 'I', 'V', 'X'), std::max(35, video_fps), frame_size, true);
-
-                struct detection_data_t {
-                    cv::Mat cap_frame;
-                    std::shared_ptr<image_t> det_image;
-                    std::vector<bbox_t> result_vec;
-                    cv::Mat draw_frame;
-                    bool new_detection;
-                    uint64_t frame_id;
-                    bool exit_flag;
-                    cv::Mat zed_cloud;
-                    std::queue<cv::Mat> track_optflow_queue;
-                    detection_data_t() : new_detection(false), exit_flag(false) {}
-                };
-
                 const bool sync = detection_sync; // sync data exchange
                 send_one_replaceable_object_t<detection_data_t> cap2prepare(sync), cap2draw(sync),
                     prepare2detect(sync), detect2draw(sync), draw2show(sync), draw2write(sync), draw2net(sync);
@@ -403,13 +402,17 @@ int main(int argc, char *argv[])
                     detection_data_t detection_data;
                     do {
                         detection_data = detection_data_t();
-                            cap >> detection_data.cap_frame;
+                        cap >> detection_data.cap_frame;
                         fps_cap_counter++;
                         detection_data.frame_id = frame_id++;
+
                         if (detection_data.cap_frame.empty() || exit_flag) {
-                            std::cout << " exit_flag: detection_data.cap_frame.size = " << detection_data.cap_frame.size() << std::endl;
-                            detection_data.exit_flag = true;
-                            detection_data.cap_frame = cv::Mat(frame_size, CV_8UC3);
+                            // verify and polling here when cam is down
+                            while(cap.open(filename) == false) {
+                                std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+                            }
+                            video_fps = cap.get(cv::CAP_PROP_FPS);
+                            continue;
                         }
 
                         if (!detection_sync) {
@@ -530,82 +533,47 @@ int main(int argc, char *argv[])
                         detection_data.draw_frame = draw_frame;
                         draw2show.send(detection_data);
                         if (send_network) draw2net.send(detection_data);
-                        if (output_video.isOpened()) draw2write.send(detection_data);
                     } while (!detection_data.exit_flag);
                     std::cout << " t_draw exit \n";
                 });
 
+                #if 1
+                    // show detection
+                    detection_data_t detection_data;
+                    do {
+                        steady_end = std::chrono::steady_clock::now();
+                        float time_sec = std::chrono::duration<double>(steady_end - steady_start).count();
+                        if (time_sec >= 1) {
+                            current_fps_det = fps_det_counter.load() / time_sec;
+                            current_fps_cap = fps_cap_counter.load() / time_sec;
+                            steady_start = steady_end;
+                            fps_det_counter = 0;
+                            fps_cap_counter = 0;
+                        }
 
-                // write frame to videofile
-                t_write = std::thread([&]()
-                {
-                    if (output_video.isOpened()) {
-                        detection_data_t detection_data;
-                        cv::Mat output_frame;
-                        do {
-                            detection_data = draw2write.receive();
-                            if(detection_data.draw_frame.channels() == 4) cv::cvtColor(detection_data.draw_frame, output_frame, CV_RGBA2RGB);
-                            else output_frame = detection_data.draw_frame;
-                            output_video << output_frame;
-                        } while (!detection_data.exit_flag);
-                        output_video.release();
-                    }
-                    std::cout << " t_write exit \n";
-                });
+                        detection_data = draw2show.receive();
+                        cv::Mat draw_frame = detection_data.draw_frame;
 
-                // send detection to the network
-                t_network = std::thread([&]()
-                {
-                    if (send_network) {
-                        detection_data_t detection_data;
-                        do {
-                            detection_data = draw2net.receive();
+                        cv::imshow("window name", draw_frame);
+                        int key = cv::waitKey(3);    // 3 or 16ms
+                        if (key == 'f') show_small_boxes = !show_small_boxes;
+                        if (key == 'p') while (true) if (cv::waitKey(100) == 'p') break;
+                        //if (key == 'e') extrapolate_flag = !extrapolate_flag;
+                        if (key == 27) { exit_flag = true;}
 
-                            detector.send_json_http(detection_data.result_vec, obj_names, detection_data.frame_id, filename);
+                        //std::cout << " current_fps_det = " << current_fps_det << ", current_fps_cap = " << current_fps_cap << std::endl;
+                    } while (!detection_data.exit_flag);
+                    std::cout << " show detection exit \n";
 
-                        } while (!detection_data.exit_flag);
-                    }
-                    std::cout << " t_network exit \n";
-                });
+                    cv::destroyWindow("window name");
+                #endif
 
-
-                // show detection
-                detection_data_t detection_data;
-                do {
-
-                    steady_end = std::chrono::steady_clock::now();
-                    float time_sec = std::chrono::duration<double>(steady_end - steady_start).count();
-                    if (time_sec >= 1) {
-                        current_fps_det = fps_det_counter.load() / time_sec;
-                        current_fps_cap = fps_cap_counter.load() / time_sec;
-                        steady_start = steady_end;
-                        fps_det_counter = 0;
-                        fps_cap_counter = 0;
-                    }
-
-                    detection_data = draw2show.receive();
-                    cv::Mat draw_frame = detection_data.draw_frame;
-
-                    cv::imshow("window name", draw_frame);
-                    int key = cv::waitKey(3);    // 3 or 16ms
-                    if (key == 'f') show_small_boxes = !show_small_boxes;
-                    if (key == 'p') while (true) if (cv::waitKey(100) == 'p') break;
-                    //if (key == 'e') extrapolate_flag = !extrapolate_flag;
-                    if (key == 27) { exit_flag = true;}
-
-                    //std::cout << " current_fps_det = " << current_fps_det << ", current_fps_cap = " << current_fps_cap << std::endl;
-                } while (!detection_data.exit_flag);
-                std::cout << " show detection exit \n";
-
-                cv::destroyWindow("window name");
                 // wait for all threads
                 if (t_cap.joinable()) t_cap.join();
                 if (t_prepare.joinable()) t_prepare.join();
                 if (t_detect.joinable()) t_detect.join();
                 if (t_post.joinable()) t_post.join();
                 if (t_draw.joinable()) t_draw.join();
-                if (t_write.joinable()) t_write.join();
-                if (t_network.joinable()) t_network.join();
 
                 break;
 
