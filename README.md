@@ -1,3 +1,24 @@
+# What it is
++ This is customized example from [darknet](https://github.com/AlexeyAB/darknet/) for C++ for recongize objects in minimal configuration.
+
++ Main purpose of this project is customize the darknet project to minimal version to can run on Jetson Nano for create *a security camera ( human detector )* 
+
++ This will support backend system for notifying
+
+# How to run
+Tested on Jetson nano 2GB.
+1. Clone this repository
+2. Do mkdir build && cd build && make
+3. Output binary's name is *iot*, let run it follow parameter is video file or rtsp, http, https, rtmp.  
+` ./iot rtsp://<path to source images `
+
+# Development
+1. Testing stability
+	+ Debugging via reporting results
+	+ Aging 
+	+ Correctness
+2. Develop backend system management with Golang
+
 Note:  
 
 Due to I use *yolov3.weight* as default but its size too big need to use *git large file*. Currently I just give a link to download the weight file later instead of include to this repository.
