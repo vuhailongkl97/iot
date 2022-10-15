@@ -10,7 +10,9 @@ Tested on Jetson nano 2GB.
 1. Clone this repository
 2. Do mkdir build && cd build && make
 3. Output binary's name is *iot*, let run it follow parameter is video file or rtsp, http, https, rtmp.  
-` ./iot rtsp://<path to source images `
+` ./iot rtsp://<path to source images `   
+` ./iot  'rtsp://username:password@192.168.1.111:554/cam/realmonitor?channel=3&subtype=1'`  
+ad-Mr123
 
 # Development
 1. Testing stability
