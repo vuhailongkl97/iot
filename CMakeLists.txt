@@ -48,3 +48,10 @@ add_backward(iot)
 target_include_directories(iot PUBLIC  /usr/local/cuda/include /usr/local/cudnn/include usr/local/cuda/include/cuda)
 
 target_link_libraries(iot LINK_PUBLIC libdarknet.so cudart curand opencv_highgui opencv_imgcodecs opencv_imgproc opencv_core opencv_videoio opencv_video)
+
+add_custom_command(TARGET iot PRE_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory
+                       ${CMAKE_SOURCE_DIR}/data/ $<TARGET_FILE_DIR:iot>/data)
+add_custom_command(TARGET iot PRE_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory
+                       ${CMAKE_SOURCE_DIR}/cfg/ $<TARGET_FILE_DIR:iot>/cfg)

@@ -358,7 +358,7 @@ int main(int argc, char *argv[]) {
 	std::string filename;
 	DataUpdateListener<DataResult<bbox_t, std::string>> listener;
 
-	listener.setCallback(console_callback);
+	//listener.setCallback(console_callback);
 	if (argc > 4) {	 // voc.names yolo-voc.cfg yolo-voc.weights test.mp4
 		names_file = argv[1];
 		cfg_file = argv[2];
@@ -373,7 +373,7 @@ int main(int argc, char *argv[]) {
 
 	auto obj_names = objects_names_from_file(names_file);
 	bool const send_network = false;       // true - for remote detection
-	bool const use_kalman_filter = false;  // true - for stationary camera
+	bool const use_kalman_filter = true;  // true - for stationary camera
 
 	bool detection_sync = true;  // true - for video-file
 
@@ -542,7 +542,7 @@ int main(int argc, char *argv[]) {
 						fps_det_counter++;
 						std::this_thread::sleep_for(
 						    std::chrono::milliseconds(
-							150));
+							20));
 
 						detection_data.new_detection =
 						    true;
