@@ -318,7 +318,7 @@ int main(int argc, char *argv[])
 
     std::string  names_file = "data/coco.names";
     std::string  cfg_file = "cfg/yolov4-tiny.cfg";
-    std::string  weights_file = "yolov4-tiny.weights";
+    std::string  weights_file = "data/yolov4-tiny.weights";
     std::string filename;
     DataUpdateListener<DataResult<bbox_t,std::string>> listener;
 
