@@ -5,10 +5,13 @@
 
 + This will support backend system for notifying
 
+# Dependencies
++ [opencv 4.1.1](https://pysource.com/2019/08/26/install-opencv-4-1-on-nvidia-jetson-nano/)
++ [cuda-10.2](https://jfrog.com/connect/post/installing-cuda-on-nvidia-jetson-nano/)
 # How to run
 Tested on Jetson nano 2GB.
-1. Clone this repository
-2. Do mkdir build && cd build && make
+1. Clone this repository, and use `git lfs pull` to get the weight files
+2. Do `mkdir build && cd build && cmake .. && make`
 3. Output binary's name is *iot*, let run it follow parameter is video file or rtsp, http, https, rtmp.  
 ` ./iot rtsp://<path to source images `   
 ` ./iot  'rtsp://username:password@192.168.1.111:554/cam/realmonitor?channel=3&subtype=1'`  
@@ -26,9 +29,11 @@ ad-Mr123
 + Install vino VNC follow `JetsonNano-RemoteVNCAccess.pdf`
 + Use vncviewer on your host in development 
 	- Ubuntu ` sudo apt install xtightvncviewer -y`
-+ Due to I use *yolov3.weight* as default but its size too big need to use *git large file*. Currently I just give a link to download the weight file later instead of include to this repository.
++ Due to I use *yolov3.weight* as default but its size too big need to use [git large file](https://git-lfs.github.com/). 
 
-[yolov3.weight](https://pjreddie.com/media/files/yolov3.weights)
 
-# reference
-+ https://github.com/AlexeyAB/darknet/blob/master/scripts/download_weights.ps1
+# Reference
++ [download_weights](https://github.com/AlexeyAB/darknet/blob/master/scripts/download_weights.ps1)
+
++ [yolov3.weight](https://pjreddie.com/media/files/yolov3.weights)
++ [dahua API](https://community.jeedom.com/uploads/short-url/tTQJPaNah7gZnU12VGGN9ZHEhOk.pdf)
