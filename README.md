@@ -24,6 +24,10 @@ ad-Mr123
 	+ Correctness
 2. Develop backend system management with Golang
 
+# Diagrams
+## usecase 
+![usecases](docs/usecases.drawio.png)
+
 # Note: 
 + OS information `Linux jetson 4.9.140-tegra #1 SMP PREEMPT Fri Oct 16 12:32:46 PDT 2020 aarch64 aarch64 aarch64 GNU/Linux`
 + Install vino VNC follow `JetsonNano-RemoteVNCAccess.pdf`
