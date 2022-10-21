@@ -25,7 +25,7 @@ std::vector<std::string> objects_names_from_file(std::string const filename) {
 
 void draw_boxes(cv::Mat mat_img, std::vector<bbox_t> result_vec,
 		std::vector<std::string> obj_names, int current_det_fps ,
-		int current_cap_fps) {
+		int current_cap_fps, float thresh) {
 	// int const colors[6][3] = { { 1,0,1 },{ 0,0,1 },{ 0,1,1 },{ 0,1,0 },{
 	// 1,1,0 },{ 1,0,0 } };
 
@@ -83,10 +83,11 @@ void draw_boxes(cv::Mat mat_img, std::vector<bbox_t> result_vec,
 	if (current_det_fps >= 0 && current_cap_fps >= 0) {
 		std::string fps_str =
 		    "FPS detection: " + std::to_string(current_det_fps) +
-		    "   FPS capture: " + std::to_string(current_cap_fps);
+		    " FPS capture: " + std::to_string(current_cap_fps)+
+		    " " + std::to_string(thresh);
 		putText(mat_img, fps_str, cv::Point2f(10, 20),
 			cv::FONT_HERSHEY_COMPLEX_SMALL, 1.2,
-			cv::Scalar(50, 255, 0), 2);
+			cv::Scalar(50, 255, 0), 1);
 	}
 }
 
