@@ -1,6 +1,6 @@
 #include "crow.h"
 #include "spdlog/spdlog.h"
-#include "libs.h"
+#include "lib.h"
 #include <atomic>
 #include <cmath>
 #include <fstream>
@@ -12,6 +12,7 @@
 #include <string>
 #include <thread>
 #include <vector>
+#define IMAGE_DBG
 // It makes sense only for video-Camera (not for video-File)
 // To use - uncomment the following line. Optical-flow is supported only by
 // OpenCV 3.x - 4.x
@@ -147,8 +148,6 @@ void runServer(float &threshVal) {
 #endif
 }
 int main(int argc, char *argv[]) {
-  spdlog::info("Welcome to spdlog!");
-  spdlog::error("Some error message with arg: {}", 1);
   std::string names_file = "data/coco.names";
   std::string cfg_file = "cfg/yolov4-tiny.cfg";
   std::string weights_file = "data/yolov4-tiny.weights";
@@ -170,6 +169,8 @@ int main(int argc, char *argv[]) {
   bool const send_network = false;     // true - for remote detection
   bool const use_kalman_filter = true; // true - for stationary camera
 
+  Detector detector(cfg_file, weights_file);
+
   bool detection_sync = true; // true - for video-file
   auto server = std::thread(runServer, std::ref(thresh));
   server.detach();
@@ -185,7 +186,6 @@ int main(int argc, char *argv[]) {
           small_preview(50, 50, true);
       bool show_small_boxes = false;
 
-      Detector detector(cfg_file, weights_file);
       std::string const file_ext =
           filename.substr(filename.find_last_of(".") + 1);
       std::string const protocol = filename.substr(0, 7);
@@ -386,14 +386,16 @@ int main(int argc, char *argv[]) {
 
             detection_data.result_vec = result_vec;
             detection_data.draw_frame = draw_frame;
-            // draw2show.send(detection_data);
+#ifdef IMAGE_DBG
+            draw2show.send(detection_data);
+#endif
             if (send_network)
               draw2net.send(detection_data);
           } while (!detection_data.exit_flag);
           std::cout << " t_draw exit \n";
         });
 
-#if 0
+#ifdef IMAGE_DBG
 				// show detection
 				detection_data_t detection_data;
 				do {

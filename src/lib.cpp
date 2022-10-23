@@ -1,4 +1,4 @@
-#include "libs.h"
+#include "lib.h"
 
 void show_console_result(std::vector<bbox_t> const result_vec,
 			 std::vector<std::string> const obj_names,

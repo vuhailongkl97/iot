@@ -1,9 +1,9 @@
-[submodule "backward-cpp"]
-	path = backward-cpp
-	url = https://github.com/bombela/backward-cpp
-[submodule "Crow"]
-	path = Crow
+[submodule "libs/dependencies/Crow"]
+	path = libs/dependencies/Crow
 	url = https://github.com/CrowCpp/Crow.git
-[submodule "spdlog"]
-	path = spdlog
+[submodule "libs/dependencies/spdlog"]
+	path = libs/dependencies/spdlog
 	url = https://github.com/gabime/spdlog
+[submodule "libs/dependencies/backward-cpp"]
+	path = libs/dependencies/backward-cpp
+	url = https://github.com/bombela/backward-cpp
