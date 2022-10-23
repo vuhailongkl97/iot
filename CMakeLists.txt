@@ -46,7 +46,7 @@ add_executable(iot yolo_console_dll.cpp ${BACKWARD_ENABLE} )
 add_backward(iot)
 add_library(libs lib.cpp)
 
-target_include_directories(iot PUBLIC  /usr/local/cuda/include /usr/local/cudnn/include usr/local/cuda/include/cuda)
+target_include_directories(iot PUBLIC /usr/local/cuda/include /usr/local/cudnn/include usr/local/cuda/include/cuda ${CMAKE_SOURCE_DIR}/Crow/include )
 
 target_link_libraries(iot LINK_PUBLIC libs libdarknet.so cudart curand opencv_highgui opencv_imgcodecs opencv_imgproc opencv_core opencv_videoio opencv_video)
 

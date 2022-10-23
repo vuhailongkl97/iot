@@ -1,3 +1,6 @@
 [submodule "backward-cpp"]
 	path = backward-cpp
 	url = https://github.com/bombela/backward-cpp
+[submodule "Crow"]
+	path = Crow
+	url = https://github.com/CrowCpp/Crow.git
