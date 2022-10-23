@@ -4,3 +4,6 @@
 [submodule "Crow"]
 	path = Crow
 	url = https://github.com/CrowCpp/Crow.git
+[submodule "spdlog"]
+	path = spdlog
+	url = https://github.com/gabime/spdlog

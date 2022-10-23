@@ -1,4 +1,5 @@
 #include "crow.h"
+#include "spdlog/spdlog.h"
 #include "libs.h"
 #include <atomic>
 #include <cmath>
@@ -146,6 +147,8 @@ void runServer(float &threshVal) {
 #endif
 }
 int main(int argc, char *argv[]) {
+  spdlog::info("Welcome to spdlog!");
+  spdlog::error("Some error message with arg: {}", 1);
   std::string names_file = "data/coco.names";
   std::string cfg_file = "cfg/yolov4-tiny.cfg";
   std::string weights_file = "data/yolov4-tiny.weights";
