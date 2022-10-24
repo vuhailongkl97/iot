@@ -158,7 +158,7 @@ int main(int argc, char *argv[]) {
   auto server = std::thread(runServer, std::ref(thresh));
   server.detach();
 
-  listener.setCallback(console_callback);
+  //listener.setCallback(console_callback);
   while (true) {
     if (filename.size() == 0) {
       std::cout << "file name is empty, this program is exitting" << std::endl;
