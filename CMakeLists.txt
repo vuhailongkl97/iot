@@ -5,8 +5,9 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_definitions(-DBACKWARD_HAS_UNWIND=1  -DBACKWARD_HAS_DW=1  -DBACKWARD_HAS_UNWIND=1)
 add_subdirectory(libs/dependencies/backward-cpp)
+add_subdirectory(libs/services)
 
-set(LIB_DEPS "${CMAKE_SOURCE_DIR}/libs/dependencies")
+set(LIB_DIR "${CMAKE_SOURCE_DIR}/libs")
 set(DARKNET_DEPS "${CMAKE_SOURCE_DIR}/darknet-deps")
 
 # This will add backward.cpp to your target
@@ -43,7 +44,7 @@ set (SOURCES "src/yolo_console_dll.cpp")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${opencv_cxxflags} ${opencv_cxxflags2}")
 
 link_directories(/usr/local/cuda/lib64 /usr/local/cudnn/lib64 
-	${DARKNET_DEPS}/pre-built)
+	${DARKNET_DEPS}/pre-built )
 
 add_executable(iot ${SOURCES} ${BACKWARD_ENABLE} )
 
@@ -55,10 +56,11 @@ include_directories(${CMAKE_SOURCE_DIR}/include)
 add_library(libs src/lib.cpp)
 
 target_include_directories(iot PUBLIC /usr/local/cuda/include 
-	/usr/local/cudnn/include usr/local/cuda/include/cuda 
-	${LIB_DEPS}/Crow/include ${LIB_DEPS}/spdlog/include)
+	/usr/local/cudnn/include usr/local/cuda/include/cuda
+	${LIB_DIR}
+	)
 
-target_link_libraries(iot LINK_PUBLIC libs libdarknet.so cudart curand 
+target_link_libraries(iot LINK_PUBLIC libs services libdarknet.so cudart curand 
 	opencv_highgui opencv_imgcodecs opencv_imgproc opencv_core 
 	opencv_videoio opencv_video)
 

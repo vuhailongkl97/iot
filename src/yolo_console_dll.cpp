@@ -1,6 +1,6 @@
-#include "crow.h"
-#include "spdlog/spdlog.h"
 #include "lib.h"
+#include "services/include/monitor.h"
+#include "services/include/server.h"
 #include <atomic>
 #include <cmath>
 #include <fstream>
@@ -12,7 +12,7 @@
 #include <string>
 #include <thread>
 #include <vector>
-#define IMAGE_DBG
+//#define IMAGE_DBG
 // It makes sense only for video-Camera (not for video-File)
 // To use - uncomment the following line. Optical-flow is supported only by
 // OpenCV 3.x - 4.x
@@ -131,22 +131,6 @@ struct detection_data_t {
   detection_data_t() : new_detection(false), exit_flag(false) {}
 };
 
-void runServer(float &threshVal) {
-#if 1
-  crow::SimpleApp app;
-  app.concurrency(1);
-  CROW_ROUTE(app, "/threshold/<int>")
-  ([&threshVal](int threshold) {
-    if (threshold > 100 || threshold < 0)
-      return crow::response(400);
-    threshVal = threshold / 100.0;
-    std::ostringstream os;
-    os << "setting successfully";
-    return crow::response(os.str());
-  });
-  app.port(18080).run();
-#endif
-}
 int main(int argc, char *argv[]) {
   std::string names_file = "data/coco.names";
   std::string cfg_file = "cfg/yolov4-tiny.cfg";
@@ -154,7 +138,6 @@ int main(int argc, char *argv[]) {
   std::string filename;
   DataUpdateListener<DataResult<bbox_t, std::string>> listener;
 
-  // listener.setCallback(console_callback);
   if (argc > 4) { // voc.names yolo-voc.cfg yolo-voc.weights test.mp4
     names_file = argv[1];
     cfg_file = argv[2];
@@ -175,6 +158,7 @@ int main(int argc, char *argv[]) {
   auto server = std::thread(runServer, std::ref(thresh));
   server.detach();
 
+  listener.setCallback(console_callback);
   while (true) {
     if (filename.size() == 0) {
       std::cout << "file name is empty, this program is exitting" << std::endl;
@@ -233,6 +217,9 @@ int main(int argc, char *argv[]) {
 
         std::thread t_cap, t_prepare, t_detect, t_post, t_draw, t_write,
             t_network;
+
+        auto thermometer = std::thread(runMonitoring, std::ref(exit_flag));
+        thermometer.detach();
 
         // capture new video-frame
         if (t_cap.joinable())
@@ -371,9 +358,7 @@ int main(int argc, char *argv[]) {
             // result_vec);
             draw_boxes(draw_frame, result_vec, obj_names, current_fps_det,
                        current_fps_cap, thresh);
-            // show_console_result(result_vec,
-            // obj_names,
-            // detection_data.frame_id);
+
             DataResult<bbox_t, std::string> data_result{
                 result_vec,
                 obj_names,
@@ -396,54 +381,44 @@ int main(int argc, char *argv[]) {
         });
 
 #ifdef IMAGE_DBG
-				// show detection
-				detection_data_t detection_data;
-				do {
-					steady_end =
-					    std::chrono::steady_clock::now();
-					float time_sec =
-					    std::chrono::duration<double>(
-						steady_end - steady_start)
-						.count();
-					if (time_sec >= 1) {
-						current_fps_det =
-						    fps_det_counter.load() /
-						    time_sec;
-						current_fps_cap =
-						    fps_cap_counter.load() /
-						    time_sec;
-						steady_start = steady_end;
-						fps_det_counter = 0;
-						fps_cap_counter = 0;
-					}
+        // show detection
+        detection_data_t detection_data;
+        do {
+          steady_end = std::chrono::steady_clock::now();
+          float time_sec =
+              std::chrono::duration<double>(steady_end - steady_start).count();
+          if (time_sec >= 1) {
+            current_fps_det = fps_det_counter.load() / time_sec;
+            current_fps_cap = fps_cap_counter.load() / time_sec;
+            steady_start = steady_end;
+            fps_det_counter = 0;
+            fps_cap_counter = 0;
+          }
 
-					detection_data = draw2show.receive();
-					cv::Mat draw_frame =
-					    detection_data.draw_frame;
+          detection_data = draw2show.receive();
+          cv::Mat draw_frame = detection_data.draw_frame;
 
-					cv::imshow("window name", draw_frame);
-					int key = cv::waitKey(3);  // 3 or 16ms
-					if (key == 'f')
-						show_small_boxes =
-						    !show_small_boxes;
-					if (key == 'p')
-						while (true)
-							if (cv::waitKey(100) ==
-							    'p')
-								break;
-					// if (key == 'e') extrapolate_flag =
-					// !extrapolate_flag;
-					if (key == 27) {
-						exit_flag = true;
-					}
+          cv::imshow("window name", draw_frame);
+          int key = cv::waitKey(3); // 3 or 16ms
+          if (key == 'f')
+            show_small_boxes = !show_small_boxes;
+          if (key == 'p')
+            while (true)
+              if (cv::waitKey(100) == 'p')
+                break;
+          // if (key == 'e') extrapolate_flag =
+          // !extrapolate_flag;
+          if (key == 27) {
+            exit_flag = true;
+          }
 
-					// std::cout << " current_fps_det = " <<
-					// current_fps_det << ", current_fps_cap
-					// = " << current_fps_cap << std::endl;
-				} while (!detection_data.exit_flag);
-				std::cout << " show detection exit \n";
+          // std::cout << " current_fps_det = " <<
+          // current_fps_det << ", current_fps_cap
+          // = " << current_fps_cap << std::endl;
+        } while (!detection_data.exit_flag);
+        std::cout << " show detection exit \n";
 
-				cv::destroyWindow("window name");
+        cv::destroyWindow("window name");
 #endif
 
         // wait for all threads

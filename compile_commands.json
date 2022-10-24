@@ -1,0 +1,22 @@
+[
+{
+  "directory": "/home/longkl/working/my_project/build",
+  "command": "/usr/bin/c++ -DBACKWARD_HAS_DW=1 -DBACKWARD_HAS_UNWIND=1 -I/home/longkl/working/my_project/include  -g -std=c++11 -DOPENCV -DGPU  -DCUDNN -DCUDNN_HALF -Wall -Wfatal-errors -Wno-unused-result -Wno-unknown-pragmas -lm -lcudnn -lstdc++ -lgomp -lcuda -pthread -lcublas -fPIC -Ofast  -fopenmp -I/usr/include/opencv4/opencv -I/usr/include/opencv4 -lopencv_dnn -lopencv_gapi -lopencv_highgui -lopencv_ml -lopencv_objdetect -lopencv_photo -lopencv_stitching -lopencv_video -lopencv_calib3d -lopencv_features2d -lopencv_flann -lopencv_videoio -lopencv_imgcodecs -lopencv_imgproc -lopencv_core -o CMakeFiles/libs.dir/src/lib.cpp.o -c /home/longkl/working/my_project/src/lib.cpp",
+  "file": "/home/longkl/working/my_project/src/lib.cpp"
+},
+{
+  "directory": "/home/longkl/working/my_project/build",
+  "command": "/usr/bin/c++ -DBACKWARD_HAS_BACKTRACE=0 -DBACKWARD_HAS_BACKTRACE_SYMBOL=0 -DBACKWARD_HAS_BFD=0 -DBACKWARD_HAS_DW=1 -DBACKWARD_HAS_DWARF=0 -DBACKWARD_HAS_LIBUNWIND=0 -DBACKWARD_HAS_UNWIND=1 -I/home/longkl/working/my_project/libs/dependencies/backward-cpp -I/home/longkl/working/my_project/include -I/usr/local/cuda/include -I/usr/local/cudnn/include -I/home/longkl/working/my_project/usr/local/cuda/include/cuda -I/home/longkl/working/my_project/libs/dependencies/Crow/include -I/home/longkl/working/my_project/libs/dependencies/spdlog/include  -g -std=c++11 -DOPENCV -DGPU  -DCUDNN -DCUDNN_HALF -Wall -Wfatal-errors -Wno-unused-result -Wno-unknown-pragmas -lm -lcudnn -lstdc++ -lgomp -lcuda -pthread -lcublas -fPIC -Ofast  -fopenmp -I/usr/include/opencv4/opencv -I/usr/include/opencv4 -lopencv_dnn -lopencv_gapi -lopencv_highgui -lopencv_ml -lopencv_objdetect -lopencv_photo -lopencv_stitching -lopencv_video -lopencv_calib3d -lopencv_features2d -lopencv_flann -lopencv_videoio -lopencv_imgcodecs -lopencv_imgproc -lopencv_core -o CMakeFiles/iot.dir/src/yolo_console_dll.cpp.o -c /home/longkl/working/my_project/src/yolo_console_dll.cpp",
+  "file": "/home/longkl/working/my_project/src/yolo_console_dll.cpp"
+},
+{
+  "directory": "/home/longkl/working/my_project/build/libs/dependencies/backward-cpp",
+  "command": "/usr/bin/c++ -DBACKWARD_HAS_BACKTRACE=0 -DBACKWARD_HAS_BACKTRACE_SYMBOL=0 -DBACKWARD_HAS_BFD=0 -DBACKWARD_HAS_DW=1 -DBACKWARD_HAS_DWARF=0 -DBACKWARD_HAS_LIBUNWIND=0 -DBACKWARD_HAS_UNWIND=1 -I/home/longkl/working/my_project/libs/dependencies/backward-cpp  -Wall -Wextra -pedantic-errors -g -std=gnu++11 -o CMakeFiles/backward_object.dir/backward.cpp.o -c /home/longkl/working/my_project/libs/dependencies/backward-cpp/backward.cpp",
+  "file": "/home/longkl/working/my_project/libs/dependencies/backward-cpp/backward.cpp"
+},
+{
+  "directory": "/home/longkl/working/my_project/build/libs/dependencies/backward-cpp",
+  "command": "/usr/bin/c++ -DBACKWARD_HAS_BACKTRACE=0 -DBACKWARD_HAS_BACKTRACE_SYMBOL=0 -DBACKWARD_HAS_BFD=0 -DBACKWARD_HAS_DW=1 -DBACKWARD_HAS_DWARF=0 -DBACKWARD_HAS_LIBUNWIND=0 -DBACKWARD_HAS_UNWIND=1 -I/home/longkl/working/my_project/libs/dependencies/backward-cpp  -Wall -Wextra -pedantic-errors -g -std=gnu++11 -o CMakeFiles/backward.dir/backward.cpp.o -c /home/longkl/working/my_project/libs/dependencies/backward-cpp/backward.cpp",
+  "file": "/home/longkl/working/my_project/libs/dependencies/backward-cpp/backward.cpp"
+}
+]
