@@ -5,4 +5,4 @@
  * network interface using HTTP
  * */
 
-void runServer(float &threadVal);
+void runServer(float& threadVal);

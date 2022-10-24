@@ -5,4 +5,4 @@
  * when monitor task detect a problem it will set exit_flag to true
  * to stop main service ( detection )
  * */
-void runMonitoring(std::atomic<bool> &exit_flag);
+void runMonitoring(std::atomic<bool>& exit_flag);
