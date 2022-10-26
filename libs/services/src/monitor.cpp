@@ -5,8 +5,7 @@
 #include <thread>
 #include <vector>
 #include <string>
-#include "spdlog/spdlog.h"
-#include "spdlog/sinks/rotating_file_sink.h"
+#include "logger.h"
 
 enum class hardware : int {
 	A0 = 0,
@@ -54,12 +53,7 @@ static bool monitorTemperatureTask(std::shared_ptr<spdlog::logger> logger, std::
 void runMonitoring(std::atomic<bool> &exit_flag) {
 
 	std::vector<unsigned int> thresholds{60, 50, 50};
-    auto max_size = 1048576 * 10;
-    auto max_files = 3;
-    auto logger = spdlog::rotating_logger_mt("some_logger_name", "logs/rotating.txt", max_size, max_files);
-
-	spdlog::set_pattern("[%H:%M:%S] %v");
-	spdlog::flush_every(std::chrono::seconds(10));
-	monitorTemperatureTask(logger, thresholds, 10);
+    auto logger = MLogger::getLoggerInstance();
+    monitorTemperatureTask(logger, thresholds, 10);
 	exit_flag = true;
 }

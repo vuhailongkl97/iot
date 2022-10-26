@@ -216,7 +216,7 @@ int main(int argc, char* argv[])
     std::string weights_file = "data/yolov4-tiny.weights";
     std::string filename;
     DataUpdateListener listener;
-    listener.addSubscriber(new consoleNotifier());
+    listener.addSubscriber(new discordNotifier());
 
     if (argc > 4) { // voc.names yolo-voc.cfg yolo-voc.weights test.mp4
         names_file = argv[1];
@@ -441,9 +441,7 @@ int main(int argc, char* argv[])
                         DataResult data_result{
                           draw_frame,
                           convertBbox2obj(result_vec),
-                          obj_names,
-                          detection_data.frame_id,
-                        };
+                          obj_names};
                         listener.onDataUpdate(data_result);
 
                         detection_data.result_vec = result_vec;

@@ -52,8 +52,10 @@ add_executable(iot ${SOURCES} ${BACKWARD_ENABLE} )
 # by setting each property on the target.
 add_backward(iot)
 
-include_directories(${CMAKE_SOURCE_DIR}/include)
-add_library(libs src/lib.cpp)
+include_directories(${CMAKE_SOURCE_DIR}/include 
+	${CMAKE_SOURCE_DIR}/libs/ 
+	${CMAKE_SOURCE_DIR}/libs/dependencies/spdlog/include )
+add_library(libs src/lib.cpp )
 
 target_include_directories(iot PUBLIC /usr/local/cuda/include 
 	/usr/local/cudnn/include usr/local/cuda/include/cuda
