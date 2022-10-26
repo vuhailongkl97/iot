@@ -1,6 +1,6 @@
 [submodule "libs/dependencies/Crow"]
 	path = libs/dependencies/Crow
-	url = git@github.com:vuhailongkl97/Crow.git
+	url = https://github.com/vuhailongkl97/Crow.git
 [submodule "libs/dependencies/spdlog"]
 	path = libs/dependencies/spdlog
 	url = https://github.com/gabime/spdlog
