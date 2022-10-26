@@ -10,12 +10,16 @@
 + [cuda-10.2](https://jfrog.com/connect/post/installing-cuda-on-nvidia-jetson-nano/)
 # How to run
 Tested on Jetson nano 2GB.
-1. Clone this repository, and use `git lfs pull` to get the weight files
-2. Do `mkdir build && cd build && cmake .. && make`
-3. Output binary's name is *iot*, let run it follow parameter is video file or rtsp, http, https, rtmp.  
-` ./iot rtsp://<path to source images `   
-` ./iot  'rtsp://username:password@192.168.1.111:554/cam/realmonitor?channel=3&subtype=1'`  
-ad-Mr123
+```
+git clone --recursive https://github.com/vuhailongkl97/iot.git
+cd iot && git lfs pull
+mkdir build && cd build
+cmake ..  &&  make
+
+```
+run the built application follow by video source from rtsp, video, http,..  
+`./iot rtsp://<path to source video` or  
+`./iot ../test-data/videoplayback.mp4`
 
 # Development
 1. Testing stability
