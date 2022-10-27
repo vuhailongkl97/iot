@@ -236,7 +236,12 @@ int main(int argc, char* argv[])
     Detector detector(cfg_file, weights_file);
 
     bool detection_sync = true; // true - for video-file
-    auto server = std::thread(runServer, std::ref(thresh));
+
+    std::atomic<bool> exit_flag(false);
+    auto thermometer = std::thread(runMonitoring, std::ref(exit_flag));
+    thermometer.detach();
+
+    auto server = std::thread(runServer, std::ref(thresh), std::ref(exit_flag));
     server.detach();
 
     while (true) {
@@ -270,7 +275,6 @@ int main(int argc, char* argv[])
                 cv::Mat cur_frame;
                 std::atomic<int> fps_cap_counter(0), fps_det_counter(0);
                 std::atomic<int> current_fps_cap(0), current_fps_det(0);
-                std::atomic<bool> exit_flag(false);
                 std::chrono::steady_clock::time_point steady_start, steady_end;
                 int video_fps = 25;
                 bool use_zed_camera = false;
@@ -286,6 +290,7 @@ int main(int argc, char* argv[])
                     cap.open(filename);
                     cap >> cur_frame;
                 }
+
                 video_fps = cap.get(cv::CAP_PROP_FPS);
 
                 cv::Size const frame_size = cur_frame.size();
@@ -298,9 +303,6 @@ int main(int argc, char* argv[])
 
                 std::thread t_cap, t_prepare, t_detect, t_post, t_draw, t_write,
                   t_network;
-
-                auto thermometer = std::thread(runMonitoring, std::ref(exit_flag));
-                thermometer.detach();
 
                 // capture new video-frame
                 if (t_cap.joinable())
@@ -354,8 +356,6 @@ int main(int argc, char* argv[])
                 });
 
                 // detection by Yolo
-                if (t_detect.joinable())
-                    t_detect.join();
                 t_detect = std::thread([&]() {
                     std::shared_ptr<image_t> det_image;
                     detection_data_t detection_data;
@@ -430,11 +430,6 @@ int main(int argc, char* argv[])
                               detector.tracking_id(result_vec, true, frame_story, 40);
                         }
 
-                        if (use_zed_camera && !detection_data.zed_cloud.empty()) {
-                            result_vec =
-                              get_3d_coordinates(result_vec, detection_data.zed_cloud);
-                        }
-
                         draw_boxes(draw_frame, result_vec, obj_names, current_fps_det,
                                    current_fps_cap, thresh);
 
@@ -498,8 +493,6 @@ int main(int argc, char* argv[])
                     t_prepare.join();
                 if (t_detect.joinable())
                     t_detect.join();
-                if (t_post.joinable())
-                    t_post.join();
                 if (t_draw.joinable())
                     t_draw.join();
 
@@ -508,7 +501,6 @@ int main(int argc, char* argv[])
                     std::cout << "sleep wait for next events\n";
                     std::this_thread::sleep_for(std::chrono::seconds(2));
                 }
-                break;
             }
         }
         catch (std::exception& e) {
