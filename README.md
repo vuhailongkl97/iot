@@ -8,6 +8,7 @@
 # Dependencies
 + [opencv 4.1.1](https://pysource.com/2019/08/26/install-opencv-4-1-on-nvidia-jetson-nano/)
 + [cuda-10.2](https://jfrog.com/connect/post/installing-cuda-on-nvidia-jetson-nano/)
+
 # How to run
 Tested on Jetson nano 2GB.
 ```
@@ -26,7 +27,7 @@ run the built application follow by video source from rtsp, video, http,..
 	+ Debugging via reporting results
 	+ Aging 
 	+ Correctness
-2. Develop backend system management with Golang
+2. Develop notifying in Golang
 
 # Diagrams
 ## usecase 
@@ -39,6 +40,17 @@ run the built application follow by video source from rtsp, video, http,..
 	- Ubuntu ` sudo apt install xtightvncviewer -y`
 + Due to I use *yolov3.weight* as default but its size too big need to use [git large file](https://git-lfs.github.com/). 
 
+# APIs 
+` curl http://192.168.55.1:18080/threshold/80 ` -> requeset to set threshold with accurate rate is 80%
+ 
+` curl http://192.168.55.1:18080/disable/1 ` -> stop detecting ( the application will be in waiting state )
+
+` curl http://192.168.55.1:18080/disable/0 ` -> enable detection if the application was in waiting state otherwise it has no effect.
+
+# Libraries are used (as submodules)
++ [Crow](https://github.com/ipkn/crow) - socket management
++ [spdlog](https://github.com/gabime/spdlog) - logging 
++ [backward-cpp](https://github.com/bombela/backward-cpp) - a good backtrace when the system is crashed
 
 # Reference
 + [download_weights](https://github.com/AlexeyAB/darknet/blob/master/scripts/download_weights.ps1)
