@@ -91,13 +91,12 @@ public:
                 time4rest = curTime + TIME_SKIP;
                 recent_results.clear();
                 MLogger::getLoggerInstance()->info("wrote an image, start skiping for {} secs ", TIME_SKIP);
-            }
-            else {
+				system("/usr/bin/curl http://localhost:1234/updated -X POST -d \"/tmp/img.png/\"");
+            } else {
                 recent_results.pop_back();
             }
         }
     }
-    void saveImg(cv::Mat& f);
 
 private:
     std::deque<std::pair<obj_t, std::time_t>> recent_results;
