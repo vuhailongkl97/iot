@@ -91,7 +91,7 @@ public:
                 time4rest = curTime + TIME_SKIP;
                 recent_results.clear();
                 MLogger::getLoggerInstance()->info("wrote an image, start skiping for {} secs ", TIME_SKIP);
-				system("/usr/bin/curl http://localhost:1234/updated -X POST -d \"/tmp/img.png/\"");
+				system("/usr/bin/curl http://localhost:1234/updated -X POST -d \"/tmp/img.png/\ --max-time 2 ");
             } else {
                 recent_results.pop_back();
             }
