@@ -31,7 +31,7 @@ void discordNotifier::doWork(const filteredDataResult& d)
             MLogger::getLoggerInstance()->info(
               "wrote an image, start skiping for {} secs ", TIME_SKIP);
             system("/usr/bin/curl http://localhost:1234/updated -X POST -d "
-                   "\"/tmp/img.png\" --max-time 2 &>/dev/null");
+                   "\"/tmp/img.png\" --max-time 2 -s >/dev/null");
         }
         else {
             recent_results.pop_back();
