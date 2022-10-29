@@ -42,7 +42,7 @@ BreakBeforeTernaryOperators: 'false'
 BreakBeforeBinaryOperators: 'false'
 BreakConstructorInitializers: AfterColon
 #BreakInheritanceList: AfterColon
-ColumnLimit: '0'
+ColumnLimit: '80'
 CompactNamespaces: 'false'
 ConstructorInitializerAllOnOneLineOrOnePerLine: 'false'
 ContinuationIndentWidth: '2'
