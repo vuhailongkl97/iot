@@ -8,7 +8,7 @@ void MLogger::initializeLog()
 {
     auto max_size = 1048576 * 10;
     auto max_files = 3;
-    auto logger = spdlog::rotating_logger_mt("iot", "logs/rotating.txt", max_size, max_files);
+    auto logger = spdlog::rotating_logger_mt("iot", "/tmp/rotating.txt", max_size, max_files);
 
     spdlog::set_pattern("[%H:%M:%S] %v");
     spdlog::flush_every(std::chrono::seconds(10));
