@@ -6,7 +6,7 @@ static std::shared_ptr<spdlog::logger> m_logger;
 
 void MLogger::initializeLog()
 {
-    auto max_size = 1048576 * 10;
+    auto max_size = 1048576 * 3;
     auto max_files = 3;
     auto logger = spdlog::rotating_logger_mt("iot", "/tmp/rotating.txt", max_size, max_files);
 

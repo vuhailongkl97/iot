@@ -227,7 +227,7 @@ int main(int argc, char* argv[])
     else if (argc > 1)
         filename = argv[1];
 
-    float thresh = (argc > 5) ? std::stof(argv[5]) : 0.2;
+    float thresh = (argc > 5) ? std::stof(argv[5]) : 0.6;
 
     auto obj_names = objects_names_from_file(names_file);
     bool const send_network = false;     // true - for remote detection
@@ -276,7 +276,6 @@ int main(int argc, char* argv[])
                 std::atomic<int> fps_cap_counter(0), fps_det_counter(0);
                 std::atomic<int> current_fps_cap(0), current_fps_det(0);
                 std::chrono::steady_clock::time_point steady_start, steady_end;
-                int video_fps = 25;
                 bool use_zed_camera = false;
 
                 track_kalman_t track_kalman;
@@ -290,8 +289,6 @@ int main(int argc, char* argv[])
                     cap.open(filename);
                     cap >> cur_frame;
                 }
-
-                video_fps = cap.get(cv::CAP_PROP_FPS);
 
                 cv::Size const frame_size = cur_frame.size();
                 std::cout << "\n Video size: " << frame_size << std::endl;
@@ -326,7 +323,6 @@ int main(int argc, char* argv[])
                             while (cap.open(filename) == false) {
                                 std::this_thread::sleep_for(std::chrono::milliseconds(3000));
                             }
-                            video_fps = cap.get(cv::CAP_PROP_FPS);
                             continue;
                         }
 
@@ -334,7 +330,8 @@ int main(int argc, char* argv[])
                             cap2draw.send(detection_data); // skip detection
                         }
                         cap2prepare.send(detection_data);
-                        std::this_thread::sleep_for(std::chrono::milliseconds(70));
+                        std::this_thread::sleep_for(
+                          std::chrono::milliseconds(20));
                     } while (!detection_data.exit_flag);
                     std::cout << " t_cap exit \n";
                 });
@@ -433,14 +430,25 @@ int main(int argc, char* argv[])
                         draw_boxes(draw_frame, result_vec, obj_names, current_fps_det,
                                    current_fps_cap, thresh);
 
-                        DataResult data_result{
-                          draw_frame,
-                          convertBbox2obj(result_vec),
-                          obj_names};
+                        DataResult data_result{draw_frame,
+                                               convertBbox2obj(result_vec),
+                                               obj_names, current_fps_det};
                         listener.onDataUpdate(data_result);
 
                         detection_data.result_vec = result_vec;
                         detection_data.draw_frame = draw_frame;
+                        steady_end = std::chrono::steady_clock::now();
+                        float time_sec = std::chrono::duration<double>(
+                                           steady_end - steady_start)
+                                           .count();
+                        if (time_sec >= 1) {
+                            current_fps_det = fps_det_counter.load() / time_sec;
+                            current_fps_cap = fps_cap_counter.load() / time_sec;
+                            steady_start = steady_end;
+                            fps_det_counter = 0;
+                            fps_cap_counter = 0;
+                        }
+
 #ifdef IMAGE_DBG
                         draw2show.send(detection_data);
 #endif

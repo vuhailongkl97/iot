@@ -25,12 +25,14 @@ struct DataResult
     cv::Mat frame;
     std::vector<obj_t> objs;
     std::vector<std::string> names;
+    int fps;
 };
 
 struct filteredDataResult
 {
     cv::Mat frame;
     std::vector<obj_t> objs;
+    int fps;
 };
 
 class Notifier
@@ -56,6 +58,7 @@ public:
                 }
             }
         }
+        filtered_d.fps = d.fps;
         return filtered_d;
     }
 };
@@ -74,14 +77,22 @@ public:
     {
         time4rest = std::time(nullptr);
     }
+
+    void updateQueueSize(int fps)
+    {
+        QUEUE_ENTRY_LIMIT = fps * (TIME_LIMIT + 1) * 0.9;
+        if (QUEUE_ENTRY_LIMIT < QUEUE_ENTRY_LIMIT_MIN)
+            QUEUE_ENTRY_LIMIT = QUEUE_ENTRY_LIMIT_MIN;
+    }
     void doWork(const filteredDataResult& d) override;
 
 private:
     std::deque<std::pair<obj_t, std::time_t>> recent_results;
     const char* tmpImgPath = "/tmp/img.png";
-    const size_t QUEUE_ENTRY_LIMIT = 20; // maximum queue entry 20
+    size_t QUEUE_ENTRY_LIMIT = 15;       // maximum queue entry 15
     const int TIME_LIMIT = 2;            // from queue.front().time - queue.back().time <= 2secs
     const int TIME_SKIP = 20;            // 20 sec to prevent spam discord server
+    const size_t QUEUE_ENTRY_LIMIT_MIN = 15;
     std::time_t time4rest;
 };
 

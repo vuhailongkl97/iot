@@ -17,6 +17,7 @@ void discordNotifier::doWork(const filteredDataResult& d)
 {
     auto curTime = std::time(nullptr);
     if (curTime < time4rest) return;
+    updateQueueSize(d.fps);
 
     std::pair<obj_t, std::time_t> p = std::make_pair(d.objs[0], curTime);
     recent_results.push_front(p);
