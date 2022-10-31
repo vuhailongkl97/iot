@@ -39,5 +39,5 @@ void runServer(float& threshVal, std::atomic<bool>& exit_flag)
         os << "setting" << exit_flag << " successfully";
         return crow::response(os.str());
     });
-    app.port(18080).run();
+    app.port(cfg.getHTTPPort()).run();
 }

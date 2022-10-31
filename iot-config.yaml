@@ -9,3 +9,4 @@ Port: 18080
 #WeightFile: < path to > iot/darknet-deps/data/yolov4-tiny.weights
 Threshold: 0.6
 #Src: rtsp://admin:admin@192.168.1.3:554/cam/realmonitor?channel=4&subtype=1
+#CorrectRate: 0.9

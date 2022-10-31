@@ -30,6 +30,7 @@ public:
     float getThreshold();
     void setThreshold(float);
     std::string getSrc();
+    float getCorrectRate();
     void show();
     YAML::Node operator[](std::string k) { return m_config[k]; }
     void sync()

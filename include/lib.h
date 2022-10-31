@@ -72,28 +72,34 @@ public:
 class discordNotifier final : public Notifier
 {
 public:
-    discordNotifier() :
+    explicit discordNotifier(size_t _QueueEntryLimit, int _timeForcus,
+                             int _timeSkip, float _correct_rate) :
       Notifier()
     {
-        time4rest = std::time(nullptr);
+        m_queueEntryLimit = m_queueEntryLimitMin = _QueueEntryLimit;
+        m_timeForcus = _timeForcus;
+        m_timeSkip = _timeSkip;
+        m_time4rest = std::time(nullptr);
+        m_correct_rate = _correct_rate;
     }
 
     void updateQueueSize(int fps)
     {
-        QUEUE_ENTRY_LIMIT = fps * (TIME_LIMIT + 1) * 0.9;
-        if (QUEUE_ENTRY_LIMIT < QUEUE_ENTRY_LIMIT_MIN)
-            QUEUE_ENTRY_LIMIT = QUEUE_ENTRY_LIMIT_MIN;
+        m_queueEntryLimit = fps * (m_timeForcus + 1) * m_correct_rate;
+        if (m_queueEntryLimit < m_queueEntryLimitMin)
+            m_queueEntryLimit = m_queueEntryLimitMin;
     }
     void doWork(const filteredDataResult& d) override;
 
 private:
     std::deque<std::pair<obj_t, std::time_t>> recent_results;
-    const char* tmpImgPath = "/tmp/img.png";
-    size_t QUEUE_ENTRY_LIMIT = 15;       // maximum queue entry 15
-    const int TIME_LIMIT = 2;            // from queue.front().time - queue.back().time <= 2secs
-    const int TIME_SKIP = 20;            // 20 sec to prevent spam discord server
-    const size_t QUEUE_ENTRY_LIMIT_MIN = 15;
-    std::time_t time4rest;
+    const char* m_tmpImgPath = "/tmp/img.png";
+    size_t m_queueEntryLimit;
+    int m_timeForcus;
+    int m_timeSkip;
+    size_t m_queueEntryLimitMin;
+    std::time_t m_time4rest;
+    float m_correct_rate;
 };
 
 class DataUpdateListener

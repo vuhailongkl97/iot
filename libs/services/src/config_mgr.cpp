@@ -67,11 +67,19 @@ float ConfigMgr::getThreshold()
 }
 void ConfigMgr::setThreshold(float th) { m_config["Threshold"] = th; }
 
+
 std::string ConfigMgr::getSrc()
 {
     if (m_config["Src"]) return m_config["Src"].as<std::string>();
     throw std::runtime_error(__func__);
 }
+
+float ConfigMgr::getCorrectRate()
+{
+    if (m_config["CorrectRate"]) return m_config["CorrectRate"].as<float>();
+    throw std::runtime_error(__func__);
+}
+
 void ConfigMgr::show()
 {
     for (auto i : m_config) {
@@ -93,6 +101,7 @@ void testConfig(ConfigMgr& cfg)
     cfg.getCfgFile();
     cfg.getWeightFile();
     cfg.getThreshold();
+    cfg.getCorrectRate();
 
 #ifdef UNITTEST
     assert(a.getTimeForcus() == 2);

@@ -16,21 +16,21 @@ void consoleNotifier::doWork(const filteredDataResult& d)
 void discordNotifier::doWork(const filteredDataResult& d)
 {
     auto curTime = std::time(nullptr);
-    if (curTime < time4rest) return;
-    updateQueueSize(d.fps);
+    if (curTime < m_time4rest) return;
+    this->updateQueueSize(d.fps);
 
     std::pair<obj_t, std::time_t> p = std::make_pair(d.objs[0], curTime);
     recent_results.push_front(p);
 
-    if (recent_results.size() >= QUEUE_ENTRY_LIMIT) {
+    if (recent_results.size() >= m_queueEntryLimit) {
         // main checking
         auto lastOneTime = recent_results.back().second;
-        if (curTime - lastOneTime <= TIME_LIMIT) {
-            cv::imwrite(tmpImgPath, d.frame);
-            time4rest = curTime + TIME_SKIP;
+        if (curTime - lastOneTime <= m_timeForcus) {
+            cv::imwrite(m_tmpImgPath, d.frame);
+            m_time4rest = curTime + m_timeSkip;
             recent_results.clear();
             MLogger::getLoggerInstance()->info(
-              "wrote an image, start skiping for {} secs ", TIME_SKIP);
+              "wrote an image, start skiping for {} secs ", m_timeSkip);
             system("/usr/bin/curl http://localhost:1234/updated -X POST -d "
                    "\"/tmp/img.png\" --max-time 2 -s >/dev/null");
         }

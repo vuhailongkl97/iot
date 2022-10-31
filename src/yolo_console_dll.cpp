@@ -187,6 +187,7 @@ float getMedian(std::vector<float>& v)
     std::nth_element(v.begin(), v.begin() + n, v.end());
     return v[n];
 }
+
 void customizedFrame(cv::Mat& f)
 {
     // resize and crop to fit with 416x416 (trained data set)
@@ -202,6 +203,7 @@ void customizedFrame(cv::Mat& f)
         f = f(cv::Range(10, scaled_height), cv::Range(40, 460));
     }
 }
+
 int main(int argc, char* argv[])
 {
     auto cfg = ConfigMgr::getInstance();
@@ -213,7 +215,10 @@ int main(int argc, char* argv[])
     float thresh = cfg.getThreshold();
 
     DataUpdateListener listener;
-    listener.addSubscriber(new discordNotifier());
+
+    listener.addSubscriber(new discordNotifier(
+      cfg.getMinQueueEntryLimit(), cfg.getTimeForcus(),
+      cfg.getTimeSkippingDectection(), cfg.getCorrectRate()));
 
     auto obj_names = objects_names_from_file(names_file);
     bool const send_network = false;     // true - for remote detection
@@ -315,7 +320,7 @@ int main(int argc, char* argv[])
                         }
                         cap2prepare.send(detection_data);
                         std::this_thread::sleep_for(
-                          std::chrono::milliseconds(20));
+                          std::chrono::milliseconds(cfg.getDelay4Cap()));
                     } while (!detection_data.exit_flag);
                     std::cout << " t_cap exit \n";
                 });
