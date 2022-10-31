@@ -140,20 +140,15 @@ void draw_boxes(cv::Mat mat_img, std::vector<bbox_t> result_vec,
             putText(mat_img, obj_name, cv::Point2f(i.x, i.y - 16),
                     cv::FONT_HERSHEY_COMPLEX_SMALL, 1.2,
                     cv::Scalar(0, 0, 0), 2);
-            if (!coords_3d.empty())
-                putText(mat_img, coords_3d,
-                        cv::Point2f(i.x, i.y - 1),
-                        cv::FONT_HERSHEY_COMPLEX_SMALL, 0.8,
-                        cv::Scalar(0, 0, 0), 1);
         }
     }
     if (current_det_fps >= 0 && current_cap_fps >= 0) {
         std::string fps_str =
-          "FPS detection: " + std::to_string(current_det_fps) +
-          " FPS capture: " + std::to_string(current_cap_fps) +
+          "FPS det: " + std::to_string(current_det_fps) +
+          " FPS cap: " + std::to_string(current_cap_fps) +
           " " + std::to_string(thresh);
         putText(mat_img, fps_str, cv::Point2f(10, 20),
-                cv::FONT_HERSHEY_COMPLEX_SMALL, 1.2,
+                cv::FONT_HERSHEY_COMPLEX_SMALL, 1,
                 cv::Scalar(50, 255, 0), 1);
     }
 }
