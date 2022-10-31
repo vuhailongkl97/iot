@@ -186,7 +186,21 @@ float getMedian(std::vector<float>& v)
     std::nth_element(v.begin(), v.begin() + n, v.end());
     return v[n];
 }
-
+void customizedFrame(cv::Mat& f)
+{
+    // resize and crop to fit with 416x416 (trained data set)
+    //
+    // resize
+    // current frame is 705x 578 -> 0x75 to 4aa x 4bb
+    float scale = 0.75f;
+    int scaled_width = f.size().width * scale;
+    int scaled_height = f.size().height * scale;
+    if (scaled_width > 400 && scaled_height > 400) {
+        cv::resize(f, f, cv::Size(scaled_width, scaled_height),
+                   cv::INTER_LINEAR);
+        f = f(cv::Range(10, scaled_height), cv::Range(40, 460));
+    }
+}
 int main(int argc, char* argv[])
 {
     std::string names_file = "data/coco.names";
@@ -229,10 +243,6 @@ int main(int argc, char* argv[])
         }
 
         try {
-            preview_boxes_t large_preview(100, 150, false),
-              small_preview(50, 50, true);
-            bool show_small_boxes = false;
-
             std::string const file_ext =
               filename.substr(filename.find_last_of(".") + 1);
             std::string const protocol = filename.substr(0, 7);
@@ -268,6 +278,7 @@ int main(int argc, char* argv[])
                     cap >> cur_frame;
                 }
 
+                customizedFrame(cur_frame);
                 cv::Size const frame_size = cur_frame.size();
                 std::cout << "\n Video size: " << frame_size << std::endl;
 
@@ -288,6 +299,7 @@ int main(int argc, char* argv[])
                     do {
                         detection_data = detection_data_t();
                         cap >> detection_data.cap_frame;
+                        customizedFrame(detection_data.cap_frame);
                         fps_cap_counter++;
                         detection_data.frame_id = frame_id++;
 
@@ -456,8 +468,6 @@ int main(int argc, char* argv[])
 
                     cv::imshow("window name", draw_frame);
                     int key = cv::waitKey(3); // 3 or 16ms
-                    if (key == 'f')
-                        show_small_boxes = !show_small_boxes;
                     if (key == 'p')
                         while (true)
                             if (cv::waitKey(100) == 'p')
