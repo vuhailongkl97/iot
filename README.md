@@ -47,7 +47,7 @@ a demo from my camera:
 	+ Debugging via reporting results
 	+ Aging 
 	+ Correctness
-2. Develop notifying in Golang
+2. Develop notifying via HTTP request
 
 # Diagrams
 ## usecase 
@@ -59,6 +59,7 @@ a demo from my camera:
 + Use vncviewer on your host in development 
 	- Ubuntu ` sudo apt install xtightvncviewer -y`
 + Due to I use *yolov3.weight* as default but its size too big need to use [git large file](https://git-lfs.github.com/). 
++ Try to adjust your frame to fit with trained data set (416x416) in case of using yolov4-tiny.weights  
 
 # APIs 
 ` curl http://192.168.55.1:18080/threshold/80 ` -> requeset to set threshold with accurate rate is 80%
