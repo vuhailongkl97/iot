@@ -27,7 +27,7 @@ void runServer(float& threshVal, std::atomic<bool>& exit_flag)
         threshVal = threshold / 100.0;
         std::ostringstream os;
         os << "setting successfully";
-        cfg.setThreshold(threshold);
+        cfg.setThreshold(threshVal);
         cfg.sync();
         return crow::response(os.str());
     });

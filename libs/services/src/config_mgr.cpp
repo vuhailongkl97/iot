@@ -65,6 +65,7 @@ float ConfigMgr::getThreshold()
     if (m_config["Threshold"]) return m_config["Threshold"].as<float>();
     throw std::runtime_error(__func__);
 }
+
 void ConfigMgr::setThreshold(float th) { m_config["Threshold"] = th; }
 
 
