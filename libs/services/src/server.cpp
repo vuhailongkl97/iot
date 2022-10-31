@@ -1,5 +1,7 @@
 #include "server.h"
 #include "crow.h"
+#include "config_mgr.h"
+
 class CustomLogger : public crow::ILogHandler {
  public:
   CustomLogger() {}
@@ -13,17 +15,20 @@ class CustomLogger : public crow::ILogHandler {
 
 void runServer(float& threshVal, std::atomic<bool>& exit_flag)
 {
+    auto cfg = ConfigMgr::getInstance();
     CustomLogger logger;
     crow::logger::setHandler(&logger);
     crow::SimpleApp app;
     app.concurrency(1);
     CROW_ROUTE(app, "/threshold/<int>")
-    ([&threshVal](int threshold) {
+    ([&threshVal, &cfg](int threshold) {
         if (threshold > 100 || threshold < 0)
             return crow::response(400);
         threshVal = threshold / 100.0;
         std::ostringstream os;
         os << "setting successfully";
+        cfg.setThreshold(threshold);
+        cfg.sync();
         return crow::response(os.str());
     });
 

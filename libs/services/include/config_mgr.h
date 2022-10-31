@@ -28,6 +28,7 @@ public:
     std::string getCfgFile();
     std::string getWeightFile();
     float getThreshold();
+    void setThreshold(float);
     std::string getSrc();
     void show();
     YAML::Node operator[](std::string k) { return m_config[k]; }
