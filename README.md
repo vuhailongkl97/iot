@@ -39,8 +39,9 @@ CorrectRate: 0.9
 ```
 
 ### Run
-`./iot `
-
+`./iot `  
+a demo from my camera:  
+![demo](docs/demo.png)
 # Development
 1. Testing stability
 	+ Debugging via reporting results
@@ -78,3 +79,8 @@ CorrectRate: 0.9
 
 + [yolov3.weight](https://pjreddie.com/media/files/yolov3.weights)
 + [dahua API](https://community.jeedom.com/uploads/short-url/tTQJPaNah7gZnU12VGGN9ZHEhOk.pdf)
+
+# More
+## Configure systemd
+To make the app run as a service in your Linux system:  
+follow [this](https://wiki.archlinux.org/title/systemd), and [my config](https://github.com/vuhailongkl97/iot/blob/master/iot.service)
