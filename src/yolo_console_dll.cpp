@@ -1,6 +1,7 @@
 #include "lib.h"
 #include "services/include/monitor.h"
 #include "services/include/server.h"
+#include "services/include/config_mgr.h"
 #include <atomic>
 #include <cmath>
 #include <fstream>
@@ -203,23 +204,16 @@ void customizedFrame(cv::Mat& f)
 }
 int main(int argc, char* argv[])
 {
-    std::string names_file = "data/coco.names";
-    std::string cfg_file = "cfg/yolov4-tiny.cfg";
-    std::string weights_file = "data/yolov4-tiny.weights";
-    std::string filename;
+    auto cfg = ConfigMgr::getInstance();
+    testConfig(cfg);
+    std::string names_file = cfg.getNamesFile();
+    std::string cfg_file = cfg.getCfgFile();
+    std::string weights_file = cfg.getWeightFile();
+    std::string filename = cfg.getSrc();
+    float thresh = cfg.getThreshold();
+
     DataUpdateListener listener;
     listener.addSubscriber(new discordNotifier());
-
-    if (argc > 4) { // voc.names yolo-voc.cfg yolo-voc.weights test.mp4
-        names_file = argv[1];
-        cfg_file = argv[2];
-        weights_file = argv[3];
-        filename = argv[4];
-    }
-    else if (argc > 1)
-        filename = argv[1];
-
-    float thresh = (argc > 5) ? std::stof(argv[5]) : 0.6;
 
     auto obj_names = objects_names_from_file(names_file);
     bool const send_network = false;     // true - for remote detection

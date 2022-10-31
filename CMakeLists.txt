@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.13)
 project(IOT)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -6,6 +6,9 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_definitions(-DBACKWARD_HAS_UNWIND=1  -DBACKWARD_HAS_DW=1  -DBACKWARD_HAS_UNWIND=1)
 add_subdirectory(libs/dependencies/backward-cpp)
 add_subdirectory(libs/services)
+add_subdirectory(libs/dependencies/yaml-cpp)
+
+target_link_libraries(services yaml-cpp)
 
 set(LIB_DIR "${CMAKE_SOURCE_DIR}/libs")
 set(DARKNET_DEPS "${CMAKE_SOURCE_DIR}/darknet-deps")
