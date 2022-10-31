@@ -41,6 +41,7 @@ CorrectRate: 0.9
 ### Run
 `./iot `  
 a demo from my camera:  
+![topology](docs/topology.png)
 ![demo](docs/demo.png)
 # Development
 1. Testing stability
