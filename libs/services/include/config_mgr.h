@@ -31,6 +31,7 @@ public:
     void setThreshold(float);
     std::string getSrc();
     float getCorrectRate();
+    std::string getBoardName();
     void show();
     YAML::Node operator[](std::string k) { return m_config[k]; }
     void sync()

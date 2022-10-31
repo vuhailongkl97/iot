@@ -81,6 +81,11 @@ float ConfigMgr::getCorrectRate()
     throw std::runtime_error(__func__);
 }
 
+std::string ConfigMgr::getBoardName()
+{
+    if (m_config["BoardName"]) return m_config["BoardName"].as<std::string>();
+    return "Unknown";
+}
 void ConfigMgr::show()
 {
     for (auto i : m_config) {
@@ -90,7 +95,6 @@ void ConfigMgr::show()
 
 void testConfig(ConfigMgr& cfg)
 {
-
     cfg.show();
     cfg.getTimeForcus();
     cfg.getTimeSkippingDectection();

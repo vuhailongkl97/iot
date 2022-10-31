@@ -229,8 +229,11 @@ int main(int argc, char* argv[])
     bool detection_sync = true; // true - for video-file
 
     std::atomic<bool> exit_flag(false);
-    auto thermometer = std::thread(runMonitoring, std::ref(exit_flag));
-    thermometer.detach();
+
+    if (cfg.getBoardName() == std::string("JetsonNano")) {
+        auto thermometer = std::thread(runMonitoring, std::ref(exit_flag));
+        thermometer.detach();
+	}
 
     auto server = std::thread(runServer, std::ref(thresh), std::ref(exit_flag));
     server.detach();
