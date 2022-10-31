@@ -7,3 +7,6 @@
 [submodule "libs/dependencies/backward-cpp"]
 	path = libs/dependencies/backward-cpp
 	url = https://github.com/bombela/backward-cpp
+[submodule "yaml-cpp"]
+	path = libs/dependencies/yaml-cpp
+	url = https://github.com/jbeder/yaml-cpp
