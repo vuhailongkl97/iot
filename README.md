@@ -1,9 +1,36 @@
 # What it is
-+ This is customized example from [darknet](https://github.com/AlexeyAB/darknet/) for C++ for recongize objects in minimal configuration.
 
-+ Main purpose of this project is customize the darknet project to minimal version to can run on Jetson Nano for create *a security camera ( human detector )* 
++ This is customized example from [darknet](https://github.com/AlexeyAB/darknet/) for C++ in objects recognition in minimal configuration.
 
-+ This supported backend system for notifying
++ A customized darknet version to runable on an Embedded platform (ex Jetson Nano) for create *a secured camera ( human detector )* 
+
+# System Requirements 
+
++ System detect human correctly
+
++ User can Enable/Disable detection by *pose estimation* or commands
+
++ System support configuring a part in an entire frame for detection (rectangle)
+
++ Developer can change parameters( threshold, notifying APIs, hardware, ..)  via exported APIs
+
++ System can monitor its hardware status (temperature, load) to reporting, prevent overload.
+
++ System support some commands like *take a picture*, *get current hardware status*
+
++ Logging interval, when system met error it will report
+
++ System export notifying about detection result
+
++ System save changed configuration from User, still effect event if it is rebooted
+
++ System don't spam notifying
+
++ Software still work on other hardware which adapt requirements
+
+# Use Case Diagrams
+![usecases](docs/usecases.drawio.png)
+
 
 # Dependencies
 + [opencv 4.1.1](https://pysource.com/2019/08/26/install-opencv-4-1-on-nvidia-jetson-nano/)
@@ -49,10 +76,6 @@ a demo from my camera:
 	+ Aging 
 	+ Correctness
 2. Develop notifying via HTTP request
-
-# Diagrams
-## usecase 
-![usecases](docs/usecases.drawio.png)
 
 # Note: 
 + OS information `Linux jetson 4.9.140-tegra #1 SMP PREEMPT Fri Oct 16 12:32:46 PDT 2020 aarch64 aarch64 aarch64 GNU/Linux`
