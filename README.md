@@ -7,31 +7,35 @@
 # System Requirements 
 
 + System detect human correctly
-
 + User can Enable/Disable detection by *pose estimation* or commands
-
++ User can support detect multiple source at same time.
 + System support configuring a part in an entire frame for detection (rectangle)
-
 + Developer can change parameters( threshold, notifying APIs, hardware, ..)  via exported APIs
-
 + System can monitor its hardware status (temperature, load) to reporting, prevent overload.
-
 + System support some commands like *take a picture*, *get current hardware status*
-
 + Logging interval, when system met error it will report
-
 + System export notifying about detection result
-
 + System save changed configuration from User, still effect event if it is rebooted
-
 + System don't spam notifying
-
 + Software still work on other hardware which adapt requirements
 
 # Use Case Diagrams
 ![usecases](docs/usecases.drawio.png)
 
+# Class diagram
+Some main classes used :
+* YamlConfig : Handle read config file in yaml format
+* JsonConfig : Handle read config file in JSON format used in parsing json request from *interface* classes
+* spdLogger: Logger Libraries wrapper
+* JetsonNano: handle hardware request & monitoring
+* Notifier: algorithms to filter the detected results and decided to notity or not
+* CrowServer: handle/create HTTP requests from outside of this app (localhost)
 
+![classes](docs/classDiagram.drawio.png)
+
+# Activity diagram
+Steps from getting a frame to decide notify or not :
+![Activity](docs/activityDiagram.drawio.png)
 # Dependencies
 + [opencv 4.1.1](https://pysource.com/2019/08/26/install-opencv-4-1-on-nvidia-jetson-nano/)
 + [cuda-10.2](https://jfrog.com/connect/post/installing-cuda-on-nvidia-jetson-nano/)
@@ -68,14 +72,15 @@ CorrectRate: 0.9
 ### Run
 `./iot `  
 a demo from my camera:  
-![topology](docs/topology.png)
 ![demo](docs/demo.png)
 # Development
-1. Testing stability
-	+ Debugging via reporting results
-	+ Aging 
-	+ Correctness
-2. Develop notifying via HTTP request
++ [x] 1. Testing stability
+	+ - [x] Debugging via reporting results
+	+ - [x] Aging 
+	+ - [x] Correctness
+- [x] 2. Develop notifying via HTTP request
+
+- [ ] support monitor multiple sources at same time.
 
 # Note: 
 + OS information `Linux jetson 4.9.140-tegra #1 SMP PREEMPT Fri Oct 16 12:32:46 PDT 2020 aarch64 aarch64 aarch64 GNU/Linux`
