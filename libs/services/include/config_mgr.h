@@ -1,5 +1,4 @@
 #pragma once
-#include "yaml-cpp/yaml.h"
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -35,16 +34,17 @@ class Config {
 
 class YamlConfig : public Config
 {
+public:
+    struct impl;
+
 private:
     const std::string m_file;
-    YAML::Node m_config;
-    explicit YamlConfig(const std::string path) : m_file(path), Config()
-    {
-        m_config = YAML::LoadFile(m_file);
-    }
+    impl* m_config;
+    explicit YamlConfig(const std::string path, impl* p);
+    impl operator[](std::string k);
 
 public:
-    static Config& getInstance();
+    static Config& getInstance(const char*);
 
     time_t getTimeForcus() override;
     time_t getTimeSkippingDectection() override;
@@ -61,21 +61,22 @@ public:
     float getCorrectRate() override;
     std::string getBoardName() override;
     void show() override;
-    YAML::Node operator[](std::string k) { return m_config[k]; }
-    void sync()
-    {
-        std::ofstream fout(DEFAULT_CFG_PATH);
-        fout << m_config;
-    }
+    void sync() override;
 };
 
 class JSONConfig : public Config
 {
+public:
+    struct impl;
+
 private:
     const std::string m_file;
+    impl* m_config;
+    explicit JSONConfig(const std::string path, impl* p);
+    impl operator[](std::string k);
 
 public:
-    static Config& getInstance();
+    static Config& getInstance(const char*);
 
     time_t getTimeForcus() override;
     time_t getTimeSkippingDectection() override;
@@ -92,12 +93,7 @@ public:
     float getCorrectRate() override;
     std::string getBoardName() override;
     void show() override;
-    //YAML::Node operator[](std::string k) { return m_config[k]; }
-    void sync()
-    {
-        std::ofstream fout(DEFAULT_CFG_PATH);
-    //    /fout << m_config;
-    }
+    void sync() override;
 };
 
 void testConfig(Config&);

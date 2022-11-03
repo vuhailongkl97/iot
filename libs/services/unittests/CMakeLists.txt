@@ -14,19 +14,26 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 enable_testing()
+
+FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.11.2/json.tar.xz)
+FetchContent_MakeAvailable(json)
+
 add_executable(
   cfg_mgr_test
   config_mgr_test.cc 
 )
+
 target_link_libraries(
   cfg_mgr_test
   GTest::gtest_main
+  nlohmann_json::nlohmann_json
 )
 
 add_executable(
   logger_test 
   logger_test.cc 
 )
+
 target_link_libraries(
   logger_test
   GTest::gtest_main
