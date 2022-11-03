@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.14)
 project(my_project)
-
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # GoogleTest requires at least C++14
 set(CMAKE_CXX_STANDARD 14)
 
@@ -20,6 +20,15 @@ add_executable(
 )
 target_link_libraries(
   cfg_mgr_test
+  GTest::gtest_main
+)
+
+add_executable(
+  logger_test 
+  logger_test.cc 
+)
+target_link_libraries(
+  logger_test
   GTest::gtest_main
 )
 

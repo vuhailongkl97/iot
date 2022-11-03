@@ -10,14 +10,14 @@ void spdLogger::initialize()
     auto max_files = 3;
     auto logger = spdlog::rotating_logger_mt("iot", "/tmp/rotating.txt", max_size, max_files);
 
-    spdlog::set_pattern("[%H:%M:%S] %v");
-    spdlog::flush_every(std::chrono::seconds(10));
+    spdlog::set_pattern("[%H:%M:%S] [%^---%L---%$] %v");
+    spdlog::flush_every(std::chrono::minutes(2));
     m_logger = logger;
 }
 
 std::shared_ptr<spdlog::logger> spdLogger::getLoggerInstance()
 {
-    std::call_once(called, initializeLog);
+    std::call_once(called, initialize);
     return m_logger;
 }
 
@@ -29,6 +29,15 @@ Logger &spdLogger::getInstance() {
 void spdLogger::info(const char *str) {
     getLoggerInstance()->info("{}", str);
 }
+
 void spdLogger::error(const char *str) {
-    getLoggerInstance()->info("{}", str);
+    getLoggerInstance()->error("{}", str);
+}
+
+void spdLogger::debug(const char *str) {
+    getLoggerInstance()->debug("{}", str);
+}
+
+void spdLogger::warn(const char *str) {
+    getLoggerInstance()->warn("{}", str);
 }
