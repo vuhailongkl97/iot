@@ -1,7 +1,12 @@
 #include <config_mgr.h>
+
+#ifndef DEFAULT_CFG_PATH 
+#define DEFAULT_CFG_PATH "/etc/iot-config.yaml"
+#endif
+
 ConfigMgr& ConfigMgr::getInstance()
 {
-    static ConfigMgr cfg("/etc/iot-config.yaml");
+    static ConfigMgr cfg(DEFAULT_CFG_PATH);
     return cfg;
 }
 
@@ -107,17 +112,4 @@ void testConfig(ConfigMgr& cfg)
     cfg.getWeightFile();
     cfg.getThreshold();
     cfg.getCorrectRate();
-
-#ifdef UNITTEST
-    assert(a.getTimeForcus() == 2);
-    assert(a.getTimeSkippingDectection() == 20);
-    assert(a.getMinQueueEntryLimit() == 15);
-    assert(a.getNotifyAPI() == std::string("http://localhost:1234/updated"));
-    assert(a.getDelay4Cap() == 20);
-    assert(a.getHTTPPort() == 18080);
-    assert(a.getNamesFile() == std::string("abc.coco"));
-    assert(a.getCfgFile() == std::string("abc.coco"));
-    assert(a.getWeightFile() == std::string("abc.coco"));
-    assert(fabs(a.getThreshold() - 0.6) < 0.001);
-#endif
 }
