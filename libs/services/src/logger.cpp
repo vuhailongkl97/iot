@@ -4,7 +4,7 @@ static std::once_flag called;
 static std::shared_ptr<spdlog::logger> m_logger;
 
 
-void MLogger::initializeLog()
+void spdLogger::initialize()
 {
     auto max_size = 1048576 * 3;
     auto max_files = 3;
@@ -15,8 +15,20 @@ void MLogger::initializeLog()
     m_logger = logger;
 }
 
-std::shared_ptr<spdlog::logger> MLogger::getLoggerInstance()
+std::shared_ptr<spdlog::logger> spdLogger::getLoggerInstance()
 {
     std::call_once(called, initializeLog);
     return m_logger;
+}
+
+Logger &spdLogger::getInstance() {
+    static spdLogger m_logger;
+    return m_logger;
+}
+
+void spdLogger::info(const char *str) {
+    getLoggerInstance()->info("{}", str);
+}
+void spdLogger::error(const char *str) {
+    getLoggerInstance()->info("{}", str);
 }
