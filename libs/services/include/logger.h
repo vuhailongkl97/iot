@@ -1,7 +1,5 @@
 #pragma once
 #undef SPDLOG_HEADER_ONLY
-#include "spdlog/spdlog.h"
-#include "spdlog/sinks/rotating_file_sink.h"
 
 enum class LOGLV
 {
@@ -25,13 +23,15 @@ public:
 
 class spdLogger final : public Logger
 {
-private:
-    static void initialize();
 public:
+    struct impl;
+
+public:
+    static void initialize(impl&);
     void info(const char* str) override;
     void error(const char* str) override;
     void debug(const char* str) override;
     void warn(const char* str) override;
     Logger& getInstance() override;
-    std::shared_ptr<spdlog::logger> getLoggerInstance();
+    impl* getLoggerInstance();
 };

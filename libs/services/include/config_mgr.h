@@ -13,22 +13,29 @@
 
 class Config {
  public:
-    virtual time_t getTimeForcus() = 0;
-    virtual time_t getTimeSkippingDectection() = 0;
-    virtual int getMinQueueEntryLimit() = 0;
-    virtual std::string getNotifyAPI() = 0;
-    virtual int getDelay4Cap() = 0;
-    virtual int getHTTPPort() = 0;
-    virtual std::string getNamesFile() = 0;
-    virtual std::string getCfgFile() = 0;
-    virtual std::string getWeightFile() = 0;
-    virtual float getThreshold() = 0;
-    virtual void setThreshold(float) = 0;
-    virtual std::string getSrc() = 0;
-    virtual float getCorrectRate() = 0;
-    virtual std::string getBoardName() = 0;
-    virtual void show() = 0;
-    virtual void sync() = 0;
+     bool update(std::string cfg)
+     {
+         auto ret = parse(cfg);
+         sync();
+         return ret;
+     }
+     virtual bool parse(std::string) = 0;
+     virtual time_t getTimeForcus() = 0;
+     virtual time_t getTimeSkippingDectection() = 0;
+     virtual int getMinQueueEntryLimit() = 0;
+     virtual std::string getNotifyAPI() = 0;
+     virtual int getDelay4Cap() = 0;
+     virtual int getHTTPPort() = 0;
+     virtual std::string getNamesFile() = 0;
+     virtual std::string getCfgFile() = 0;
+     virtual std::string getWeightFile() = 0;
+     virtual float getThreshold() = 0;
+     virtual void setThreshold(float) = 0;
+     virtual std::string getSrc() = 0;
+     virtual float getCorrectRate() = 0;
+     virtual std::string getBoardName() = 0;
+     virtual void show() = 0;
+     virtual void sync() = 0;
 
 };
 
@@ -46,6 +53,7 @@ private:
 public:
     static Config& getInstance(const char*);
 
+    bool parse(std::string cfg) override;
     time_t getTimeForcus() override;
     time_t getTimeSkippingDectection() override;
     int getMinQueueEntryLimit() override;
@@ -78,6 +86,7 @@ private:
 public:
     static Config& getInstance(const char*);
 
+    bool parse(std::string cfg) override;
     time_t getTimeForcus() override;
     time_t getTimeSkippingDectection() override;
     int getMinQueueEntryLimit() override;

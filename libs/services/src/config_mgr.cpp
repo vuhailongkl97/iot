@@ -42,6 +42,12 @@ Config& YamlConfig::getInstance(const char* cfg_path)
     return cfg;
 }
 
+bool YamlConfig::parse(std::string cfg)
+{
+    m_config->m_config = YAML::Load(cfg);
+    return true;
+}
+
 time_t YamlConfig::getTimeForcus()
 {
     if ((*m_config)["TIME_FORCUS"])
@@ -172,6 +178,12 @@ std::ostream& operator<<(std::ostream& os, const JSONConfig::impl& j)
 {
     os << std::setw(4) << j.m_config << std::endl;
     return os;
+}
+bool JSONConfig::parse(std::string cfg)
+{
+    using json = nlohmann::json;
+    m_config->m_config = json::parse(cfg);
+    return true;
 }
 
 void JSONConfig::sync()

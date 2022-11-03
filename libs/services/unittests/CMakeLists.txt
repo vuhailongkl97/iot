@@ -39,6 +39,20 @@ target_link_libraries(
   GTest::gtest_main
 )
 
+add_executable(
+  interface_test 
+  interface_test.cc 
+  ../src/logger.cpp
+  ../src/config_mgr.cpp
+)
+
+target_link_libraries(
+  interface_test
+  GTest::gtest_main
+  nlohmann_json::nlohmann_json
+  yaml-cpp
+)
+
 include(GoogleTest)
 
 include_directories(${CMAKE_SOURCE_DIR}/../../services/include

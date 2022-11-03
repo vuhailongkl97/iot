@@ -1,10 +1,20 @@
 #include "logger.h"
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/rotating_file_sink.h"
 
 static std::once_flag called;
 static std::shared_ptr<spdlog::logger> m_logger;
 
+struct spdLogger::impl
+{
+    std::shared_ptr<spdlog::logger> m_logger;
 
-void spdLogger::initialize()
+    void info(const char* fmt, const char* str) { m_logger->info(fmt, str); }
+    void error(const char* fmt, const char* str) { m_logger->error(fmt, str); }
+    void debug(const char* fmt, const char* str) { m_logger->debug(fmt, str); }
+    void warn(const char* fmt, const char* str) { m_logger->warn(fmt, str); }
+};
+void spdLogger::initialize(impl& _impl)
 {
     auto max_size = 1048576 * 3;
     auto max_files = 3;
@@ -12,18 +22,19 @@ void spdLogger::initialize()
 
     spdlog::set_pattern("[%H:%M:%S] [%^---%L---%$] %v");
     spdlog::flush_every(std::chrono::minutes(2));
-    m_logger = logger;
+    _impl.m_logger = logger;
 }
 
-std::shared_ptr<spdlog::logger> spdLogger::getLoggerInstance()
+spdLogger::impl* spdLogger::getLoggerInstance()
 {
-    std::call_once(called, initialize);
-    return m_logger;
+    static impl _impl;
+    std::call_once(called, initialize, _impl);
+    return &_impl;
 }
 
 Logger &spdLogger::getInstance() {
-    static spdLogger m_logger;
-    return m_logger;
+    static spdLogger _loggerInst;
+    return _loggerInst;
 }
 
 void spdLogger::info(const char *str) {
