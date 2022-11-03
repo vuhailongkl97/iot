@@ -4,10 +4,10 @@
 #include "../src/config_mgr.cpp"
 
 // Demonstrate some basic assertions.
-TEST(configMgr, DefaultConfig)
+TEST(YamlConfig, DefaultConfig)
 {
     // Expect two strings not to be equal.
-    auto cfg = ConfigMgr::getInstance();
+    Config& cfg = YamlConfig::getInstance();
 
     EXPECT_TRUE(cfg.getTimeForcus() == 2);
     EXPECT_TRUE(cfg.getTimeSkippingDectection() == 20);
@@ -19,5 +19,7 @@ TEST(configMgr, DefaultConfig)
     EXPECT_TRUE(cfg.getNamesFile() == std::string("coco.names"));
     EXPECT_TRUE(cfg.getCfgFile() == std::string("yolov4-tiny.cfg"));
     EXPECT_TRUE(cfg.getWeightFile() == std::string("yolov4-tiny.weights"));
-    EXPECT_TRUE(fabs(cfg.getThreshold() - 0.6) < 0.001);
+    EXPECT_TRUE(fabs(cfg.getThreshold() - 0.12) < 0.001);
+    cfg.sync();
+    cfg.show();
 }
