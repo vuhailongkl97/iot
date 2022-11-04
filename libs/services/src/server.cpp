@@ -48,7 +48,7 @@ res_impl Handler(Config& cfg, req_impl _req)
 bool CrowServer::initialize()
 {
     m_handler = Handler;
-    CustomLogger tmplogger(logger);
+    static CustomLogger tmplogger(logger);
     crow::logger::setHandler(&tmplogger);
     CROW_ROUTE(pimpl->app, "/config")
       .methods("POST"_method)([this](const crow::request& req) {
