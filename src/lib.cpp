@@ -25,14 +25,12 @@ void discordNotifier::doWork(const filteredDataResult& d)
     if (recent_results.size() >= m_queueEntryLimit) {
         // main checking
         auto lastOneTime = recent_results.back().second;
-        if (curTime - lastOneTime <= m_timeForcus) {
+        if (curTime - lastOneTime <= cfg.getTimeForcus()) {
             cv::imwrite(m_tmpImgPath, d.frame);
-            m_time4rest = curTime + m_timeSkip;
+            m_time4rest = curTime + cfg.getTimeSkippingDetection();
             recent_results.clear();
-            MLogger::getLoggerInstance()->info(
-              "wrote an image, start skiping for {} secs ", m_timeSkip);
-            system("/usr/bin/curl http://localhost:1234/updated -X POST -d "
-                   "\"/tmp/img.png\" --max-time 2 -s >/dev/null");
+			logger.info( "wrote an image, start skiping ");
+			inf.notify(NOTIFY_TYPE::DETECT_RET, "/tmp/img.png");
         }
         else {
             recent_results.pop_back();

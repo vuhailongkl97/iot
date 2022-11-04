@@ -4,6 +4,8 @@
 #include <iostream>
 #include <cmath>
 #include "services/include/logger.h"
+#include "services/include/server.h"
+#include "services/include/config_mgr.h"
 
 #ifdef OPENCV
 #include <opencv2/opencv.hpp>          // C++
@@ -37,7 +39,12 @@ struct filteredDataResult
 
 class Notifier
 {
+ protected:
+		 Config &cfg;
+		 Logger &logger;
+		 Interface &inf;
 public:
+	Notifier(Config &c, Logger &l, Interface &i) : cfg(c), logger(l), inf(i) { }
     void work(const DataResult& d)
     {
         filteredDataResult f_d = filterPerson(d);
@@ -72,20 +79,15 @@ public:
 class discordNotifier final : public Notifier
 {
 public:
-    explicit discordNotifier(size_t _QueueEntryLimit, int _timeForcus,
-                             int _timeSkip, float _correct_rate) :
-      Notifier()
+    explicit discordNotifier(Config &c, Logger &l, Interface &i):
+      Notifier(c, l, i)
     {
-        m_queueEntryLimit = m_queueEntryLimitMin = _QueueEntryLimit;
-        m_timeForcus = _timeForcus;
-        m_timeSkip = _timeSkip;
         m_time4rest = std::time(nullptr);
-        m_correct_rate = _correct_rate;
     }
 
     void updateQueueSize(int fps)
     {
-        m_queueEntryLimit = fps * (m_timeForcus + 1) * m_correct_rate;
+        m_queueEntryLimit = fps * (cfg.getTimeForcus() + 1) * cfg.getCorrectRate();
         if (m_queueEntryLimit < m_queueEntryLimitMin)
             m_queueEntryLimit = m_queueEntryLimitMin;
     }
@@ -95,11 +97,7 @@ private:
     std::deque<std::pair<obj_t, std::time_t>> recent_results;
     const char* m_tmpImgPath = "/tmp/img.png";
     size_t m_queueEntryLimit;
-    int m_timeForcus;
-    int m_timeSkip;
-    size_t m_queueEntryLimitMin;
     std::time_t m_time4rest;
-    float m_correct_rate;
 };
 
 class DataUpdateListener

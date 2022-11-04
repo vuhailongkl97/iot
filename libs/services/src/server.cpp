@@ -75,4 +75,6 @@ void CrowServer::notify(NOTIFY_TYPE type, std::string content)
     x[key] = content;
     std::cout << "notify to addr " << cfg.getNotifyAPI() << " content "
               << x.dump() << "\n";
+	//system("/usr/bin/curl http://localhost:1234/updated -X POST -d '/tmp/img.png' --max-time 2 -s >/dev/null");
+
 }
