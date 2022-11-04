@@ -25,7 +25,7 @@ public:
     handler_t getHandler() { return m_handler; }
     virtual bool initialize() = 0;
     virtual void run() = 0;
-    virtual void notify(std::string addr, std::string content) = 0;
+    virtual void notify(std::string content) = 0;
 };
 
 class CrowServer : public Interface
@@ -40,5 +40,5 @@ public:
     CrowServer(Config& c, Logger& l);
     bool initialize() override;
     void run() override;
-    void notify(std::string, std::string) override;
+    void notify(std::string) override;
 };

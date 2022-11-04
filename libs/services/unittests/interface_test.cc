@@ -61,4 +61,5 @@ TEST(INTERFACE, SUCCESS)
 		cfg.setThreshold(tmpval);
 		cfg.sync();
     }
+	p->notify("abcdef");
 }
