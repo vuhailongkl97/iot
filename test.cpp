@@ -20,17 +20,16 @@ int main() {
     Logger& lg = spdLogger::getInstance();
     Config& cfg = JSONConfig::getInstance("../iot-config.json");
 	Interface& f = CrowServer::getInstance(cfg, lg);
-    CrowServer s(cfg, lg);
 
 	lg.info("hello");
 
-   f.initialize();
-  //  server.notify(NOTIFY_TYPE::DETECT_RET, "abcdef");
+    f.initialize();
+    f.notify(NOTIFY_TYPE::DETECT_RET, "abcdef");
 
 
     fakeJetson jet("jetsonano", {1, 1, 1}, lg, cfg, f);
 	auto x = new int[100];
-#if 0
+#if 1
 	std::thread moni([&] {
    		jet.monitor();
 					});
