@@ -6,11 +6,6 @@
 #include <exception>
 #include <cassert>
 
-#ifndef DEFAULT_CFG_PATH 
-#define DEFAULT_CFG_PATH "/etc/iot-config.yaml"
-#endif
-
-
 class Config {
  public:
      bool update(std::string cfg)

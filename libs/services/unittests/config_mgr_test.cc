@@ -46,12 +46,12 @@ TEST(JSONTEST, SET_THRESHOLD)
 {
     Config& cfg = JSONConfig::getInstance("../iot-config.json");
 
-	auto tmpval = cfg.getThreshold();
-	cfg.setThreshold(0.12);
+    auto tmpval = cfg.getThreshold();
+    cfg.setThreshold(0.12);
     EXPECT_TRUE(fabs(cfg.getThreshold() - 0.12) < 0.001);
     cfg.sync();
 
-	cfg.setThreshold(tmpval);
+    cfg.setThreshold(tmpval);
     EXPECT_TRUE(fabs(cfg.getThreshold() - tmpval) < 0.001);
-	cfg.sync();
+    cfg.sync();
 }

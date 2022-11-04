@@ -16,10 +16,12 @@
 
 struct obj_t
 {
-    float prob;                  // confidence - probability that the object was found correctly
-    unsigned int obj_id;         // class of object - from range [0, classes-1]
-    unsigned int track_id;       // tracking id for video (0 - untracked, 1 - inf - tracked object)
-    unsigned int frames_counter; // counter of frames on which the object was detected
+    float prob; // confidence - probability that the object was found correctly
+    unsigned int obj_id; // class of object - from range [0, classes-1]
+    unsigned int
+      track_id; // tracking id for video (0 - untracked, 1 - inf - tracked object)
+    unsigned int
+      frames_counter; // counter of frames on which the object was detected
 };
 
 struct DataResult
@@ -39,17 +41,17 @@ struct filteredDataResult
 
 class Notifier
 {
- protected:
-		 Config &cfg;
-		 Logger &logger;
-		 Interface &inf;
+protected:
+    Config& cfg;
+    Logger& logger;
+    Interface& inf;
+
 public:
-	Notifier(Config &c, Logger &l, Interface &i) : cfg(c), logger(l), inf(i) { }
+    Notifier(Config& c, Logger& l, Interface& i) : cfg(c), logger(l), inf(i) {}
     void work(const DataResult& d)
     {
         filteredDataResult f_d = filterPerson(d);
-        if (!f_d.objs.empty())
-            doWork(f_d);
+        if (!f_d.objs.empty()) doWork(f_d);
     }
     virtual void doWork(const filteredDataResult& d) = 0;
 
@@ -59,8 +61,7 @@ public:
         for (auto& obj : d.objs) {
             if (d.names.size() > obj.obj_id) {
                 if (d.names[obj.obj_id] == std::string("person")) {
-                    if (filtered_d.frame.empty())
-                        filtered_d.frame = d.frame;
+                    if (filtered_d.frame.empty()) filtered_d.frame = d.frame;
                     filtered_d.objs.push_back(obj);
                 }
             }
@@ -79,7 +80,7 @@ public:
 class discordNotifier final : public Notifier
 {
 public:
-    explicit discordNotifier(Config &c, Logger &l, Interface &i):
+    explicit discordNotifier(Config& c, Logger& l, Interface& i) :
       Notifier(c, l, i)
     {
         m_time4rest = std::time(nullptr);
@@ -87,7 +88,8 @@ public:
 
     void updateQueueSize(int fps)
     {
-        m_queueEntryLimit = fps * (cfg.getTimeForcus() + 1) * cfg.getCorrectRate();
+        m_queueEntryLimit =
+          fps * (cfg.getTimeForcus() + 1) * cfg.getCorrectRate();
         if (m_queueEntryLimit < m_queueEntryLimitMin)
             m_queueEntryLimit = m_queueEntryLimitMin;
     }

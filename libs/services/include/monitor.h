@@ -34,7 +34,7 @@ public:
     virtual int getAvailableMem() = 0;
     virtual std::vector<float> getTemperatures() = 0;
 
-    std::string prepareLog()
+    void prepareLog()
     {
         std::string ret;
         int mem = getAvailableMem();
@@ -46,19 +46,18 @@ public:
             l.error("difference size between thresholds and temp_vec");
         }
         else {
+            bool overheat = false;
             for (size_t vi = 0; vi < cur_temp.size(); vi++) {
-                if (cur_temp[vi] >= m_temp_thresholds[vi]) {
-                    inf.notify(NOTIFY_TYPE::MSG,
-                               "temperature is over threshold");
-                    l.warn("temperature is over threshold");
-                }
-                else {
-                    ret += " ";
-                    ret += std::to_string(cur_temp[vi]);
-                }
+                if (cur_temp[vi] >= m_temp_thresholds[vi]) { overheat = true; }
+                ret += " ";
+                ret += std::to_string(cur_temp[vi]);
             }
+            if (overheat) {
+                inf.notify(NOTIFY_TYPE::MSG, "temperature is over threshold");
+                l.warn("temperature is over threshold");
+            }
+            l.info(ret.c_str());
         }
-        return ret;
     }
     void monitor()
     {
