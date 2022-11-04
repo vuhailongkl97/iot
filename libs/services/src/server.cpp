@@ -63,7 +63,16 @@ bool CrowServer::initialize()
 
 void CrowServer::run() { pimpl->app.port(cfg.getHTTPPort()).run(); }
 
-void CrowServer::notify(std::string addr, std::string content)
+void CrowServer::notify(NOTIFY_TYPE type, std::string content)
 {
-    std::cout << "notify to addr " << addr << "\n";
+    std::string key;
+    switch (type) {
+        case NOTIFY_TYPE::DETECT_RET: key = "img_path"; break;
+        case NOTIFY_TYPE::MSG: key = "msg"; break;
+        default: break;
+    }
+    crow::json::wvalue x;
+    x[key] = content;
+    std::cout << "notify to addr " << cfg.getNotifyAPI() << " content "
+              << x.dump() << "\n";
 }

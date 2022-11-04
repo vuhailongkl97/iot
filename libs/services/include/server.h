@@ -13,6 +13,13 @@
 struct req_impl;
 struct res_impl;
 using handler_t = res_impl (*)(Config&, req_impl);
+
+enum class NOTIFY_TYPE
+{
+    DETECT_RET,
+    MSG
+};
+
 class Interface
 {
 protected:
@@ -25,7 +32,7 @@ public:
     handler_t getHandler() { return m_handler; }
     virtual bool initialize() = 0;
     virtual void run() = 0;
-    virtual void notify(std::string content) = 0;
+    virtual void notify(NOTIFY_TYPE, std::string content) = 0;
 };
 
 class CrowServer : public Interface
@@ -40,5 +47,5 @@ public:
     CrowServer(Config& c, Logger& l);
     bool initialize() override;
     void run() override;
-    void notify(std::string) override;
+    void notify(NOTIFY_TYPE, std::string) override;
 };

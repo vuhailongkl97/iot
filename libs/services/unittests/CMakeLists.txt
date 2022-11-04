@@ -53,6 +53,18 @@ target_link_libraries(
   yaml-cpp
 )
 
+add_executable(
+  hardware_test 
+  hardware_test.cc 
+)
+
+target_link_libraries(
+  hardware_test
+  GTest::gtest_main
+  nlohmann_json::nlohmann_json
+  yaml-cpp
+)
+
 include(GoogleTest)
 
 include_directories(${CMAKE_SOURCE_DIR}/../../services/include
@@ -64,3 +76,6 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/../../dependencies/yaml-cpp ${CMAKE_SOURCE_
 
 target_link_libraries(cfg_mgr_test yaml-cpp)
 gtest_discover_tests(cfg_mgr_test)
+gtest_discover_tests(hardware_test)
+gtest_discover_tests(interface_test)
+gtest_discover_tests(logger_test)

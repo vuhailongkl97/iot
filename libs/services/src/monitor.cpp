@@ -6,17 +6,9 @@
 #include <vector>
 #include <string>
 #include <cstdio>
-#include "logger.h"
+#include "monitor.h"
 
-enum class hardware : int
-{
-    A0 = 0,
-    CPU,
-    GPU,
-    END
-};
-
-int getAvailableMem()
+int Jetson::getAvailableMem()
 {
 
     const char* cmd = "free -m | tail -n 2 | head -n 1 | awk '{ print $7 }'";
@@ -28,9 +20,8 @@ int getAvailableMem()
     return mem;
 }
 
-static float getTemperature(hardware hw)
+float Jetson::getTemperature(Jetsonhardware hw)
 {
-
     char path[200];
     snprintf(path, sizeof(path), "/sys/devices/virtual/thermal/thermal_zone%d/temp", hw);
     std::fstream tempF(path, std::fstream::in);
@@ -44,33 +35,11 @@ static float getTemperature(hardware hw)
     return atoi(ret) / 1000.0;
 }
 
-static bool monitorTemperatureTask(std::shared_ptr<spdlog::logger> logger, std::vector<unsigned int> thresholds, unsigned int stamp)
+std::vector<float> Jetson::getTemperatures()
 {
-    while (1) {
-
-        std::string str;
-        for (auto i = 0; i < (int)hardware::END; i++) {
-            auto temp = getTemperature((hardware)i);
-            if (temp > thresholds[(int)(i)]) {
-                logger->critical(str);
-                return false;
-            }
-            str += std::to_string(temp);
-            str += " ";
-        }
-        str += std::to_string(getAvailableMem());
-        str += "MB";
-        logger->info("{}", str);
-        std::this_thread::sleep_for(std::chrono::seconds(stamp));
+    std::vector<float> temps;
+    for (auto i = 0; i < (int)Jetsonhardware::END; i++) {
+        temps.push_back(getTemperature((Jetsonhardware)i));
     }
-    return true;
-}
-
-void runMonitoring(std::atomic<bool>& exit_flag)
-{
-
-    std::vector<unsigned int> thresholds{60, 50, 50};
-    auto logger = MLogger::getLoggerInstance();
-    monitorTemperatureTask(logger, thresholds, 10);
-    exit_flag = true;
+    return temps;
 }
