@@ -33,6 +33,7 @@ public:
     virtual bool initialize() = 0;
     virtual void run() = 0;
     virtual void notify(NOTIFY_TYPE, std::string content) = 0;
+	virtual ~Interface() {}
 };
 
 class CrowServer : public Interface
@@ -47,4 +48,6 @@ public:
     bool initialize() override;
     void run() override;
     void notify(NOTIFY_TYPE, std::string) override;
+	~CrowServer();
+	static Interface& getInstance(Config &, Logger &);
 };

@@ -16,10 +16,15 @@ struct CrowServer::impl
     crow::SimpleApp app;
 };
 
-CrowServer::CrowServer(Config& c, Logger& l) :
-  pimpl(new CrowServer::impl), Interface(c, l)
+CrowServer::CrowServer(Config& c, Logger& l) : pimpl(new impl),
+  Interface(c, l)
 {}
 
+Interface& CrowServer::getInstance(Config &c, Logger &l) {
+	static CrowServer cr(c, l);
+	return cr;
+}
+CrowServer::~CrowServer() {}
 struct req_impl
 {
     const crow::request* req;
