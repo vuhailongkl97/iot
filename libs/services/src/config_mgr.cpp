@@ -37,8 +37,7 @@ YamlConfig::YamlConfig(const std::string path, impl* p) :
 
 Config& YamlConfig::getInstance(const char* cfg_path)
 {
-    static impl l_config;
-    static YamlConfig cfg(cfg_path, &l_config);
+    static YamlConfig cfg(cfg_path, new impl);
     return cfg;
 }
 
@@ -202,8 +201,7 @@ JSONConfig::JSONConfig(const std::string path, impl* p) :
 
 Config& JSONConfig::getInstance(const char* cfg_path)
 {
-    static impl l_config;
-    static JSONConfig cfg(cfg_path, &l_config);
+    static JSONConfig cfg(cfg_path, new impl);
     return cfg;
 }
 

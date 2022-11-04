@@ -5,6 +5,7 @@
 #include <ctime>
 #include <exception>
 #include <cassert>
+#include <memory>
 
 class Config {
  public:
@@ -41,7 +42,7 @@ public:
 
 private:
     const std::string m_file;
-    impl* m_config;
+	std::unique_ptr<impl> m_config;
     explicit YamlConfig(const std::string path, impl* p);
     impl operator[](std::string k);
 
@@ -74,7 +75,7 @@ public:
 
 private:
     const std::string m_file;
-    impl* m_config;
+	std::unique_ptr<impl> m_config;
     explicit JSONConfig(const std::string path, impl* p);
     impl operator[](std::string k);
 

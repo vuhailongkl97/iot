@@ -8,7 +8,7 @@ template<typename... T>
 void log(LOGLV lv, const char* fmt, T&&... args)
 {
     char buf[150];
-    Logger& lg = spdLogger().getInstance();
+    Logger& lg = spdLogger::getInstance();
     snprintf(buf, sizeof(buf) - 1, fmt, std::forward<T>(args)...);
 
     switch (lv) {

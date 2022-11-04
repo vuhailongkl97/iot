@@ -18,7 +18,6 @@ public:
     virtual void error(const char* str) = 0;
     virtual void debug(const char* str) = 0;
     virtual void warn(const char* str) = 0;
-    virtual Logger& getInstance() = 0;
 };
 
 class spdLogger final : public Logger
@@ -32,6 +31,6 @@ public:
     void error(const char* str) override;
     void debug(const char* str) override;
     void warn(const char* str) override;
-    Logger& getInstance() override;
+    static Logger& getInstance();
     impl* getLoggerInstance();
 };

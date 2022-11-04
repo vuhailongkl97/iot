@@ -17,10 +17,11 @@ public:
 };
 
 int main() {
-    Logger& lg = spdLogger().getInstance();
+    Logger& lg = spdLogger::getInstance();
     Config& cfg = JSONConfig::getInstance("../iot-config.json");
 	Interface* f = new CrowServer (cfg, lg);
  //   Interface &server = ser;
+    CrowServer s(cfg, lg);
 
 	lg.info("hello");
 

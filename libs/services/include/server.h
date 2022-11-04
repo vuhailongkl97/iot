@@ -40,7 +40,6 @@ class CrowServer : public Interface
 public:
     struct impl;
     // temporary use public. it should be private
-public:
     std::unique_ptr<impl> pimpl;
 
 public:
