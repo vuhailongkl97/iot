@@ -14,8 +14,14 @@ struct spdLogger::impl
     void debug(const char* fmt, const char* str) { m_logger->debug(fmt, str); }
     void warn(const char* fmt, const char* str) { m_logger->warn(fmt, str); }
 };
-void spdLogger::initialize(impl& _impl)
+
+spdLogger::~spdLogger() {}
+
+void spdLogger::initialize(std::shared_ptr<impl>& _impl)
 {
+	if (_impl == nullptr) {
+		_impl = std::make_shared<impl>();
+	}
     auto max_size = 1048576 * 3;
     auto max_files = 3;
     auto logger = spdlog::rotating_logger_mt("iot", "/tmp/rotating.txt", max_size, max_files);
@@ -25,11 +31,10 @@ void spdLogger::initialize(impl& _impl)
     _impl.m_logger = logger;
 }
 
-spdLogger::impl* spdLogger::getLoggerInstance()
+std::shared_ptr<spdLogger::impl> spdLogger::getLoggerInstance()
 {
-    static impl _impl;
-    std::call_once(called, initialize, _impl);
-    return &_impl;
+    std::call_once(called, initialize, m_impl);
+    return m_impl;
 }
 
 Logger &spdLogger::getInstance() {

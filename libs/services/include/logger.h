@@ -1,5 +1,5 @@
 #pragma once
-#undef SPDLOG_HEADER_ONLY
+#include <memory>
 
 enum class LOGLV
 {
@@ -22,15 +22,16 @@ public:
 
 class spdLogger final : public Logger
 {
-public:
+private:
     struct impl;
-
+	std::shared_ptr<impl> m_impl;
+	std::shared_ptr<impl> getLoggerInstance();
 public:
-    static void initialize(impl&);
+    static void initialize(std::shared_ptr<impl> &);
     void info(const char* str) override;
     void error(const char* str) override;
     void debug(const char* str) override;
     void warn(const char* str) override;
     static Logger& getInstance();
-    impl* getLoggerInstance();
+	~spdLogger();
 };
