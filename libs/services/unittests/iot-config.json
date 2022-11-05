@@ -11,5 +11,6 @@
     "TIME_FORCUS": 2,
     "TIME_SKIP": 20,
     "Threshold": 0.8999999761581421,
-    "WeightFile": "yolov4-tiny.weights"
+    "WeightFile": "yolov4-tiny.weights",
+    "status": false
 }

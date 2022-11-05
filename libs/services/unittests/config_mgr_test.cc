@@ -27,6 +27,7 @@ TEST(JSONTEST, DEFAULT_CFG)
 {
     Config& cfg = JSONConfig::getInstance("../iot-config.json");
 
+    EXPECT_TRUE(cfg.status() == false);
     EXPECT_TRUE(cfg.getTimeForcus() == 2);
     EXPECT_TRUE(cfg.getTimeSkippingDectection() == 20);
     EXPECT_TRUE(cfg.getMinQueueEntryLimit() == 15);

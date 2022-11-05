@@ -206,13 +206,19 @@ void customizedFrame(cv::Mat& f)
 
 int main(int argc, char* argv[])
 {
-    auto cfg = ConfigMgr::getInstance();
+    Logger& lg = spdLogger::getInstance();
+    Config& cfg = JSONConfig::getInstance("/etc/iot-config.json");
+	Interface& inf = CrowServer::getInstance(cfg, lg);
+	HardwareManager& hw = Jetson("jetsonNano", {60,50,50}, lg, cfg, inf);
+
     testConfig(cfg);
+
     std::string names_file = cfg.getNamesFile();
     std::string cfg_file = cfg.getCfgFile();
     std::string weights_file = cfg.getWeightFile();
     std::string filename = cfg.getSrc();
     float thresh = cfg.getThreshold();
+
 
     DataUpdateListener listener;
 
@@ -231,11 +237,13 @@ int main(int argc, char* argv[])
     std::atomic<bool> exit_flag(false);
 
     if (cfg.getBoardName() == std::string("JetsonNano")) {
-        auto thermometer = std::thread(runMonitoring, std::ref(exit_flag));
+        auto thermometer = std::thread([&] {
+			hw.monitor();
+		});
         thermometer.detach();
 	}
 
-    auto server = std::thread(runServer, std::ref(thresh), std::ref(exit_flag));
+    auto server = std::thread([&] { inf.run(); });
     server.detach();
 
     while (true) {
@@ -305,6 +313,7 @@ int main(int argc, char* argv[])
                         fps_cap_counter++;
                         detection_data.frame_id = frame_id++;
 
+						exit_flag = cfg.status();
                         if (exit_flag) {
                             detection_data.exit_flag = true;
                         }

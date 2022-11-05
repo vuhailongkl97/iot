@@ -41,6 +41,11 @@ Config& YamlConfig::getInstance(const char* cfg_path)
     return cfg;
 }
 
+bool YamlConfig::status() {
+    if ((*m_config)["status"])
+        return (*m_config)["status"].as<bool>();
+    throw std::runtime_error(__func__);
+}
 bool YamlConfig::parse(std::string cfg)
 {
     m_config->m_config = YAML::Load(cfg);
@@ -144,6 +149,7 @@ void YamlConfig::show()
 void testConfig(Config& cfg)
 {
     cfg.show();
+	cfg.status();
     cfg.getTimeForcus();
     cfg.getTimeSkippingDectection();
     cfg.getMinQueueEntryLimit();
@@ -178,6 +184,13 @@ std::ostream& operator<<(std::ostream& os, const JSONConfig::impl& j)
     os << std::setw(4) << j.m_config << std::endl;
     return os;
 }
+
+bool JSONConfig::status() {
+    if ((*m_config).contains("status"))
+        return (*m_config)["status"].get<bool>();
+    throw std::runtime_error(__func__);
+}
+
 bool JSONConfig::parse(std::string cfg)
 {
     using json = nlohmann::json;

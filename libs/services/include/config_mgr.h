@@ -15,6 +15,7 @@ class Config {
          sync();
          return ret;
      }
+     virtual bool status() = 0;
      virtual bool parse(std::string) = 0;
      virtual time_t getTimeForcus() = 0;
      virtual time_t getTimeSkippingDectection() = 0;
@@ -49,6 +50,7 @@ private:
 public:
     static Config& getInstance(const char*);
 
+	bool status() override;
     bool parse(std::string cfg) override;
     time_t getTimeForcus() override;
     time_t getTimeSkippingDectection() override;
@@ -82,6 +84,7 @@ private:
 public:
     static Config& getInstance(const char*);
 
+	bool status() override;
     bool parse(std::string cfg) override;
     time_t getTimeForcus() override;
     time_t getTimeSkippingDectection() override;

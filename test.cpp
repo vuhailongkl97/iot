@@ -24,7 +24,7 @@ int main() {
 	lg.info("hello");
 
     f.initialize();
-    f.notify(NOTIFY_TYPE::DETECT_RET, "abcdef");
+    f.notify(NOTIFY_TYPE::DETECT_RET, "/home/long/Pictures/wallpapers.jpg");
 
 
     fakeJetson jet("jetsonano", {1, 1, 1}, lg, cfg, f);
