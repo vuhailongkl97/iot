@@ -28,7 +28,7 @@ void spdLogger::initialize(std::shared_ptr<impl>& _impl)
 
     spdlog::set_pattern("[%H:%M:%S] [%^---%L---%$] %v");
     spdlog::flush_every(std::chrono::minutes(2));
-    _impl.m_logger = logger;
+    _impl->m_logger = logger;
 }
 
 std::shared_ptr<spdLogger::impl> spdLogger::getLoggerInstance()

@@ -44,7 +44,7 @@ res_impl Handler(Config& cfg, req_impl _req)
     else {
         bool ret = cfg.update(req->body);
         std::ostringstream os;
-        os << (ret ? "ok" : "nok");
+        os << (ret ? "mok" : "mnok");
         _res.res = crow::response{os.str()};
     }
     return _res;

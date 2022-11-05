@@ -42,8 +42,8 @@ Config& YamlConfig::getInstance(const char* cfg_path)
 }
 
 bool YamlConfig::status() {
-    if ((*m_config)["status"])
-        return (*m_config)["status"].as<bool>();
+    if ((*m_config)["Status"])
+        return (*m_config)["Status"].as<bool>();
     throw std::runtime_error(__func__);
 }
 bool YamlConfig::parse(std::string cfg)
@@ -59,7 +59,7 @@ time_t YamlConfig::getTimeForcus()
     throw std::runtime_error(__func__);
 }
 
-time_t YamlConfig::getTimeSkippingDectection()
+time_t YamlConfig::getTimeSkippingDetection()
 {
     if ((*m_config)["TIME_SKIP"]) return (*m_config)["TIME_SKIP"].as<time_t>();
     throw std::runtime_error(__func__);
@@ -151,7 +151,7 @@ void testConfig(Config& cfg)
     cfg.show();
 	cfg.status();
     cfg.getTimeForcus();
-    cfg.getTimeSkippingDectection();
+    cfg.getTimeSkippingDetection();
     cfg.getMinQueueEntryLimit();
     cfg.getNotifyAPI();
     cfg.getDelay4Cap();
@@ -186,8 +186,8 @@ std::ostream& operator<<(std::ostream& os, const JSONConfig::impl& j)
 }
 
 bool JSONConfig::status() {
-    if ((*m_config).contains("status"))
-        return (*m_config)["status"].get<bool>();
+    if ((*m_config).contains("Status"))
+        return (*m_config)["Status"].get<bool>();
     throw std::runtime_error(__func__);
 }
 
@@ -195,6 +195,7 @@ bool JSONConfig::parse(std::string cfg)
 {
     using json = nlohmann::json;
     m_config->m_config = json::parse(cfg);
+	std::cout << std::setw(4) << m_config->m_config;
     return true;
 }
 
@@ -225,7 +226,7 @@ time_t JSONConfig::getTimeForcus()
     throw std::runtime_error(__func__);
 }
 
-time_t JSONConfig::getTimeSkippingDectection()
+time_t JSONConfig::getTimeSkippingDetection()
 {
     if ((*m_config).contains("TIME_SKIP"))
         return (*m_config)["TIME_SKIP"].get<time_t>();

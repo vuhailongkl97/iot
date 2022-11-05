@@ -8,7 +8,7 @@ TEST(YamlConfig, DefaultConfig)
     // Expect two strings not to be equal.
     Config& cfg = YamlConfig::getInstance("../iot-config.yaml");
     EXPECT_TRUE(cfg.getTimeForcus() == 2);
-    EXPECT_TRUE(cfg.getTimeSkippingDectection() == 20);
+    EXPECT_TRUE(cfg.getTimeSkippingDetection() == 20);
     EXPECT_TRUE(cfg.getMinQueueEntryLimit() == 15);
     EXPECT_TRUE(cfg.getNotifyAPI() ==
                 std::string("http://localhost:1234/updated"));
@@ -29,7 +29,7 @@ TEST(JSONTEST, DEFAULT_CFG)
 
     EXPECT_TRUE(cfg.status() == false);
     EXPECT_TRUE(cfg.getTimeForcus() == 2);
-    EXPECT_TRUE(cfg.getTimeSkippingDectection() == 20);
+    EXPECT_TRUE(cfg.getTimeSkippingDetection() == 20);
     EXPECT_TRUE(cfg.getMinQueueEntryLimit() == 15);
     EXPECT_TRUE(cfg.getNotifyAPI() ==
                 std::string("http://localhost:1234/updated"));

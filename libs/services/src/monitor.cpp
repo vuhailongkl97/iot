@@ -38,7 +38,7 @@ float Jetson::getTemperature(Jetsonhardware hw)
 std::vector<float> Jetson::getTemperatures()
 {
     std::vector<float> temps;
-    for (auto i = 0; i < (int)Jetsonhardware::END; i++) {
+    for (auto i = 0; i < (int)Jetsonhardware::jEND; i++) {
         temps.push_back(getTemperature((Jetsonhardware)i));
     }
     return temps;

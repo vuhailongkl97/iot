@@ -90,8 +90,8 @@ public:
     {
         m_queueEntryLimit =
           fps * (cfg.getTimeForcus() + 1) * cfg.getCorrectRate();
-        if (m_queueEntryLimit < m_queueEntryLimitMin)
-            m_queueEntryLimit = m_queueEntryLimitMin;
+        if (m_queueEntryLimit < cfg.getMinQueueEntryLimit())
+            m_queueEntryLimit = cfg.getMinQueueEntryLimit();
     }
     void doWork(const filteredDataResult& d) override;
 

@@ -18,7 +18,7 @@ class Config {
      virtual bool status() = 0;
      virtual bool parse(std::string) = 0;
      virtual time_t getTimeForcus() = 0;
-     virtual time_t getTimeSkippingDectection() = 0;
+     virtual time_t getTimeSkippingDetection() = 0;
      virtual int getMinQueueEntryLimit() = 0;
      virtual std::string getNotifyAPI() = 0;
      virtual int getDelay4Cap() = 0;
@@ -53,7 +53,7 @@ public:
 	bool status() override;
     bool parse(std::string cfg) override;
     time_t getTimeForcus() override;
-    time_t getTimeSkippingDectection() override;
+    time_t getTimeSkippingDetection() override;
     int getMinQueueEntryLimit() override;
     std::string getNotifyAPI() override;
     int getDelay4Cap() override;
@@ -87,7 +87,7 @@ public:
 	bool status() override;
     bool parse(std::string cfg) override;
     time_t getTimeForcus() override;
-    time_t getTimeSkippingDectection() override;
+    time_t getTimeSkippingDetection() override;
     int getMinQueueEntryLimit() override;
     std::string getNotifyAPI() override;
     int getDelay4Cap() override;

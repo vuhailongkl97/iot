@@ -209,7 +209,8 @@ int main(int argc, char* argv[])
     Logger& lg = spdLogger::getInstance();
     Config& cfg = JSONConfig::getInstance("/etc/iot-config.json");
 	Interface& inf = CrowServer::getInstance(cfg, lg);
-	HardwareManager& hw = Jetson("jetsonNano", {60,50,50}, lg, cfg, inf);
+	Jetson jet("jetsonNano", {60,50,50}, lg, cfg, inf);
+	HardwareManager& hw = jet;
 
     testConfig(cfg);
 
@@ -219,12 +220,9 @@ int main(int argc, char* argv[])
     std::string filename = cfg.getSrc();
     float thresh = cfg.getThreshold();
 
-
     DataUpdateListener listener;
 
-    listener.addSubscriber(new discordNotifier(
-      cfg.getMinQueueEntryLimit(), cfg.getTimeForcus(),
-      cfg.getTimeSkippingDectection(), cfg.getCorrectRate()));
+    listener.addSubscriber(new discordNotifier(cfg, lg, inf));
 
     auto obj_names = objects_names_from_file(names_file);
     bool const send_network = false;     // true - for remote detection
@@ -243,6 +241,7 @@ int main(int argc, char* argv[])
         thermometer.detach();
 	}
 
+	inf.initialize();
     auto server = std::thread([&] { inf.run(); });
     server.detach();
 
@@ -284,7 +283,7 @@ int main(int argc, char* argv[])
                     cap >> cur_frame;
                 }
                 else if (!use_zed_camera) {
-                    cap.open(filename);
+                    cap.open(cfg.getSrc());
                     cap >> cur_frame;
                 }
 
@@ -505,6 +504,7 @@ int main(int argc, char* argv[])
 
                 // sleep here wait next event
                 while (exit_flag) {
+					exit_flag = cfg.status();
                     std::cout << "sleep wait for next events\n";
                     std::this_thread::sleep_for(std::chrono::seconds(2));
                 }

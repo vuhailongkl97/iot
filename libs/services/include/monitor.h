@@ -10,10 +10,10 @@
 
 enum class Jetsonhardware : int
 {
-    A0 = 0,
-    CPU,
-    GPU,
-    END
+    jA0 = 0,
+    jCPU,
+    jGPU,
+    jEND
 };
 
 class HardwareManager
