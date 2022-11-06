@@ -10,7 +10,7 @@ add_subdirectory(libs/services)
 set(LIB_DIR "${CMAKE_SOURCE_DIR}/libs")
 set(DARKNET_DEPS "${CMAKE_SOURCE_DIR}/darknet-deps")
 
-# ############new here
+# ############ for testing here
 #include_directories(${CMAKE_SOURCE_DIR}/include 
 #	${CMAKE_SOURCE_DIR}/libs/ 
 #	${CMAKE_SOURCE_DIR}/libs/services/include )
