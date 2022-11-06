@@ -92,8 +92,7 @@ public:
 
     bool is_object_present() { return (a_ptr.load() != NULL); }
 
-    send_one_replaceable_object_t(bool _sync) :
-      sync(_sync), a_ptr(NULL) {}
+    send_one_replaceable_object_t(bool _sync) : sync(_sync), a_ptr(NULL) {}
 };
 
 struct detection_data_t
@@ -107,8 +106,7 @@ struct detection_data_t
     bool exit_flag;
     cv::Mat zed_cloud;
     std::queue<cv::Mat> track_optflow_queue;
-    detection_data_t() :
-      new_detection(false), exit_flag(false) {}
+    detection_data_t() : new_detection(false), exit_flag(false) {}
 };
 
 void draw_boxes(cv::Mat mat_img, std::vector<bbox_t> result_vec,
@@ -119,38 +117,32 @@ void draw_boxes(cv::Mat mat_img, std::vector<bbox_t> result_vec,
         cv::Scalar color = obj_id_to_color(i.obj_id);
         if (obj_names.size() > i.obj_id) {
             std::string obj_name = obj_names[i.obj_id];
-			if (obj_name != std::string("person")) {
-				continue;
-			}
-        	cv::rectangle(mat_img, cv::Rect(i.x, i.y, i.w, i.h), color, 1);
-            if (i.track_id > 0)
-                obj_name = std::to_string(i.track_id);
-            cv::Size const text_size = getTextSize(
-              obj_name, cv::FONT_HERSHEY_COMPLEX_SMALL, 0.7, 1,
-              0);
-            int max_width = (text_size.width > i.w + 2) ? text_size.width : (i.w + 2);
+            if (obj_name != std::string("person")) { continue; }
+            cv::rectangle(mat_img, cv::Rect(i.x, i.y, i.w, i.h), color, 1);
+            if (i.track_id > 0) obj_name = std::to_string(i.track_id);
+            cv::Size const text_size =
+              getTextSize(obj_name, cv::FONT_HERSHEY_COMPLEX_SMALL, 0.7, 1, 0);
+            int max_width =
+              (text_size.width > i.w + 2) ? text_size.width : (i.w + 2);
             max_width = std::max(max_width, (int)i.w + 2);
             cv::rectangle(
               mat_img,
               cv::Point2f(std::max((int)i.x - 1, 0),
                           std::max((int)i.y - 35, 0)),
-              cv::Point2f(std::min((int)i.x + max_width,
-                                   mat_img.cols - 1),
+              cv::Point2f(std::min((int)i.x + max_width, mat_img.cols - 1),
                           std::min((int)i.y, mat_img.rows - 1)),
               color, CV_FILLED, 8, 0);
             putText(mat_img, obj_name, cv::Point2f(i.x, i.y - 16),
-                    cv::FONT_HERSHEY_COMPLEX_SMALL, 1.2,
-                    cv::Scalar(0, 0, 0), 2);
+                    cv::FONT_HERSHEY_COMPLEX_SMALL, 1.2, cv::Scalar(0, 0, 0),
+                    2);
         }
     }
     if (current_det_fps >= 0 && current_cap_fps >= 0) {
-        std::string fps_str =
-          "FPS det: " + std::to_string(current_det_fps) +
-          " FPS cap: " + std::to_string(current_cap_fps) +
-          " " + std::to_string(thresh);
+        std::string fps_str = "FPS det: " + std::to_string(current_det_fps) +
+                              " FPS cap: " + std::to_string(current_cap_fps) +
+                              " " + std::to_string(thresh);
         putText(mat_img, fps_str, cv::Point2f(10, 20),
-                cv::FONT_HERSHEY_COMPLEX_SMALL, 1,
-                cv::Scalar(50, 255, 0), 1);
+                cv::FONT_HERSHEY_COMPLEX_SMALL, 1, cv::Scalar(50, 255, 0), 1);
     }
 }
 
@@ -175,7 +167,8 @@ std::vector<obj_t> convertBbox2obj(const std::vector<bbox_t>& v)
 {
     std::vector<obj_t> ret;
     for (auto& elem : v) {
-        ret.push_back({elem.prob, elem.obj_id, elem.track_id, elem.frames_counter});
+        ret.push_back(
+          {elem.prob, elem.obj_id, elem.track_id, elem.frames_counter});
     }
     return ret;
 }
@@ -208,9 +201,9 @@ int main(int argc, char* argv[])
 {
     Logger& lg = spdLogger::getInstance();
     Config& cfg = JSONConfig::getInstance("/etc/iot-config.json");
-	Interface& inf = CrowServer::getInstance(cfg, lg);
-	Jetson jet("jetsonNano", {60,50,50}, lg, cfg, inf);
-	HardwareManager& hw = jet;
+    Interface& inf = CrowServer::getInstance(cfg, lg);
+    Jetson jet("jetsonNano", {60, 50, 50}, lg, cfg, inf);
+    HardwareManager& hw = jet;
 
     testConfig(cfg);
 
@@ -235,19 +228,18 @@ int main(int argc, char* argv[])
     std::atomic<bool> exit_flag(false);
 
     if (cfg.getBoardName() == std::string("JetsonNano")) {
-        auto thermometer = std::thread([&] {
-			hw.monitor();
-		});
+        auto thermometer = std::thread([&] { hw.monitor(); });
         thermometer.detach();
-	}
+    }
 
-	inf.initialize();
+    inf.initialize();
     auto server = std::thread([&] { inf.run(); });
     server.detach();
 
     while (true) {
         if (filename.size() == 0) {
-            std::cout << "file name is empty, this program is exitting" << std::endl;
+            std::cout << "file name is empty, this program is exitting"
+                      << std::endl;
             break;
         }
 
@@ -292,7 +284,8 @@ int main(int argc, char* argv[])
                 std::cout << "\n Video size: " << frame_size << std::endl;
 
                 const bool sync = detection_sync; // sync data exchange
-                send_one_replaceable_object_t<detection_data_t> cap2prepare(sync),
+                send_one_replaceable_object_t<detection_data_t> cap2prepare(
+                  sync),
                   cap2draw(sync), prepare2detect(sync), detect2draw(sync),
                   draw2show(sync), draw2write(sync), draw2net(sync);
 
@@ -300,8 +293,7 @@ int main(int argc, char* argv[])
                   t_network;
 
                 // capture new video-frame
-                if (t_cap.joinable())
-                    t_cap.join();
+                if (t_cap.joinable()) t_cap.join();
                 t_cap = std::thread([&]() {
                     uint64_t frame_id = 0;
                     detection_data_t detection_data;
@@ -312,16 +304,15 @@ int main(int argc, char* argv[])
                         fps_cap_counter++;
                         detection_data.frame_id = frame_id++;
 
-						exit_flag = cfg.status();
-                        if (exit_flag) {
-                            detection_data.exit_flag = true;
-                        }
+                        exit_flag = cfg.status();
+                        if (exit_flag) { detection_data.exit_flag = true; }
                         else if (detection_data.cap_frame.empty()) {
                             // verify and polling
                             // here when cam is down
                             std::cout << "retrying open " << filename << "\n";
                             while (cap.open(filename) == false) {
-                                std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+                                std::this_thread::sleep_for(
+                                  std::chrono::milliseconds(3000));
                             }
                             continue;
                         }
@@ -344,7 +335,8 @@ int main(int argc, char* argv[])
                     do {
                         detection_data = cap2prepare.receive();
 
-                        det_image = detector.mat_to_image_resize(detection_data.cap_frame);
+                        det_image = detector.mat_to_image_resize(
+                          detection_data.cap_frame);
                         detection_data.det_image = det_image;
                         prepare2detect.send(detection_data); // detection
 
@@ -362,11 +354,13 @@ int main(int argc, char* argv[])
                         std::vector<bbox_t> result_vec;
 
                         if (det_image)
-                            result_vec = detector.detect_resized(*det_image, frame_size.width,
-                                                                 frame_size.height, thresh,
-                                                                 true); // true
+                            result_vec = detector.detect_resized(
+                              *det_image, frame_size.width, frame_size.height,
+                              cfg.getThreshold(),
+                              true); // true
                         fps_det_counter++;
-                        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+                        std::this_thread::sleep_for(
+                          std::chrono::milliseconds(20));
 
                         detection_data.new_detection = true;
                         detection_data.result_vec = result_vec;
@@ -390,7 +384,8 @@ int main(int argc, char* argv[])
                             // result if present
                             if (detect2draw.is_object_present()) {
                                 cv::Mat old_cap_frame =
-                                  detection_data.cap_frame; // use old captured frame
+                                  detection_data
+                                    .cap_frame; // use old captured frame
                                 detection_data = detect2draw.receive();
                                 if (!old_cap_frame.empty())
                                     detection_data.cap_frame = old_cap_frame;
@@ -399,7 +394,8 @@ int main(int argc, char* argv[])
                             // frame
                             else {
                                 std::vector<bbox_t> old_result_vec =
-                                  detection_data.result_vec; // use old detections
+                                  detection_data
+                                    .result_vec; // use old detections
                                 detection_data = cap2draw.receive();
                                 detection_data.result_vec = old_result_vec;
                             }
@@ -407,7 +403,8 @@ int main(int argc, char* argv[])
 
                         cv::Mat cap_frame = detection_data.cap_frame;
                         cv::Mat draw_frame = detection_data.cap_frame.clone();
-                        std::vector<bbox_t> result_vec = detection_data.result_vec;
+                        std::vector<bbox_t> result_vec =
+                          detection_data.result_vec;
 
                         // track ID by using kalman
                         // filter
@@ -422,13 +419,15 @@ int main(int argc, char* argv[])
                         // track ID by using custom
                         // function
                         else {
-                            int frame_story = std::max(5, current_fps_cap.load());
-                            result_vec =
-                              detector.tracking_id(result_vec, true, frame_story, 40);
+                            int frame_story =
+                              std::max(5, current_fps_cap.load());
+                            result_vec = detector.tracking_id(result_vec, true,
+                                                              frame_story, 40);
                         }
 
-                        draw_boxes(draw_frame, result_vec, obj_names, current_fps_det,
-                                   current_fps_cap, thresh);
+                        draw_boxes(draw_frame, result_vec, obj_names,
+                                   current_fps_det, current_fps_cap,
+                                   cfg.getThreshold());
 
                         DataResult data_result{draw_frame,
                                                convertBbox2obj(result_vec),
@@ -452,8 +451,7 @@ int main(int argc, char* argv[])
 #ifdef IMAGE_DBG
                         draw2show.send(detection_data);
 #endif
-                        if (send_network)
-                            draw2net.send(detection_data);
+                        if (send_network) draw2net.send(detection_data);
                     } while (!detection_data.exit_flag);
                     std::cout << " t_draw exit \n";
                 });
@@ -464,7 +462,8 @@ int main(int argc, char* argv[])
                 do {
                     steady_end = std::chrono::steady_clock::now();
                     float time_sec =
-                      std::chrono::duration<double>(steady_end - steady_start).count();
+                      std::chrono::duration<double>(steady_end - steady_start)
+                        .count();
                     if (time_sec >= 1) {
                         current_fps_det = fps_det_counter.load() / time_sec;
                         current_fps_cap = fps_cap_counter.load() / time_sec;
@@ -480,11 +479,8 @@ int main(int argc, char* argv[])
                     int key = cv::waitKey(3); // 3 or 16ms
                     if (key == 'p')
                         while (true)
-                            if (cv::waitKey(100) == 'p')
-                                break;
-                    if (key == 27) {
-                        exit_flag = true;
-                    }
+                            if (cv::waitKey(100) == 'p') break;
+                    if (key == 27) { exit_flag = true; }
 
                 } while (!detection_data.exit_flag);
                 std::cout << " show detection exit \n";
@@ -493,19 +489,15 @@ int main(int argc, char* argv[])
 #endif
 
                 // wait for all threads
-                if (t_cap.joinable())
-                    t_cap.join();
-                if (t_prepare.joinable())
-                    t_prepare.join();
-                if (t_detect.joinable())
-                    t_detect.join();
-                if (t_draw.joinable())
-                    t_draw.join();
+                if (t_cap.joinable()) t_cap.join();
+                if (t_prepare.joinable()) t_prepare.join();
+                if (t_detect.joinable()) t_detect.join();
+                if (t_draw.joinable()) t_draw.join();
 
                 // sleep here wait next event
                 while (exit_flag) {
-					exit_flag = cfg.status();
-                    std::cout << "sleep wait for next events\n";
+                    exit_flag = cfg.status();
+                    //std::cout << "sleep wait for next events\n";
                     std::this_thread::sleep_for(std::chrono::seconds(2));
                 }
             }

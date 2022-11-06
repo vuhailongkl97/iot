@@ -195,7 +195,6 @@ bool JSONConfig::parse(std::string cfg)
 {
     using json = nlohmann::json;
     m_config->m_config = json::parse(cfg);
-	std::cout << std::setw(4) << m_config->m_config;
     return true;
 }
 

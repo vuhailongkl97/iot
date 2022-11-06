@@ -29,8 +29,8 @@ void discordNotifier::doWork(const filteredDataResult& d)
             cv::imwrite(m_tmpImgPath, d.frame);
             m_time4rest = curTime + cfg.getTimeSkippingDetection();
             recent_results.clear();
-			logger.info( "wrote an image, start skiping ");
-			inf.notify(NOTIFY_TYPE::DETECT_RET, "/tmp/img.png");
+            logger.info("wrote an image, start skiping ");
+            inf.notify(NOTIFY_TYPE::DETECT_RET, m_tmpImgPath);
         }
         else {
             recent_results.pop_back();

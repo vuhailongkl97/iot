@@ -24,14 +24,15 @@ class spdLogger final : public Logger
 {
 private:
     struct impl;
-	std::shared_ptr<impl> m_impl;
-	std::shared_ptr<impl> getLoggerInstance();
+    std::shared_ptr<impl> m_impl;
+    std::shared_ptr<impl> getLoggerInstance();
+
 public:
-    static void initialize(std::shared_ptr<impl> &);
+    static void initialize(std::shared_ptr<impl>&);
     void info(const char* str) override;
     void error(const char* str) override;
     void debug(const char* str) override;
     void warn(const char* str) override;
     static Logger& getInstance();
-	~spdLogger();
+    ~spdLogger();
 };
