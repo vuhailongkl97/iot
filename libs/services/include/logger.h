@@ -1,13 +1,38 @@
-#include "spdlog/spdlog.h"
-#include "spdlog/sinks/rotating_file_sink.h"
+#pragma once
+#include <memory>
 
-class MLogger
+enum class LOGLV
 {
-
-private:
-    MLogger() = delete;
-    static void initializeLog();
+    INFO,
+    WARNING,
+    DEBUG,
+    ERROR
+};
+class Logger
+{
+protected:
+    LOGLV m_loglevel = LOGLV::INFO;
 
 public:
-    static std::shared_ptr<spdlog::logger> getLoggerInstance();
+    virtual void info(const char* str) = 0;
+    virtual void error(const char* str) = 0;
+    virtual void debug(const char* str) = 0;
+    virtual void warn(const char* str) = 0;
+};
+
+class spdLogger final : public Logger
+{
+private:
+    struct impl;
+    std::shared_ptr<impl> m_impl;
+    std::shared_ptr<impl> getLoggerInstance();
+
+public:
+    static void initialize(std::shared_ptr<impl>&);
+    void info(const char* str) override;
+    void error(const char* str) override;
+    void debug(const char* str) override;
+    void warn(const char* str) override;
+    static Logger& getInstance();
+    ~spdLogger();
 };
