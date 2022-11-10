@@ -1,8 +1,8 @@
 # What it is
 
-+ This is customized example from [darknet](https://github.com/AlexeyAB/darknet/) for C++ in objects recognition in minimal configuration.
++ This is a customized example from [darknet](https://github.com/AlexeyAB/darknet/) for C++ in objects recognition in minimal configuration (without any dependency from the original repo ).
 
-+ A customized darknet version to runable on an Embedded platform (ex Jetson Nano) for create *a secured camera ( human detector )* 
++ Run on embedded boards like Jetson Nano for create *a secured camera ( human detector )* 
 
 # System Requirements 
 
