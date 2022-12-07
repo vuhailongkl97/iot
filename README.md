@@ -41,6 +41,8 @@ Steps from getting a frame to decide notify or not :
 + [opencv 4.1.1](https://pysource.com/2019/08/26/install-opencv-4-1-on-nvidia-jetson-nano/)
 + [cuda-10.2](https://jfrog.com/connect/post/installing-cuda-on-nvidia-jetson-nano/)
 + [asio](https://think-async.com/Asio/asio-1.24.0/doc/asio/using.html)
++ [curl](https://curl.se/download.html)
+
 # How to run
 Tested on Jetson nano 2GB.
 ## Build
@@ -126,7 +128,6 @@ ex:
 + [Crow](https://github.com/ipkn/crow) - socket management
 + [spdlog](https://github.com/gabime/spdlog) - logging 
 + [backward-cpp](https://github.com/bombela/backward-cpp) - a good backtrace when the system is crashed
-+ [yaml-cpp](https://github.com/jbeder/yaml-cpp) - read/write configuration in yaml format
 + [json](https://github.com/nlohmann/json) - read/write configuration in json
 
 # Reference
