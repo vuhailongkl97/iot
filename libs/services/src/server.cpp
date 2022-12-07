@@ -2,7 +2,8 @@
 #include "crow.h"
 #include "config_mgr.h"
 
-class CustomLogger : public crow::ILogHandler {
+class CustomLogger : public crow::ILogHandler
+{
 private:
     Logger& m_l;
 
@@ -16,13 +17,13 @@ struct CrowServer::impl
     crow::SimpleApp app;
 };
 
-CrowServer::CrowServer(Config& c, Logger& l) : pimpl(new impl),
-  Interface(c, l)
+CrowServer::CrowServer(Config& c, Logger& l) : pimpl(new impl), Interface(c, l)
 {}
 
-Interface& CrowServer::getInstance(Config &c, Logger &l) {
-	static CrowServer cr(c, l);
-	return cr;
+Interface& CrowServer::getInstance(Config& c, Logger& l)
+{
+    static CrowServer cr(c, l);
+    return cr;
 }
 CrowServer::~CrowServer() {}
 struct req_impl
@@ -78,14 +79,13 @@ void CrowServer::notify(NOTIFY_TYPE type, std::string content)
     }
     crow::json::wvalue x;
     x["key"] = key;
-	x["content"] = content;
-	auto apis = cfg.getNotifyAPI();
-	for(auto api : apis)
-	{
+    x["content"] = content;
+    auto apis = cfg.getNotifyAPI();
+    for (auto api : apis) {
         char cmd[250];
         snprintf(cmd, sizeof(cmd) - 1,
                  "/usr/bin/curl %s -X POST -d '%s' --max-time 2 -s >/dev/null",
                  api.c_str(), x.dump().c_str());
         system(cmd);
-	}
+    }
 }

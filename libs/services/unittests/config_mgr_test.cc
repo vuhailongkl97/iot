@@ -10,7 +10,7 @@ TEST(JSONTEST, DEFAULT_CFG)
     EXPECT_TRUE(cfg.getTimeForcus() == 2);
     EXPECT_TRUE(cfg.getTimeSkippingDetection() == 20);
     EXPECT_TRUE(cfg.getMinQueueEntryLimit() == 15);
-	auto apis = cfg.getNotifyAPI();
+    auto apis = cfg.getNotifyAPI();
     ASSERT_EQ(apis.size(), 1);
     EXPECT_EQ(apis[0], std::string("http://localhost:1234/updated"));
     EXPECT_TRUE(cfg.getDelay4Cap() == 20);
@@ -34,7 +34,8 @@ TEST(JSONTEST, SET_THRESHOLD)
     EXPECT_TRUE(fabs(cfg.getThreshold() - tmpval) < 0.001);
 }
 
-TEST(JSONTEST, PARSE) {
+TEST(JSONTEST, PARSE)
+{
     using json = nlohmann::json;
 
     Config& cfg = JSONConfig::getInstance("../iot-config.json");
@@ -54,23 +55,20 @@ TEST(JSONTEST, PARSE_NOT_ARRAY)
     using json = nlohmann::json;
 
     Config& cfg = JSONConfig::getInstance("../iot-config.json");
-	json ex1 = {
-	  {"NotifyAPI", {"https://", "admins:8080"}},
-	  {"Status", false}
-	};
+    json ex1 = {{"NotifyAPI", {"https://", "admins:8080"}}, {"Status", false}};
 
-	cfg.parse(ex1.dump());
+    cfg.parse(ex1.dump());
 
-	auto apis = cfg.getNotifyAPI();
+    auto apis = cfg.getNotifyAPI();
 
-	ASSERT_EQ(apis.size(), 2);
+    ASSERT_EQ(apis.size(), 2);
     EXPECT_EQ(apis[0], std::string("https://"));
     EXPECT_EQ(apis[1], std::string("admins:8080"));
 
     json ex2 = {{"NotifyAPI", "shttps://"}, {"Status", false}};
 
     cfg.parse(ex2.dump());
-	apis = cfg.getNotifyAPI();
+    apis = cfg.getNotifyAPI();
 
     ASSERT_EQ(apis.size(), 3);
     EXPECT_EQ(apis[0], std::string("https://"));

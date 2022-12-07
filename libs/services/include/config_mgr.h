@@ -14,9 +14,7 @@ public:
     bool update(std::string cfg, bool is_sync = true)
     {
         auto ret = parse(cfg);
-		if(is_sync) {
-	        sync();
-		}
+        if (is_sync) { sync(); }
         return ret;
     }
     virtual bool status() = 0;

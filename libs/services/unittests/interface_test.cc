@@ -3,34 +3,35 @@
 
 #include "../src/server.cpp"
 
-class MockSystem {
- public:
-	MOCK_METHOD(int, system, (const char*));
+class MockSystem
+{
+public:
+    MOCK_METHOD(int, system, (const char*));
 };
 
-MockSystem *_m = nullptr;
-int system(const char*command) {
-	if(_m) {
-    	return _m->system(command);	
-	}
-	return 0;
+MockSystem* _m = nullptr;
+int system(const char* command)
+{
+    if (_m) { return _m->system(command); }
+    return 0;
 }
 
-class INTERFACETest : public ::testing::Test {
+class INTERFACETest : public ::testing::Test
+{
 public:
-  INTERFACETest() : lg(spdLogger().getInstance()),cfg(JSONConfig::getInstance("../iot-config.json")), p(new CrowServer(cfg, lg)){
-  }
- protected:
-  void SetUp() noexcept override {
-  	_m = new MockSystem();
-  }
+    INTERFACETest() :
+      lg(spdLogger().getInstance()),
+      cfg(JSONConfig::getInstance("../iot-config.json")),
+      p(new CrowServer(cfg, lg))
+    {}
 
-  void TearDown() override {
-	delete _m;
-  }
-  Logger& lg;
-  Config& cfg;
-  std::unique_ptr<Interface> p;
+protected:
+    void SetUp() noexcept override { _m = new MockSystem(); }
+
+    void TearDown() override { delete _m; }
+    Logger& lg;
+    Config& cfg;
+    std::unique_ptr<Interface> p;
 };
 
 TEST_F(INTERFACETest, RETURN400)
@@ -73,23 +74,29 @@ TEST_F(INTERFACETest, UPDATE)
 
         req_impl _req;
         _req.req = &req;
-		auto tmpval = cfg.getThreshold();
+        auto tmpval = cfg.getThreshold();
         auto _res = p->getHandler()(cfg, _req);
         EXPECT_EQ(_res.res.code, 200);
         std::cout << _res.res.body;
         cfg.show();
-		cfg.setThreshold(tmpval);
+        cfg.setThreshold(tmpval);
     }
-	using ::testing::InSequence;
-	{
-	    const char *expected_str_req = "/usr/bin/curl http://localhost:1234/updated -X POST -d '{\"content\":\"abcdef\",\"key\":\"img_path\"}' --max-time 2 -s >/dev/null";
+    using ::testing::InSequence;
+    {
+        const char* expected_str_req =
+          "/usr/bin/curl http://localhost:1234/updated -X POST -d "
+          "'{\"content\":\"abcdef\",\"key\":\"img_path\"}' --max-time 2 -s "
+          ">/dev/null";
 
-	    const char *expected_str_req2 = "/usr/bin/curl https://localhost:12 -X POST -d '{\"content\":\"abcdef\",\"key\":\"img_path\"}' --max-time 2 -s >/dev/null";
-	    EXPECT_CALL(*_m, system(testing::StrEq(expected_str_req))).Times(1);
-	    EXPECT_CALL(*_m, system(testing::StrEq(expected_str_req2))).Times(1);
+        const char* expected_str_req2 =
+          "/usr/bin/curl https://localhost:12 -X POST -d "
+          "'{\"content\":\"abcdef\",\"key\":\"img_path\"}' --max-time 2 -s "
+          ">/dev/null";
+        EXPECT_CALL(*_m, system(testing::StrEq(expected_str_req))).Times(1);
+        EXPECT_CALL(*_m, system(testing::StrEq(expected_str_req2))).Times(1);
 
         p->notify(NOTIFY_TYPE::DETECT_RET, "abcdef");
-	}
+    }
 }
 
 TEST_F(INTERFACETest, TEST_ARRAY_NOT_DUPLICATE)
@@ -118,24 +125,30 @@ TEST_F(INTERFACETest, TEST_ARRAY_NOT_DUPLICATE)
 
         req_impl _req;
         _req.req = &req;
-		auto tmpval = cfg.getThreshold();
+        auto tmpval = cfg.getThreshold();
         auto _res = p->getHandler()(cfg, _req);
         EXPECT_EQ(_res.res.code, 200);
         std::cout << _res.res.body;
         cfg.show();
-		EXPECT_TRUE(fabs(cfg.getThreshold() - 0.9) < 0.001);
-		cfg.setThreshold(tmpval);
+        EXPECT_TRUE(fabs(cfg.getThreshold() - 0.9) < 0.001);
+        cfg.setThreshold(tmpval);
     }
-	using ::testing::InSequence;
-	{
-	    const char *expected_str_req = "/usr/bin/curl http://localhost:1234/updated -X POST -d '{\"content\":\"abcdef\",\"key\":\"img_path\"}' --max-time 2 -s >/dev/null";
+    using ::testing::InSequence;
+    {
+        const char* expected_str_req =
+          "/usr/bin/curl http://localhost:1234/updated -X POST -d "
+          "'{\"content\":\"abcdef\",\"key\":\"img_path\"}' --max-time 2 -s "
+          ">/dev/null";
 
-	    const char *expected_str_req2 = "/usr/bin/curl https://localhost:12 -X POST -d '{\"content\":\"abcdef\",\"key\":\"img_path\"}' --max-time 2 -s >/dev/null";
-	    EXPECT_CALL(*_m, system(testing::StrEq(expected_str_req))).Times(1);
-	    EXPECT_CALL(*_m, system(testing::StrEq(expected_str_req2))).Times(1);
+        const char* expected_str_req2 =
+          "/usr/bin/curl https://localhost:12 -X POST -d "
+          "'{\"content\":\"abcdef\",\"key\":\"img_path\"}' --max-time 2 -s "
+          ">/dev/null";
+        EXPECT_CALL(*_m, system(testing::StrEq(expected_str_req))).Times(1);
+        EXPECT_CALL(*_m, system(testing::StrEq(expected_str_req2))).Times(1);
 
         p->notify(NOTIFY_TYPE::DETECT_RET, "abcdef");
-	}
+    }
 }
 
 TEST_F(INTERFACETest, TEST_ARRAY)
@@ -164,15 +177,18 @@ TEST_F(INTERFACETest, TEST_ARRAY)
 
         req_impl _req;
         _req.req = &req;
-		auto tmpval = cfg.getThreshold();
+        auto tmpval = cfg.getThreshold();
         auto _res = p->getHandler()(cfg, _req);
         EXPECT_EQ(_res.res.code, 200);
         std::cout << _res.res.body;
         cfg.show();
-		EXPECT_TRUE(fabs(cfg.getThreshold() - 0.9) < 0.001);
-		cfg.setThreshold(tmpval);
+        EXPECT_TRUE(fabs(cfg.getThreshold() - 0.9) < 0.001);
+        cfg.setThreshold(tmpval);
     }
-	const char *expected_str_req = "/usr/bin/curl http://localhost:1234/updated -X POST -d '{\"content\":\"abcdef\",\"key\":\"img_path\"}' --max-time 2 -s >/dev/null";
-	EXPECT_CALL(*_m, system(testing::StrEq(expected_str_req))).Times(1);
+    const char* expected_str_req =
+      "/usr/bin/curl http://localhost:1234/updated -X POST -d "
+      "'{\"content\":\"abcdef\",\"key\":\"img_path\"}' --max-time 2 -s "
+      ">/dev/null";
+    EXPECT_CALL(*_m, system(testing::StrEq(expected_str_req))).Times(1);
     p->notify(NOTIFY_TYPE::DETECT_RET, "abcdef");
 }

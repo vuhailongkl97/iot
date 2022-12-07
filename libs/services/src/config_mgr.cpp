@@ -67,7 +67,6 @@ bool JSONConfig::parse(std::string cfg)
                 node = i.value();
             }
         }
-        std::cout << i.key() << ":" << i.value() << "\n";
     }
     return true;
 }

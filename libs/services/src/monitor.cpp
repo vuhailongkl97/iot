@@ -23,7 +23,8 @@ int Jetson::getAvailableMem()
 float Jetson::getTemperature(Jetsonhardware hw)
 {
     char path[200];
-    snprintf(path, sizeof(path), "/sys/devices/virtual/thermal/thermal_zone%d/temp", hw);
+    snprintf(path, sizeof(path),
+             "/sys/devices/virtual/thermal/thermal_zone%d/temp", hw);
     std::fstream tempF(path, std::fstream::in);
     char ret[10] = {0};
     if (tempF.is_open() == false) {

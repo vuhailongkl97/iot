@@ -19,12 +19,11 @@ spdLogger::~spdLogger() {}
 
 void spdLogger::initialize(std::shared_ptr<impl>& _impl)
 {
-	if (_impl == nullptr) {
-		_impl = std::make_shared<impl>();
-	}
+    if (_impl == nullptr) { _impl = std::make_shared<impl>(); }
     auto max_size = 1048576 * 3;
     auto max_files = 3;
-    auto logger = spdlog::rotating_logger_mt("iot", "/tmp/rotating.txt", max_size, max_files);
+    auto logger = spdlog::rotating_logger_mt("iot", "/tmp/rotating.txt",
+                                             max_size, max_files);
 
     spdlog::set_pattern("[%H:%M:%S] [%^---%L---%$] %v");
     spdlog::flush_every(std::chrono::minutes(2));
@@ -37,23 +36,22 @@ std::shared_ptr<spdLogger::impl> spdLogger::getLoggerInstance()
     return m_impl;
 }
 
-Logger &spdLogger::getInstance() {
+Logger& spdLogger::getInstance()
+{
     static spdLogger _loggerInst;
     return _loggerInst;
 }
 
-void spdLogger::info(const char *str) {
-    getLoggerInstance()->info("{}", str);
-}
+void spdLogger::info(const char* str) { getLoggerInstance()->info("{}", str); }
 
-void spdLogger::error(const char *str) {
+void spdLogger::error(const char* str)
+{
     getLoggerInstance()->error("{}", str);
 }
 
-void spdLogger::debug(const char *str) {
+void spdLogger::debug(const char* str)
+{
     getLoggerInstance()->debug("{}", str);
 }
 
-void spdLogger::warn(const char *str) {
-    getLoggerInstance()->warn("{}", str);
-}
+void spdLogger::warn(const char* str) { getLoggerInstance()->warn("{}", str); }
