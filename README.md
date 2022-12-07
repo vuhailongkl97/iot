@@ -6,18 +6,19 @@
 
 # System Requirements 
 
-+ System detect human correctly
-+ User can Enable/Disable detection by *pose estimation* or commands
-+ User can support detect multiple source at same time.
-+ System support configuring a part in an entire frame for detection (rectangle)
-+ Developer can change parameters( threshold, notifying APIs, hardware, ..)  via exported APIs
-+ System can monitor its hardware status (temperature, load) to reporting, prevent overload.
-+ System support some commands like *take a picture*, *get current hardware status*
-+ Logging interval, when system met error it will report
-+ System export notifying about detection result
-+ System save changed configuration from User, still effect event if it is rebooted
-+ System don't spam notifying
-+ Software still work on other hardware which adapt requirements
++ [x] System detect human correctly
++ [x] User can Enable/Disable detection by *pose estimation* or commands
++ [x] System support configuring a part in an entire frame for detection (rectangle)
++ [x] Developer can change parameters( threshold, notifying APIs, hardware, ..)  via exported APIs
++ [x] System can monitor its hardware status (temperature, load) to reporting, prevent overload.
++ [x] Logging interval, when system met error it will report
++ [x] System export notifying about detection result
++ [x] System save changed configuration from User, still effect event if it is rebooted
++ [x] System don't spam notifying
++ [x] Software still work on other hardware which adapt requirements
++ [ ] System will support register events when a new subscriber is created(dynamically IP) like buzzer, discord bot,...   
++ [ ] User can support detect multiple source at same time.
++ [ ] System support some commands like *take a picture*, *get current hardware status*
 
 # Use Case Diagrams
 ![usecases](docs/usecases.drawio.png)
@@ -52,33 +53,36 @@ cmake ..  &&  make
 ```
 ## Edit configuration and Run
 ### Edit configuration file
-`/etc/iot-config.yaml` follow [config.yaml](https://github.com/vuhailongkl97/iot/blob/master/iot-config.yaml)
+`/etc/iot-config.json` follow [config.yaml](https://github.com/vuhailongkl97/iot/blob/master/iot-config.yaml)
 ```
-TIME_FORCUS: 2  // All Frames in 2sec are person will be consider to be a correct result
-TIME_SKIP: 20  // After have detected result -> SKIP in next 20 secs
-QUEUE_ENTRY_LIMIT_MIN: 15  // Use a queue whose size is 15 to save all Frames in TIME_FORCUS seconds
-NotifyAPI: http://localhost:1234/updated // after it have a result -> notify by create a HTTP request with **NotifyAPI** (also see below)
-Delay4CAP: 20 // if your board too overload by high Frames speed from source -> increase this to reduce captured Frames;
-Port: 18080  // Port for this app to change parameter dynamically
-#NameFile: < path to >iot/darknet-deps/data/coco.names 
-#CfgFile: < path to > iot/darknet-deps/cfg/yolov4-tiny.cfg
-#WeightFile: < path to > iot/darknet-deps/data/yolov4-tiny.weights
-Threshold: 0.6 // threshold for the darknet detector
-Src: ../test-data/videoplayback.mp4
-CorrectRate: 0.9
-#BoardName: JetsonNano // if used board is JetsonNano -> support Log file at /tmp/rotating.txt
+{
+    "BoardName": "JetsonNano",
+    "CfgFile": "yolov4-tiny.cfg", // < path to > iot/darknet-deps/cfg/yolov4-tiny.cfg
+    "CorrectRate": 0.9,
+    "Delay4CAP": 20, // if your board too overload by high Frames speed from source -> increase this to reduce captured Frames;
+    "NameFile": "coco.names",
+    "NotifyAPI": "http://localhost:1234/updated", // after it have a result -> notify by create a HTTP request with **NotifyAPI** (also see below)
+    "Port": 18080, // Port for this app to change parameter dynamically
+    "QUEUE_ENTRY_LIMIT_MIN": 15, // Use a queue whose size is 15 to save all Frames in TIME_FORCUS seconds
+    "Src": "rtsp://admin:admin@192.168.1.3:554/cam/realmonitor?channel=4&subtype=1",
+    "TIME_FORCUS": 2, // All Frames in 2sec are person will be consider to be a correct result
+    "TIME_SKIP": 20, // After have detected result -> SKIP in next 20 secs
+    "Threshold": 0.8999999761581421,
+    "WeightFile": "yolov4-tiny.weights" // < path to > iot/darknet-deps/data/yolov4-tiny.weights
+}
 ```
 
 ### Run
 `./iot `  
 a demo from my camera:  
 ![demo](docs/demo.png)
+
 # Development
 + [x] 1. Testing stability
 	+ - [x] Debugging via reporting results
 	+ - [x] Aging 
 	+ - [x] Correctness
-- [x] 2. Develop notifying via HTTP request
+- [x] 2. Develop notifying via HTTP requests
 
 - [ ] support monitor multiple sources at same time.
 
@@ -87,27 +91,47 @@ a demo from my camera:
 + Install vino VNC follow `JetsonNano-RemoteVNCAccess.pdf`
 + Use vncviewer on your host in development 
 	- Ubuntu ` sudo apt install xtightvncviewer -y`
-+ Due to I use *yolov3.weight* as default but its size too big need to use [git large file](https://git-lfs.github.com/). 
 + Try to adjust your frame to fit with trained data set (416x416) in case of using yolov4-tiny.weights  
 
 # APIs 
-` curl http://192.168.55.1:18080/threshold/80 ` -> requeset to set threshold with accurate rate is 80%
- 
-` curl http://192.168.55.1:18080/disable/1 ` -> stop detecting ( the application will be in waiting state )
+### Update configuration
+Create Post request to the computer which is running detection with content like below
+```
+{
+    "BoardName": "JetsonNano",
+    "CfgFile": "yolov4-tiny.cfg",
+    "CorrectRate": 0.9,
+    "Delay4CAP": 20,
+    "NameFile": "coco.names",
+    "NotifyAPI": "http://localhost:1234/updated",
+    "Port": 18080,
+    "QUEUE_ENTRY_LIMIT_MIN": 15,
+    "Src": "rtsp://admin:admin@192.168.1.3:554/cam/realmonitor?channel=4&subtype=1",
+    "TIME_FORCUS": 2,
+    "TIME_SKIP": 20,
+    "Threshold": 0.1,
+    "WeightFile": "yolov4-tiny.weights"
+})";
 
-` curl http://192.168.55.1:18080/disable/0 ` -> enable detection if the application was in waiting state otherwise it has no effect.
+ex:
+1. save the configuration to a file *data.cfg*
+2. /usr/bin/curl http://localhost:18080/config -X POST -d@data.cfg
 
+```
+
+### Notifying
 ` /usr/bin/curl http://localhost:1234/updated -X POST -d "/tmp/img.png" ` -> notify an updated event to localhost:1234 with data is path of detected image.
+
 # Libraries are used (as submodules)
 + [Crow](https://github.com/ipkn/crow) - socket management
 + [spdlog](https://github.com/gabime/spdlog) - logging 
 + [backward-cpp](https://github.com/bombela/backward-cpp) - a good backtrace when the system is crashed
 + [yaml-cpp](https://github.com/jbeder/yaml-cpp) - read/write configuration in yaml format
++ [json](https://github.com/nlohmann/json) - read/write configuration in json
 
 # Reference
 + [download_weights](https://github.com/AlexeyAB/darknet/blob/master/scripts/download_weights.ps1)
 
-+ [yolov3.weight](https://pjreddie.com/media/files/yolov3.weights)
 + [dahua API](https://community.jeedom.com/uploads/short-url/tTQJPaNah7gZnU12VGGN9ZHEhOk.pdf)
 
 # More
