@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include <vector>
 #include <string>
 #include <fstream>
 #include <ctime>
@@ -21,7 +22,7 @@ public:
     virtual time_t getTimeForcus() = 0;
     virtual time_t getTimeSkippingDetection() = 0;
     virtual int getMinQueueEntryLimit() = 0;
-    virtual std::string getNotifyAPI() = 0;
+    virtual std::vector<std::string> getNotifyAPI() = 0;
     virtual int getDelay4Cap() = 0;
     virtual int getHTTPPort() = 0;
     virtual std::string getNamesFile() = 0;
@@ -35,7 +36,7 @@ public:
     virtual void show() = 0;
     virtual void sync() = 0;
 };
-
+#if 0
 class YamlConfig : public Config
 {
 public:
@@ -55,7 +56,7 @@ public:
     time_t getTimeForcus() override;
     time_t getTimeSkippingDetection() override;
     int getMinQueueEntryLimit() override;
-    std::string getNotifyAPI() override;
+    std::vector<std::string> getNotifyAPI() override;
     int getDelay4Cap() override;
     int getHTTPPort() override;
     std::string getNamesFile() override;
@@ -69,7 +70,7 @@ public:
     void show() override;
     void sync() override;
 };
-
+#endif
 class JSONConfig : public Config
 {
 public:
@@ -89,7 +90,7 @@ public:
     time_t getTimeForcus() override;
     time_t getTimeSkippingDetection() override;
     int getMinQueueEntryLimit() override;
-    std::string getNotifyAPI() override;
+    std::vector<std::string> getNotifyAPI() override;
     int getDelay4Cap() override;
     int getHTTPPort() override;
     std::string getNamesFile() override;

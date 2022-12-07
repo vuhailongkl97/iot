@@ -1,9 +1,10 @@
 #include <config_mgr.h>
-#include "yaml-cpp/yaml.h"
 #include <nlohmann/json.hpp>
 #include <iostream>
 #include <iomanip>
 
+#if 0
+#include "yaml-cpp/yaml.h"
 struct YamlConfig::impl
 {
     YAML::Node m_config;
@@ -72,10 +73,14 @@ int YamlConfig::getMinQueueEntryLimit()
     throw std::runtime_error(__func__);
 }
 
-std::string YamlConfig::getNotifyAPI()
+std::vector<std::string> YamlConfig::getNotifyAPI()
 {
+	std::vector<std::string> ret;
     if ((*m_config)["NotifyAPI"])
-        return (*m_config)["NotifyAPI"].as<std::string>();
+	{
+        ret.push_back((*m_config)["NotifyAPI"].as<std::string>());
+		return ret;
+	}
     throw std::runtime_error(__func__);
 }
 
@@ -145,7 +150,7 @@ void YamlConfig::show()
         std::cout << i.first << ":" << i.second << "\n";
     }
 }
-
+#endif 
 void testConfig(Config& cfg)
 {
     cfg.show();
@@ -194,7 +199,12 @@ bool JSONConfig::status() {
 bool JSONConfig::parse(std::string cfg)
 {
     using json = nlohmann::json;
-    m_config->m_config = json::parse(cfg);
+	auto tmp_cfg = json::parse(cfg);
+    for (auto i : tmp_cfg.items()) {
+    	if (m_config->contains(i.key()))
+			(*m_config)[i.key()] = i.value();
+        std::cout << i.key() << ":" << i.value() << "\n";
+    }
     return true;
 }
 
@@ -240,10 +250,10 @@ int JSONConfig::getMinQueueEntryLimit()
     throw std::runtime_error(__func__);
 }
 
-std::string JSONConfig::getNotifyAPI()
+std::vector<std::string> JSONConfig::getNotifyAPI()
 {
     if ((*m_config).contains("NotifyAPI"))
-        return (*m_config)["NotifyAPI"].get<std::string>();
+        return (*m_config)["NotifyAPI"].get<std::vector<std::string>>();
     throw std::runtime_error(__func__);
 }
 
