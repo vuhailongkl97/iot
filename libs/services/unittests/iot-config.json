@@ -5,8 +5,7 @@
     "Delay4CAP": 20,
     "NameFile": "coco.names",
     "NotifyAPI": [
-        "http://localhost:1234/updated",
-        "abc:9090"
+        "http://localhost:1234/updated"
     ],
     "Port": 18080,
     "QUEUE_ENTRY_LIMIT_MIN": 15,

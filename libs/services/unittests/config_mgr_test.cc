@@ -11,9 +11,8 @@ TEST(JSONTEST, DEFAULT_CFG)
     EXPECT_TRUE(cfg.getTimeSkippingDetection() == 20);
     EXPECT_TRUE(cfg.getMinQueueEntryLimit() == 15);
 	auto apis = cfg.getNotifyAPI();
-	ASSERT_EQ(apis.size(), 2);
+    ASSERT_EQ(apis.size(), 1);
     EXPECT_EQ(apis[0], std::string("http://localhost:1234/updated"));
-    EXPECT_EQ(apis[1], std::string("abc:9090"));
     EXPECT_TRUE(cfg.getDelay4Cap() == 20);
     EXPECT_TRUE(cfg.getHTTPPort() == 18080);
     EXPECT_TRUE(cfg.getNamesFile() == std::string("coco.names"));
@@ -39,6 +38,22 @@ TEST(JSONTEST, PARSE) {
     using json = nlohmann::json;
 
     Config& cfg = JSONConfig::getInstance("../iot-config.json");
+    json ex1 = {{"NotifyAPI", {"https://", "admins:8080"}}, {"Status", false}};
+
+    cfg.parse(ex1.dump());
+
+    auto apis = cfg.getNotifyAPI();
+
+    ASSERT_EQ(apis.size(), 2);
+    EXPECT_EQ(apis[0], std::string("https://"));
+    EXPECT_EQ(apis[1], std::string("admins:8080"));
+}
+
+TEST(JSONTEST, PARSE_NOT_ARRAY)
+{
+    using json = nlohmann::json;
+
+    Config& cfg = JSONConfig::getInstance("../iot-config.json");
 	json ex1 = {
 	  {"NotifyAPI", {"https://", "admins:8080"}},
 	  {"Status", false}
@@ -52,13 +67,13 @@ TEST(JSONTEST, PARSE) {
     EXPECT_EQ(apis[0], std::string("https://"));
     EXPECT_EQ(apis[1], std::string("admins:8080"));
 
-	json ex2 = {
-	  {"NotifyAPI", {"https://"}},
-	  {"Status", false}
-	};
-	cfg.parse(ex2.dump());
+    json ex2 = {{"NotifyAPI", "shttps://"}, {"Status", false}};
+
+    cfg.parse(ex2.dump());
 	apis = cfg.getNotifyAPI();
 
-	ASSERT_EQ(apis.size(), 1);
+    ASSERT_EQ(apis.size(), 3);
     EXPECT_EQ(apis[0], std::string("https://"));
+    EXPECT_EQ(apis[1], std::string("admins:8080"));
+    EXPECT_EQ(apis[2], std::string("shttps://"));
 }

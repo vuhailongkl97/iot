@@ -4,6 +4,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # GoogleTest requires at least C++14
 set(CMAKE_CXX_STANDARD 14)
 
+add_compile_options(-Og -g)
 include(FetchContent)
 FetchContent_Declare(
   googletest
@@ -22,7 +23,11 @@ add_executable(
   cfg_mgr_test
   config_mgr_test.cc 
 )
-
+link_libraries(
+  GTest::gmock
+  GTest::gtest
+  GTest::gtest_main
+)
 target_link_libraries(
   cfg_mgr_test
   GTest::gtest_main
@@ -36,7 +41,6 @@ add_executable(
 
 target_link_libraries(
   logger_test
-  GTest::gtest_main
 )
 
 add_executable(
@@ -48,7 +52,6 @@ add_executable(
 
 target_link_libraries(
   interface_test
-  GTest::gtest_main
   nlohmann_json::nlohmann_json
 )
 
@@ -59,7 +62,6 @@ add_executable(
 
 target_link_libraries(
   hardware_test
-  GTest::gtest_main
   nlohmann_json::nlohmann_json
 )
 
@@ -69,7 +71,6 @@ include_directories(${CMAKE_SOURCE_DIR}/../../services/include
 	${CMAKE_SOURCE_DIR}/../../dependencies/Crow/include 
 	${CMAKE_SOURCE_DIR}/../../dependencies/spdlog/include 
 )
-
 target_link_libraries(
 		cfg_mgr_test 
 )
