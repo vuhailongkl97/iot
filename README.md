@@ -16,7 +16,7 @@
 + [x] System save changed configuration from User, still effect event if it is rebooted
 + [x] System don't spam notifying
 + [x] Software still work on other hardware which adapt requirements
-+ [ ] System will support register events when a new subscriber is created(dynamically IP) like buzzer, discord bot,...   
++ [x] System will support register events when a new subscriber is created(dynamically IP) like buzzer, discord bot,...   
 + [ ] User can support detect multiple source at same time.
 + [ ] System support some commands like *take a picture*, *get current hardware status*
 
