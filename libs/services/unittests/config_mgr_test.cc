@@ -22,7 +22,6 @@ TEST(YamlConfig, DefaultConfig)
     cfg.sync();
     cfg.show();
 }
-
 #endif
 
 TEST(JSONTEST, DEFAULT_CFG)
@@ -35,15 +34,14 @@ TEST(JSONTEST, DEFAULT_CFG)
     EXPECT_TRUE(cfg.getMinQueueEntryLimit() == 15);
 	auto apis = cfg.getNotifyAPI();
 	ASSERT_EQ(apis.size(), 2);
-    EXPECT_EQ(apis[0], std::string("https://"));
-    EXPECT_EQ(apis[1], std::string("admins:8080"));
+    EXPECT_EQ(apis[0], std::string("http://localhost:1234/updated"));
+    EXPECT_EQ(apis[1], std::string("abc:9090"));
     EXPECT_TRUE(cfg.getDelay4Cap() == 20);
     EXPECT_TRUE(cfg.getHTTPPort() == 18080);
     EXPECT_TRUE(cfg.getNamesFile() == std::string("coco.names"));
     EXPECT_TRUE(cfg.getCfgFile() == std::string("yolov4-tiny.cfg"));
     EXPECT_TRUE(cfg.getWeightFile() == std::string("yolov4-tiny.weights"));
     EXPECT_TRUE(fabs(cfg.getThreshold() - 0.9) < 0.001);
-    cfg.sync();
     cfg.show();
 }
 
@@ -54,11 +52,9 @@ TEST(JSONTEST, SET_THRESHOLD)
     auto tmpval = cfg.getThreshold();
     cfg.setThreshold(0.12);
     EXPECT_TRUE(fabs(cfg.getThreshold() - 0.12) < 0.001);
-    cfg.sync();
 
     cfg.setThreshold(tmpval);
     EXPECT_TRUE(fabs(cfg.getThreshold() - tmpval) < 0.001);
-    cfg.sync();
 }
 
 TEST(JSONTEST, PARSE) {

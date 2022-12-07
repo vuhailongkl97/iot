@@ -79,9 +79,13 @@ void CrowServer::notify(NOTIFY_TYPE type, std::string content)
     crow::json::wvalue x;
     x["key"] = key;
 	x["content"] = content;
-    char cmd[250];
-    snprintf(cmd, sizeof(cmd) - 1,
-             "/usr/bin/curl %s -X POST -d '%s' --max-time 2 -s >/dev/null",
-             cfg.getNotifyAPI().c_str(), x.dump().c_str());
-    system(cmd);
+	auto apis = cfg.getNotifyAPI();
+	for(auto api : apis)
+	{
+        char cmd[250];
+        snprintf(cmd, sizeof(cmd) - 1,
+                 "/usr/bin/curl %s -X POST -d '%s' --max-time 2 -s >/dev/null",
+                 api.c_str(), x.dump().c_str());
+        system(cmd);
+	}
 }
