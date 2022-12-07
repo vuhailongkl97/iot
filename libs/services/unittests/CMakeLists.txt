@@ -50,7 +50,6 @@ target_link_libraries(
   interface_test
   GTest::gtest_main
   nlohmann_json::nlohmann_json
-  #yaml-cpp
 )
 
 add_executable(
@@ -62,7 +61,6 @@ target_link_libraries(
   hardware_test
   GTest::gtest_main
   nlohmann_json::nlohmann_json
-  #yaml-cpp
 )
 
 include(GoogleTest)
@@ -70,17 +68,10 @@ include(GoogleTest)
 include_directories(${CMAKE_SOURCE_DIR}/../../services/include
 	${CMAKE_SOURCE_DIR}/../../dependencies/Crow/include 
 	${CMAKE_SOURCE_DIR}/../../dependencies/spdlog/include 
-	#	${CMAKE_SOURCE_DIR}/../../dependencies/yaml-cpp/include 
 )
-
-#add_subdirectory(
-		#	${CMAKE_SOURCE_DIR}/../../dependencies/yaml-cpp
-		#${CMAKE_SOURCE_DIR}/build/build-libs 
-		#)
 
 target_link_libraries(
 		cfg_mgr_test 
-		#yaml-cpp
 )
 gtest_discover_tests(cfg_mgr_test)
 gtest_discover_tests(hardware_test)

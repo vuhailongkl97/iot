@@ -38,41 +38,7 @@ public:
     virtual void show() = 0;
     virtual void sync() = 0;
 };
-#if 0
-class YamlConfig : public Config
-{
-public:
-    struct impl;
 
-private:
-    const std::string m_file;
-    std::unique_ptr<impl> m_config;
-    explicit YamlConfig(const std::string path, impl* p);
-    impl operator[](std::string k);
-
-public:
-    static Config& getInstance(const char*);
-
-    bool status() override;
-    bool parse(std::string cfg) override;
-    time_t getTimeForcus() override;
-    time_t getTimeSkippingDetection() override;
-    int getMinQueueEntryLimit() override;
-    std::vector<std::string> getNotifyAPI() override;
-    int getDelay4Cap() override;
-    int getHTTPPort() override;
-    std::string getNamesFile() override;
-    std::string getCfgFile() override;
-    std::string getWeightFile() override;
-    float getThreshold() override;
-    void setThreshold(float) override;
-    std::string getSrc() override;
-    float getCorrectRate() override;
-    std::string getBoardName() override;
-    void show() override;
-    void sync() override;
-};
-#endif
 class JSONConfig : public Config
 {
 public:
