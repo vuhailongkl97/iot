@@ -54,19 +54,14 @@ bool JSONConfig::parse(std::string cfg)
     using json = nlohmann::json;
     auto tmp_cfg = json::parse(cfg);
     for (auto i : tmp_cfg.items()) {
-        if (m_config->contains(i.key())) {
-            auto& node = (*m_config)[i.key()];
-            bool existed = false;
-            if (node.is_array() && !i.value().is_array()) {
-                for (auto& v : node) {
-                    if (v == i.value()) existed = true;
-                }
-                if (!existed) { node.push_back(i.value()); }
-            }
-            else {
-                node = i.value();
-            }
+        if (!m_config->contains(i.key())) { continue; }
+        auto& node = (*m_config)[i.key()];
+        if (node.is_array() && !i.value().is_array()) {
+            auto n = std::find(node.begin(), node.end(), i.value());
+            if (n == node.end()) { node.push_back(i.value()); }
+            continue;
         }
+        node = i.value();
     }
     return true;
 }
