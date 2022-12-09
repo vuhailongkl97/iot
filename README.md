@@ -72,7 +72,7 @@ cmake  -DRUN_CLANG_TIDY=y .. && make
     "Port": 18080, // Port for this app to change parameter dynamically
     "QUEUE_ENTRY_LIMIT_MIN": 15, // Use a queue whose size is 15 to save all Frames in TIME_FORCUS seconds
     "Src": "rtsp://admin:admin@192.168.1.3:554/cam/realmonitor?channel=4&subtype=1",
-	"Status": false, // mean in working, is true mean disable
+    "Status": false, // mean in working, is true mean disable
     "TIME_FORCUS": 2, // All Frames in 2sec are person will be consider to be a correct result
     "TIME_SKIP": 20, // After have detected result -> SKIP in next 20 secs
     "Threshold": 0.8999999761581421,
@@ -131,8 +131,25 @@ ex:
 ```
 
 ### Notifying
-` /usr/bin/curl http://localhost:1234/updated -X POST -d "/tmp/img.png" ` -> notify an updated event to localhost:1234 with data is path of detected image.
+When the program got a result frame it will create a post request to list of "NotifyAPI" as requested in *Update configuration* above
 
+POST to `http://localhost:1234/updated"
+contents in JSON format
+```
+{
+    "content":"msg",
+    "key":"a message may be a error report"
+}
+```
+or
+
+```
+{
+    "content":"img_path",
+    "key":"<path to the detected frame saved in the img_path as a file>"
+    // due to currently I use consumers on localhost itself therefor I just pass path to the image, when implement on other machine it should be updated.
+}
+```
 # Libraries are used (as submodules)
 + [Crow](https://github.com/ipkn/crow) - socket management
 + [spdlog](https://github.com/gabime/spdlog) - logging 
