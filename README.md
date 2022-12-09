@@ -50,7 +50,7 @@ Tested on Jetson nano 2GB.
 git clone --recursive https://github.com/vuhailongkl97/iot.git
 cd iot && git lfs pull
 mkdir build && cd build
-cmake ..  &&  make
+cmake -DIMAGE_DBG=1 ..  &&  make
 --------------------
 In development:
 Run static analysis with clang-tidy. It required clang-tidy installed ( sudo apt install clang-tidy )
