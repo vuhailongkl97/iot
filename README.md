@@ -51,11 +51,14 @@ git clone --recursive https://github.com/vuhailongkl97/iot.git
 cd iot && git lfs pull
 mkdir build && cd build
 cmake ..  &&  make
-
+--------------------
+In development:
+Run static analysis with clang-tidy. It required clang-tidy installed ( sudo apt install clang-tidy )
+cmake  -DRUN_CLANG_TIDY=y .. && make
 ```
 ## Edit configuration and Run
 ### Edit configuration file
-`/etc/iot-config.json` follow [config.yaml](https://github.com/vuhailongkl97/iot/blob/master/iot-config.yaml)
+`/etc/iot-config.json` follow [config.json](https://github.com/vuhailongkl97/iot/blob/master/iot-config.json)
 ```
 {
     "BoardName": "JetsonNano",
@@ -86,7 +89,7 @@ a demo from my camera:
 	+ - [x] Correctness
 - [x] 2. Develop notifying via HTTP requests
 
-- [ ] support monitor multiple sources at same time.
+- [ ] support monitor multiple sources at a same time.
 
 # Note: 
 + OS information `Linux jetson 4.9.140-tegra #1 SMP PREEMPT Fri Oct 16 12:32:46 PDT 2020 aarch64 aarch64 aarch64 GNU/Linux`

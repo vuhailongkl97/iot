@@ -1,7 +1,7 @@
 #include <config_mgr.h>
-#include <nlohmann/json.hpp>
-#include <iostream>
 #include <iomanip>
+#include <iostream>
+#include <nlohmann/json.hpp>
 
 void testConfig(Config& cfg)
 {
@@ -25,35 +25,36 @@ struct JSONConfig::impl
     using json = nlohmann::json;
     json m_config;
 
-    json& operator[](std::string k) { return m_config[k]; }
+    auto operator[](std::string k) -> json& { return m_config[k]; }
 
-    json::iterator begin() { return m_config.begin(); }
+    auto begin() -> json::iterator { return m_config.begin(); }
 
-    json::iterator end() { return m_config.end(); }
+    auto end() -> json::iterator { return m_config.end(); }
 
-    bool contains(std::string k) { return m_config.contains(k); }
-    friend std::ostream& operator<<(std::ostream& os,
-                                    const JSONConfig::impl& i);
+    auto contains(std::string k) const -> bool const { return m_config.contains(k); }
+    friend auto operator<<(std::ostream& os,
+                                    const JSONConfig::impl& i) -> std::ostream&;
 };
 
-std::ostream& operator<<(std::ostream& os, const JSONConfig::impl& j)
+auto operator<<(std::ostream& os, const JSONConfig::impl& j) -> std::ostream&
 {
     os << std::setw(4) << j.m_config << std::endl;
     return os;
 }
 
-bool JSONConfig::status()
+auto JSONConfig::status() -> bool
 {
-    if ((*m_config).contains("Status"))
+    if ((*m_config).contains("Status")) {
         return (*m_config)["Status"].get<bool>();
+}
     throw std::runtime_error(__func__);
 }
 
-bool JSONConfig::parse(std::string cfg)
+auto JSONConfig::parse(std::string cfg) -> bool
 {
     using json = nlohmann::json;
     auto tmp_cfg = json::parse(cfg);
-    for (auto i : tmp_cfg.items()) {
+    for (const auto& i : tmp_cfg.items()) {
         if (!m_config->contains(i.key())) { continue; }
         auto& node = (*m_config)[i.key()];
         if (node.is_array() && !i.value().is_array()) {
@@ -80,109 +81,122 @@ JSONConfig::JSONConfig(const std::string path, impl* p) :
     m_config->m_config = json::parse(f);
 }
 
-Config& JSONConfig::getInstance(const char* cfg_path)
+auto JSONConfig::getInstance(const char* cfg_path) -> Config&
 {
     static JSONConfig cfg(cfg_path, new impl);
     return cfg;
 }
 
-time_t JSONConfig::getTimeForcus()
+auto JSONConfig::getTimeForcus() -> time_t
 {
-    if ((*m_config).contains("TIME_FORCUS"))
+    if ((*m_config).contains("TIME_FORCUS")) {
         return (*m_config)["TIME_FORCUS"].get<time_t>();
+}
     throw std::runtime_error(__func__);
 }
 
-time_t JSONConfig::getTimeSkippingDetection()
+auto JSONConfig::getTimeSkippingDetection() -> time_t
 {
-    if ((*m_config).contains("TIME_SKIP"))
+    if ((*m_config).contains("TIME_SKIP")) {
         return (*m_config)["TIME_SKIP"].get<time_t>();
+}
 
     throw std::runtime_error(__func__);
 }
 
-int JSONConfig::getMinQueueEntryLimit()
+auto JSONConfig::getMinQueueEntryLimit() -> int
 {
-    if ((*m_config).contains("QUEUE_ENTRY_LIMIT_MIN"))
+    if ((*m_config).contains("QUEUE_ENTRY_LIMIT_MIN")) {
         return (*m_config)["QUEUE_ENTRY_LIMIT_MIN"].get<int>();
+}
     throw std::runtime_error(__func__);
 }
 
-std::vector<std::string> JSONConfig::getNotifyAPI()
+auto JSONConfig::getNotifyAPI() -> std::vector<std::string>
 {
-    if ((*m_config).contains("NotifyAPI"))
+    if ((*m_config).contains("NotifyAPI")) {
         return (*m_config)["NotifyAPI"].get<std::vector<std::string>>();
+}
     throw std::runtime_error(__func__);
 }
 
-int JSONConfig::getDelay4Cap()
+auto JSONConfig::getDelay4Cap() -> int
 {
-    if ((*m_config).contains("Delay4CAP"))
+    if ((*m_config).contains("Delay4CAP")) {
         return (*m_config)["Delay4CAP"].get<int>();
+}
 
     throw std::runtime_error(__func__);
 }
 
-int JSONConfig::getHTTPPort()
+auto JSONConfig::getHTTPPort() -> int
 {
-    if ((*m_config).contains("Port")) return (*m_config)["Port"].get<int>();
+    if ((*m_config).contains("Port")) { return (*m_config)["Port"].get<int>();
+}
     throw std::runtime_error(__func__);
 }
 
-std::string JSONConfig::getNamesFile()
+auto JSONConfig::getNamesFile() -> std::string
 {
-    if ((*m_config).contains("NameFile"))
+    if ((*m_config).contains("NameFile")) {
         return (*m_config)["NameFile"].get<std::string>();
+}
     throw std::runtime_error(__func__);
 }
 
-std::string JSONConfig::getCfgFile()
+auto JSONConfig::getCfgFile() -> std::string
 {
-    if ((*m_config).contains("CfgFile"))
+    if ((*m_config).contains("CfgFile")) {
         return (*m_config)["CfgFile"].get<std::string>();
+}
     throw std::runtime_error(__func__);
 }
 
-std::string JSONConfig::getWeightFile()
+auto JSONConfig::getWeightFile() -> std::string
 {
-    if ((*m_config).contains("WeightFile"))
+    if ((*m_config).contains("WeightFile")) {
         return (*m_config)["WeightFile"].get<std::string>();
+}
     throw std::runtime_error(__func__);
 }
 
-float JSONConfig::getThreshold()
+auto JSONConfig::getThreshold() -> float
 {
-    if ((*m_config).contains("Threshold"))
+    if ((*m_config).contains("Threshold")) {
         return (*m_config)["Threshold"].get<float>();
+}
     throw std::runtime_error(__func__);
 }
 
 void JSONConfig::setThreshold(float th) { (*m_config)["Threshold"] = th; }
 
-std::string JSONConfig::getSrc()
+auto JSONConfig::getSrc() -> std::string
 {
-    if ((*m_config).contains("Src"))
+    if ((*m_config).contains("Src")) {
         return (*m_config)["Src"].get<std::string>();
+}
 
     throw std::runtime_error(__func__);
 }
 
-float JSONConfig::getCorrectRate()
+auto JSONConfig::getCorrectRate() -> float
 {
-    if ((*m_config).contains("CorrectRate"))
+    if ((*m_config).contains("CorrectRate")) {
         return (*m_config)["CorrectRate"].get<float>();
+}
     throw std::runtime_error(__func__);
 }
 
-std::string JSONConfig::getBoardName()
+auto JSONConfig::getBoardName() -> std::string
 {
-    if ((*m_config).contains("BoardName"))
+    if ((*m_config).contains("BoardName")) {
         return (*m_config)["BoardName"].get<std::string>();
+}
     return "Unknown";
 }
 void JSONConfig::show()
 {
-    for (auto i : (*m_config).m_config.items()) {
+    for (const auto& i : (*m_config).m_config.items()) {
         std::cout << i.key() << ":" << i.value() << "\n";
     }
 }

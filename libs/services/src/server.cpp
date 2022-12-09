@@ -1,6 +1,6 @@
 #include "server.h"
-#include "crow.h"
 #include "config_mgr.h"
+#include "crow.h"
 
 class CustomLogger : public crow::ILogHandler
 {
@@ -9,7 +9,7 @@ private:
 
 public:
     explicit CustomLogger(Logger& l) : m_l(l) {}
-    void log(std::string message, crow::LogLevel) { m_l.info(message.c_str()); }
+    void log(std::string message, crow::LogLevel /*level*/) override { m_l.info(message.c_str()); }
 };
 
 struct CrowServer::impl
@@ -20,12 +20,12 @@ struct CrowServer::impl
 CrowServer::CrowServer(Config& c, Logger& l) : pimpl(new impl), Interface(c, l)
 {}
 
-Interface& CrowServer::getInstance(Config& c, Logger& l)
+auto CrowServer::getInstance(Config& c, Logger& l) -> Interface&
 {
     static CrowServer cr(c, l);
     return cr;
 }
-CrowServer::~CrowServer() {}
+CrowServer::~CrowServer() = default;
 struct req_impl
 {
     const crow::request* req;
@@ -36,9 +36,9 @@ struct res_impl
     crow::response res;
 };
 
-res_impl Handler(Config& cfg, req_impl _req)
+auto Handler(Config& cfg, req_impl _req) -> res_impl
 {
-    auto req = _req.req;
+    const auto *req = _req.req;
     res_impl _res;
     auto x = crow::json::load(req->body);
     if (!x) { _res.res = crow::response(crow::status::BAD_REQUEST); }
@@ -51,14 +51,14 @@ res_impl Handler(Config& cfg, req_impl _req)
     return _res;
 }
 
-bool CrowServer::initialize()
+auto CrowServer::initialize() -> bool
 {
     m_handler = Handler;
     static CustomLogger tmplogger(logger);
     crow::logger::setHandler(&tmplogger);
     CROW_ROUTE(pimpl->app, "/config")
       .methods("POST"_method)([this](const crow::request& req) {
-          req_impl _req;
+          req_impl _req{};
           _req.req = &req;
           auto _res = this->m_handler(cfg, _req);
           return std::move(_res.res);
@@ -81,7 +81,7 @@ void CrowServer::notify(NOTIFY_TYPE type, std::string content)
     x["key"] = key;
     x["content"] = content;
     auto apis = cfg.getNotifyAPI();
-    for (auto api : apis) {
+    for (const auto& api : apis) {
         char cmd[250];
         snprintf(cmd, sizeof(cmd) - 1,
                  "/usr/bin/curl %s -X POST -d '%s' --max-time 2 -s >/dev/null",

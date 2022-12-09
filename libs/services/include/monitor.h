@@ -71,7 +71,7 @@ public:
 class Jetson : public HardwareManager
 {
 private:
-    float getTemperature(Jetsonhardware);
+    static float getTemperature(Jetsonhardware);
 
 public:
     Jetson(std::string name, std::vector<float> thresholds, Logger& _l,
