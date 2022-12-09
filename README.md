@@ -66,10 +66,13 @@ cmake  -DRUN_CLANG_TIDY=y .. && make
     "CorrectRate": 0.9,
     "Delay4CAP": 20, // if your board too overload by high Frames speed from source -> increase this to reduce captured Frames;
     "NameFile": "coco.names",
-    "NotifyAPI": "http://localhost:1234/updated", // after it have a result -> notify by create a HTTP request with **NotifyAPI** (also see below)
+    "NotifyAPI": [ // after it have a result -> notify by create a HTTP request with **NotifyAPI** (also see below)
+        "http://localhost:1234/updated"
+    ],
     "Port": 18080, // Port for this app to change parameter dynamically
     "QUEUE_ENTRY_LIMIT_MIN": 15, // Use a queue whose size is 15 to save all Frames in TIME_FORCUS seconds
     "Src": "rtsp://admin:admin@192.168.1.3:554/cam/realmonitor?channel=4&subtype=1",
+	"Status": false, // mean in working, is true mean disable
     "TIME_FORCUS": 2, // All Frames in 2sec are person will be consider to be a correct result
     "TIME_SKIP": 20, // After have detected result -> SKIP in next 20 secs
     "Threshold": 0.8999999761581421,
@@ -108,15 +111,18 @@ Create Post request to the computer which is running detection with content like
     "CorrectRate": 0.9,
     "Delay4CAP": 20,
     "NameFile": "coco.names",
-    "NotifyAPI": "http://localhost:1234/updated",
+    "NotifyAPI": [
+        "http://localhost:1234/updated"
+    ],
     "Port": 18080,
     "QUEUE_ENTRY_LIMIT_MIN": 15,
     "Src": "rtsp://admin:admin@192.168.1.3:554/cam/realmonitor?channel=4&subtype=1",
+    "Status": false,
     "TIME_FORCUS": 2,
     "TIME_SKIP": 20,
-    "Threshold": 0.1,
+    "Threshold": 0.9,
     "WeightFile": "yolov4-tiny.weights"
-})";
+}
 
 ex:
 1. save the configuration to a file *data.cfg*
