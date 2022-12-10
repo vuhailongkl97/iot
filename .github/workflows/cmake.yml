@@ -27,6 +27,7 @@ jobs:
           run: | 
             ls -la
             find . -name "iot" -type d
+            cd /home/runner/work/iot/iot/ && git submodule sync --recursive
             cmake -B/home/runner/work/iot/iot/build -S /home/runner/work/iot/iot/
             cmake --build /home/runner/work/iot/iot/build
             
