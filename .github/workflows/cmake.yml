@@ -27,7 +27,7 @@ jobs:
           run: | 
             ls -la
             find . -name "iot" -type d
-            cmake -B /home/runner/work/iot/iot/build
+            cmake -B/home/runner/work/iot/iot/build -S /home/runner/work/iot/iot/
             cmake --build /home/runner/work/iot/iot/build
             
 #     - name: Configure CMake
