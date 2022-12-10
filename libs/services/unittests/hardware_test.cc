@@ -29,5 +29,5 @@ TEST(HARDWAREMONITOR, BASIC)
     std::unique_ptr<HardwareManager> h(
       new fakeJetson("jetsonano", {1, 1, 1}, lg, cfg, p));
 
-//    h->monitor();
+    //    h->monitor();
 }

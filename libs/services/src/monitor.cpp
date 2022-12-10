@@ -1,14 +1,14 @@
-#include <iostream>
-#include <fstream>
-#include <map>
+#include "monitor.h"
 #include <chrono>
+#include <cstdio>
+#include <fstream>
+#include <iostream>
+#include <map>
+#include <string>
 #include <thread>
 #include <vector>
-#include <string>
-#include <cstdio>
-#include "monitor.h"
 
-int Jetson::getAvailableMem()
+auto Jetson::getAvailableMem() -> int
 {
 
     const char* cmd = "free -m | tail -n 2 | head -n 1 | awk '{ print $7 }'";
@@ -20,13 +20,14 @@ int Jetson::getAvailableMem()
     return mem;
 }
 
-float Jetson::getTemperature(Jetsonhardware hw)
+auto Jetson::getTemperature(Jetsonhardware hw) -> float
 {
     char path[200];
-    snprintf(path, sizeof(path), "/sys/devices/virtual/thermal/thermal_zone%d/temp", hw);
+    snprintf(path, sizeof(path),
+             "/sys/devices/virtual/thermal/thermal_zone%d/temp", hw);
     std::fstream tempF(path, std::fstream::in);
     char ret[10] = {0};
-    if (tempF.is_open() == false) {
+    if (!tempF.is_open()) {
         std::cout << "falure to open the temperature file\n";
         return 0;
     }
@@ -35,11 +36,12 @@ float Jetson::getTemperature(Jetsonhardware hw)
     return atoi(ret) / 1000.0;
 }
 
-std::vector<float> Jetson::getTemperatures()
+auto Jetson::getTemperatures() -> std::vector<float>
 {
     std::vector<float> temps;
-    for (auto i = 0; i < (int)Jetsonhardware::jEND; i++) {
-        temps.push_back(getTemperature((Jetsonhardware)i));
+    temps.reserve(static_cast<int>(Jetsonhardware::jEND));
+	for (auto i = 0; i < static_cast<int>(Jetsonhardware::jEND); i++) {
+        temps.push_back(getTemperature(static_cast<Jetsonhardware>(i)));
     }
     return temps;
 }

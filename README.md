@@ -16,7 +16,7 @@
 + [x] System save changed configuration from User, still effect event if it is rebooted
 + [x] System don't spam notifying
 + [x] Software still work on other hardware which adapt requirements
-+ [ ] System will support register events when a new subscriber is created(dynamically IP) like buzzer, discord bot,...   
++ [x] System will support register events when a new subscriber is created(dynamically IP) like buzzer, discord bot,...   
 + [ ] User can support detect multiple source at same time.
 + [ ] System support some commands like *take a picture*, *get current hardware status*
 
@@ -41,6 +41,8 @@ Steps from getting a frame to decide notify or not :
 + [opencv 4.1.1](https://pysource.com/2019/08/26/install-opencv-4-1-on-nvidia-jetson-nano/)
 + [cuda-10.2](https://jfrog.com/connect/post/installing-cuda-on-nvidia-jetson-nano/)
 + [asio](https://think-async.com/Asio/asio-1.24.0/doc/asio/using.html)
++ [curl](https://curl.se/download.html)
+
 # How to run
 Tested on Jetson nano 2GB.
 ## Build
@@ -48,12 +50,15 @@ Tested on Jetson nano 2GB.
 git clone --recursive https://github.com/vuhailongkl97/iot.git
 cd iot && git lfs pull
 mkdir build && cd build
-cmake ..  &&  make
-
+cmake -DIMAGE_DBG=1 ..  &&  make
+--------------------
+In development:
+Run static analysis with clang-tidy. It required clang-tidy installed ( sudo apt install clang-tidy )
+cmake  -DRUN_CLANG_TIDY=y .. && make
 ```
 ## Edit configuration and Run
 ### Edit configuration file
-`/etc/iot-config.json` follow [config.yaml](https://github.com/vuhailongkl97/iot/blob/master/iot-config.yaml)
+`/etc/iot-config.json` follow [config.json](https://github.com/vuhailongkl97/iot/blob/master/iot-config.json)
 ```
 {
     "BoardName": "JetsonNano",
@@ -61,10 +66,13 @@ cmake ..  &&  make
     "CorrectRate": 0.9,
     "Delay4CAP": 20, // if your board too overload by high Frames speed from source -> increase this to reduce captured Frames;
     "NameFile": "coco.names",
-    "NotifyAPI": "http://localhost:1234/updated", // after it have a result -> notify by create a HTTP request with **NotifyAPI** (also see below)
+    "NotifyAPI": [ // after it have a result -> notify by create a HTTP request with **NotifyAPI** (also see below)
+        "http://localhost:1234/updated"
+    ],
     "Port": 18080, // Port for this app to change parameter dynamically
     "QUEUE_ENTRY_LIMIT_MIN": 15, // Use a queue whose size is 15 to save all Frames in TIME_FORCUS seconds
     "Src": "rtsp://admin:admin@192.168.1.3:554/cam/realmonitor?channel=4&subtype=1",
+    "Status": false, // mean in working, is true mean disable
     "TIME_FORCUS": 2, // All Frames in 2sec are person will be consider to be a correct result
     "TIME_SKIP": 20, // After have detected result -> SKIP in next 20 secs
     "Threshold": 0.8999999761581421,
@@ -84,7 +92,7 @@ a demo from my camera:
 	+ - [x] Correctness
 - [x] 2. Develop notifying via HTTP requests
 
-- [ ] support monitor multiple sources at same time.
+- [ ] support monitor multiple sources at a same time.
 
 # Note: 
 + OS information `Linux jetson 4.9.140-tegra #1 SMP PREEMPT Fri Oct 16 12:32:46 PDT 2020 aarch64 aarch64 aarch64 GNU/Linux`
@@ -103,15 +111,18 @@ Create Post request to the computer which is running detection with content like
     "CorrectRate": 0.9,
     "Delay4CAP": 20,
     "NameFile": "coco.names",
-    "NotifyAPI": "http://localhost:1234/updated",
+    "NotifyAPI": [
+        "http://localhost:1234/updated"
+    ],
     "Port": 18080,
     "QUEUE_ENTRY_LIMIT_MIN": 15,
     "Src": "rtsp://admin:admin@192.168.1.3:554/cam/realmonitor?channel=4&subtype=1",
+    "Status": false,
     "TIME_FORCUS": 2,
     "TIME_SKIP": 20,
-    "Threshold": 0.1,
+    "Threshold": 0.9,
     "WeightFile": "yolov4-tiny.weights"
-})";
+}
 
 ex:
 1. save the configuration to a file *data.cfg*
@@ -120,13 +131,29 @@ ex:
 ```
 
 ### Notifying
-` /usr/bin/curl http://localhost:1234/updated -X POST -d "/tmp/img.png" ` -> notify an updated event to localhost:1234 with data is path of detected image.
+When the program got a result frame it will create a post request to list of "NotifyAPI" as requested in *Update configuration* above
 
+POST to `http://localhost:1234/updated"
+contents in JSON format
+```
+{
+    "content":"msg",
+    "key":"a message may be a error report"
+}
+```
+or
+
+```
+{
+    "content":"img_path",
+    "key":"<path to the detected frame saved in the img_path as a file>"
+    // due to currently I use consumers on localhost itself therefor I just pass path to the image, when implement on other machine it should be updated.
+}
+```
 # Libraries are used (as submodules)
 + [Crow](https://github.com/ipkn/crow) - socket management
 + [spdlog](https://github.com/gabime/spdlog) - logging 
 + [backward-cpp](https://github.com/bombela/backward-cpp) - a good backtrace when the system is crashed
-+ [yaml-cpp](https://github.com/jbeder/yaml-cpp) - read/write configuration in yaml format
 + [json](https://github.com/nlohmann/json) - read/write configuration in json
 
 # Reference
