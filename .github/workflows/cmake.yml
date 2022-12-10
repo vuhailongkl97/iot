@@ -21,13 +21,14 @@ jobs:
     - uses: actions/checkout@v3
       with:
         submodules: recursive
-
     - name: Run the build process with Docker
       uses: addnab/docker-run-action@v3
       with:
           image: longkl/iot:latest
           options: -v ${{ github.workspace }}:${{ github.workspace }}
-          run: | 
+          run: |
+            cmake -B/home/runner/work/iot/iot/libs/services/unittests/build -S /home/runner/work/iot/iot/libs/services/unittests/
+            cmake --build /home/runner/work/iot/iot/libs/services/unittests/build
             cmake -B/home/runner/work/iot/iot/build -S /home/runner/work/iot/iot/
             cmake --build /home/runner/work/iot/iot/build
             
