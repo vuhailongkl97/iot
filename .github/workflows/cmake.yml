@@ -29,6 +29,7 @@ jobs:
           run: |
             cmake -B/home/runner/work/iot/iot/libs/services/unittests/build -S /home/runner/work/iot/iot/libs/services/unittests/
             cmake --build /home/runner/work/iot/iot/libs/services/unittests/build
+            cd /home/runner/work/iot/iot/libs/services/unittests/build && make test
             cmake -B/home/runner/work/iot/iot/build -S /home/runner/work/iot/iot/
             cmake --build /home/runner/work/iot/iot/build
             
