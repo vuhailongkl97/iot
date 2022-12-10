@@ -19,15 +19,15 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+      with:
+        submodules: recursive
+
     - name: Run the build process with Docker
       uses: addnab/docker-run-action@v3
       with:
           image: longkl/iot:latest
           options: -v ${{ github.workspace }}:${{ github.workspace }}
           run: | 
-            ls -la
-            find . -name "iot" -type d
-            cd /home/runner/work/iot/iot/ && git submodule sync --recursive
             cmake -B/home/runner/work/iot/iot/build -S /home/runner/work/iot/iot/
             cmake --build /home/runner/work/iot/iot/build
             
