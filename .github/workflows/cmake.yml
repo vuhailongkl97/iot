@@ -23,11 +23,13 @@ jobs:
       uses: addnab/docker-run-action@v3
       with:
           image: longkl/iot:latest
+          volumes:
+            ${{github.workspace}}:${{github.workspace}}
           run: | 
             ls -la
             find . -name "iot" -type d
-            cmake -B `pwd`/build
-            cmake --build `pwd`/build
+            cmake -B ${{github.workspace}}/build
+            cmake --build ${{github.workspace}}/build
             
 #     - name: Configure CMake
 #       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
