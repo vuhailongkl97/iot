@@ -26,6 +26,7 @@ jobs:
           options: -v ${{ github.workspace }}:/var/www
           run: | 
             ls -la
+            find . -name "iot" -type d
             cmake -B `pwd`/build
             cmake --build `pwd`/build
             
