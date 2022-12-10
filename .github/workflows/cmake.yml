@@ -23,8 +23,7 @@ jobs:
       uses: addnab/docker-run-action@v3
       with:
           image: longkl/iot:latest
-          volumes:
-            ${{github.workspace}}:${{github.workspace}}
+          options: -v ${{ github.workspace }}:${{ github.workspace }}
           run: | 
             ls -la
             find . -name "iot" -type d
