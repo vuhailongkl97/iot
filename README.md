@@ -92,7 +92,7 @@ a demo from my camera:
 + Use vncviewer on your host in development 
 	- Ubuntu ` sudo apt install xtightvncviewer -y`
 + Try to adjust your frame to fit with trained data set (416x416) in case of using yolov4-tiny.weights  
-
++ In CI setting it'll be failed however now it only is used for checking compiling problems, at the end of compiling time, it is ok in case of it only met *linking problems* ( due to I provided pre-builts libdarknet.so for aarch64 and some dependencies lib I haven't install fully on the github-action's environment )
 # APIs 
 ### Update configuration
 Create Post request to the computer which is running detection with content like below
