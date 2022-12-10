@@ -27,8 +27,8 @@ jobs:
           run: | 
             ls -la
             find . -name "iot" -type d
-            cmake -B ${{github.workspace}}/build
-            cmake --build ${{github.workspace}}/build
+            cmake -B /home/runner/work/iot/iot/build
+            cmake --build /home/runner/work/iot/iot/build
             
 #     - name: Configure CMake
 #       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
