@@ -27,7 +27,7 @@ jobs:
           options: -v ${{ github.workspace }}:${{ github.workspace }}
           run: |
             cmake -B/home/runner/work/iot/iot/unittests/build -S /home/runner/work/iot/iot/unittests/
-            cmake --build /home/runner/work/iot/iot/libs/services/unittests/build
+            cmake --build /home/runner/work/iot/iot/unittests/build
             cd /home/runner/work/iot/iot/unittests/build && make test
             cmake -B/home/runner/work/iot/iot/build -S /home/runner/work/iot/iot/
             cmake --build /home/runner/work/iot/iot/build | grep 'Linking CXX executable iot'
