@@ -43,11 +43,12 @@ target_link_libraries(
   logger_test
 )
 
+set (SERVICE_PATH ${CMAKE_SOURCE_DIR}/../libs/services)
 add_executable(
   interface_test 
   interface_test.cc 
-  ../src/logger.cpp
-  ../src/config_mgr.cpp
+  ${SERVICE_PATH}/src/logger.cpp
+  ${SERVICE_PATH}/src/config_mgr.cpp
 )
 
 target_link_libraries(
@@ -67,9 +68,9 @@ target_link_libraries(
 
 include(GoogleTest)
 
-include_directories(${CMAKE_SOURCE_DIR}/../../services/include
-	${CMAKE_SOURCE_DIR}/../../dependencies/Crow/include 
-	${CMAKE_SOURCE_DIR}/../../dependencies/spdlog/include 
+include_directories(${SERVICE_PATH}/include
+	${CMAKE_SOURCE_DIR}/../libs/dependencies/Crow/include 
+	${CMAKE_SOURCE_DIR}/../libs/dependencies/spdlog/include 
 )
 target_link_libraries(
 		cfg_mgr_test 

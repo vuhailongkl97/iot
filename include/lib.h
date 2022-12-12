@@ -53,8 +53,9 @@ public:
         filteredDataResult f_d = filterPerson(d);
         if (!f_d.objs.empty()) doWork(f_d);
     }
-    virtual void doWork(const filteredDataResult& d) = 0;
 
+private:
+    virtual void doWork(const filteredDataResult& d) = 0;
     filteredDataResult filterPerson(const DataResult& d)
     {
         filteredDataResult filtered_d;
@@ -86,16 +87,10 @@ public:
         m_time4rest = std::time(nullptr);
     }
 
-    void updateQueueSize(int fps)
-    {
-        m_queueEntryLimit =
-          fps * (cfg.getTimeForcus() + 1) * cfg.getCorrectRate();
-        if (m_queueEntryLimit < cfg.getMinQueueEntryLimit())
-            m_queueEntryLimit = cfg.getMinQueueEntryLimit();
-    }
+private:
+    void updateQueueSize(int fps);
     void doWork(const filteredDataResult& d) override;
 
-private:
     std::deque<std::pair<obj_t, std::time_t>> recent_results;
     const char* m_tmpImgPath = "/tmp/img.png";
     size_t m_queueEntryLimit;
