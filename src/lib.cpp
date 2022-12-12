@@ -37,3 +37,10 @@ void discordNotifier::doWork(const filteredDataResult& d)
         }
     }
 }
+
+void discordNotifier::updateQueueSize(int fps)
+{
+    m_queueEntryLimit = fps * (cfg.getTimeForcus() + 1) * cfg.getCorrectRate();
+    if (m_queueEntryLimit < cfg.getMinQueueEntryLimit())
+        m_queueEntryLimit = cfg.getMinQueueEntryLimit();
+}
