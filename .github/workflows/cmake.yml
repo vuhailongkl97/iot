@@ -20,6 +20,8 @@ jobs:
     - uses: actions/checkout@v3
       with:
         submodules: recursive
+    - name: test arch
+      run: uname -a ; lscpu
     - name: Run the build process with Docker
       uses: addnab/docker-run-action@v3
       with:
