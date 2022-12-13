@@ -23,11 +23,11 @@ jobs:
     - name: Run the build process with Docker
       uses: addnab/docker-run-action@v3
       with:
-          image: longkl/iot:latest
+          image: longkl/jetpack4_6_iot:latest
           options: -v ${{ github.workspace }}:${{ github.workspace }}
           run: |
             cmake -B/home/runner/work/iot/iot/build -S /home/runner/work/iot/iot/
-            cmake --build /home/runner/work/iot/iot/build | grep 'Linking CXX executable iot' || exit 127
+            cmake --build /home/runner/work/iot/iot/build | grep '[100%] Built target' || exit 127
             cmake -B/home/runner/work/iot/iot/unittests/build -S /home/runner/work/iot/iot/unittests/
             cmake --build /home/runner/work/iot/iot/unittests/build
             cd /home/runner/work/iot/iot/unittests/build && make test | grep '100% tests passed' || exit 127
