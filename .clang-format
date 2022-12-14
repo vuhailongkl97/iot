@@ -18,7 +18,7 @@ AlwaysBreakBeforeMultilineStrings: 'false'
 #AlwaysBreakTemplateDeclarations: 'Yes'
 BinPackArguments: 'true'
 BinPackParameters: 'true'
-BreakBeforeBraces: Custom
+BreakBeforeBraces: Attach
 BraceWrapping:
   #AfterCaseLabel: 'true'
   AfterClass: 'true'

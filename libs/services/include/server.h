@@ -1,15 +1,12 @@
 #pragma once
 
-/*
- * This task is responsible for changing threshold of the detection via
- * network interface using HTTP
- * */
 #include <atomic>
 #include <string>
 #include <config_mgr.h>
 #include <logger.h>
 #include <memory>
 
+class Logger;
 struct req_impl;
 struct res_impl;
 using handler_t = res_impl (*)(Config&, req_impl);
@@ -36,11 +33,10 @@ public:
     virtual ~Interface() {}
 };
 
-class CrowServer : public Interface
+class CrowServer final: public Interface
 {
-public:
+private:
     struct impl;
-    // temporary use public. it should be private
     std::unique_ptr<impl> pimpl;
 
 public:
