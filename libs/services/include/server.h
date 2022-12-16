@@ -38,6 +38,8 @@ class CrowServer final: public Interface
 private:
     struct impl;
     std::unique_ptr<impl> pimpl;
+	CrowServer& operator = (const CrowServer&) = delete;
+	CrowServer(const CrowServer&) = delete;
 
 public:
     CrowServer(Config& c, Logger& l);
