@@ -12,12 +12,12 @@ class Logger
 {
 protected:
     LOGLV m_loglevel = LOGLV::INFO;
-
 public:
     virtual void info(const char* str) = 0;
     virtual void error(const char* str) = 0;
     virtual void debug(const char* str) = 0;
     virtual void warn(const char* str) = 0;
+	virtual ~Logger() = default;
 };
 
 class spdLogger final : public Logger
@@ -26,7 +26,7 @@ private:
     struct impl;
     std::shared_ptr<impl> m_impl;
     std::shared_ptr<impl> getLoggerInstance();
-
+    spdLogger& operator = (const spdLogger&) = delete;
 public:
     static void initialize(std::shared_ptr<impl>&);
     void info(const char* str) override;

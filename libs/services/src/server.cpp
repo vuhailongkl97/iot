@@ -1,48 +1,52 @@
 #include "server.h"
 #include "config_mgr.h"
-#include "crow.h"
+//#include "crow.h"
+#include "crow/json.h"
+#include "crow/logging.h"
+#include "crow/http_response.h"
+#include "crow/routing.h"
+#include "crow/http_connection.h"
+#include "crow/http_server.h"
+#include "crow/app.h"
 
-class CustomLogger : public crow::ILogHandler
-{
+class CustomLogger : public crow::ILogHandler {
 private:
     Logger& m_l;
 
 public:
     explicit CustomLogger(Logger& l) : m_l(l) {}
-    void log(std::string message, crow::LogLevel /*level*/) override { m_l.info(message.c_str()); }
+    void log(std::string message, crow::LogLevel /*level*/) override {
+        m_l.info(message.c_str());
+    }
 };
 
-struct CrowServer::impl
-{
+struct CrowServer::impl {
     crow::SimpleApp app;
 };
 
-CrowServer::CrowServer(Config& c, Logger& l) : pimpl(new impl), Interface(c, l)
-{}
+CrowServer::CrowServer(Config& c, Logger& l) :
+  pimpl(new impl), Interface(c, l) {}
 
-auto CrowServer::getInstance(Config& c, Logger& l) -> Interface&
-{
+auto CrowServer::getInstance(Config& c, Logger& l) -> Interface& {
     static CrowServer cr(c, l);
     return cr;
 }
 CrowServer::~CrowServer() = default;
-struct req_impl
-{
+struct req_impl {
     const crow::request* req;
 };
 
-struct res_impl
-{
+struct res_impl {
     crow::response res;
 };
 
-auto Handler(Config& cfg, req_impl _req) -> res_impl
-{
-    const auto *req = _req.req;
+auto Handler(Config& cfg, req_impl _req) -> res_impl {
+    const auto* req = _req.req;
     res_impl _res;
     auto x = crow::json::load(req->body);
-    if (!x) { _res.res = crow::response(crow::status::BAD_REQUEST); }
-    else {
+    if (!x) {
+        _res.res = crow::response(crow::status::BAD_REQUEST);
+    } else {
         bool ret = cfg.update(req->body);
         std::ostringstream os;
         os << (ret ? "mok" : "mnok");
@@ -51,8 +55,7 @@ auto Handler(Config& cfg, req_impl _req) -> res_impl
     return _res;
 }
 
-auto CrowServer::initialize() -> bool
-{
+auto CrowServer::initialize() -> bool {
     m_handler = Handler;
     static CustomLogger tmplogger(logger);
     crow::logger::setHandler(&tmplogger);
@@ -69,8 +72,7 @@ auto CrowServer::initialize() -> bool
 
 void CrowServer::run() { pimpl->app.port(cfg.getHTTPPort()).run(); }
 
-void CrowServer::notify(NOTIFY_TYPE type, std::string content)
-{
+void CrowServer::notify(NOTIFY_TYPE type, std::string content) {
     std::string key;
     switch (type) {
         case NOTIFY_TYPE::DETECT_RET: key = "img_path"; break;

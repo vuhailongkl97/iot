@@ -1,18 +1,11 @@
 #pragma once
-#include <iostream>
 #include <vector>
 #include <string>
-#include <fstream>
-#include <ctime>
-#include <exception>
-#include <cassert>
 #include <memory>
 
-class Config
-{
+class Config {
 public:
-    bool update(std::string cfg, bool is_sync = true)
-    {
+    bool update(std::string cfg, bool is_sync = true) {
         auto ret = parse(cfg);
         if (is_sync) { sync(); }
         return ret;
@@ -35,10 +28,10 @@ public:
     virtual std::string getBoardName() = 0;
     virtual void show() = 0;
     virtual void sync() = 0;
+	virtual ~Config() = default; 
 };
 
-class JSONConfig : public Config
-{
+class JSONConfig : public Config {
 public:
     struct impl;
 
@@ -47,6 +40,8 @@ private:
     std::unique_ptr<impl> m_config;
     explicit JSONConfig(const std::string path, impl* p);
     impl operator[](std::string k);
+    JSONConfig(const JSONConfig&) = delete;
+    JSONConfig& operator=(const JSONConfig&) = delete;
 
 public:
     static Config& getInstance(const char*);
