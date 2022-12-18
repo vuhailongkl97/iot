@@ -6,10 +6,15 @@
 #include <config_mgr.h>
 #include <server.h>
 
-enum class Jetsonhardware : int { jA0 = 0, jCPU, jGPU, jEND };
+enum class Jetsonhardware : int {
+    jA0 = 0,
+    jCPU,
+    jGPU,
+    jEND
+};
 
 class HardwareManager {
-protected:
+ protected:
     Logger& l;
     Config& cfg;
     Interface& inf;
@@ -17,7 +22,7 @@ protected:
     std::string m_name;
     virtual void prepareLog();
 
-public:
+ public:
     HardwareManager(std::string name, std::vector<float> thresholds, Logger& _l,
                     Config& c, Interface& i) :
       l(_l),
@@ -33,7 +38,7 @@ class Jetson : public HardwareManager {
 private:
     float getTemperature(Jetsonhardware);
 
-public:
+ public:
     Jetson(std::string name, std::vector<float> thresholds, Logger& _l,
            Config& c, Interface& i) :
       HardwareManager(name, thresholds, _l, c, i) {}

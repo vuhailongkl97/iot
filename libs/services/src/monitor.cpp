@@ -24,8 +24,10 @@ void HardwareManager::prepareLog() {
             ret += std::to_string(cur_temp[vi]);
         }
         if (overheat) {
-            inf.notify(NOTIFY_TYPE::MSG, "temperature is over threshold");
-            l.warn("temperature is over threshold");
+			std::string msg("temperature is over threshold");
+			msg += ret;
+            inf.notify(NOTIFY_TYPE::MSG, msg);
+            l.warn(msg.c_str());
         }
         l.info(ret.c_str());
     }
