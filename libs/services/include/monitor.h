@@ -14,7 +14,7 @@ enum class Jetsonhardware : int {
 };
 
 class HardwareManager {
- private:
+ protected:
     Logger& l;
     Config& cfg;
     Interface& inf;
