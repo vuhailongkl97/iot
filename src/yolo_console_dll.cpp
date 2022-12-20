@@ -14,10 +14,8 @@
 #include <thread>
 #include <vector>
 //#define IMAGE_DBG
-// It makes sense only for video-Camera (not for video-File)
-// To use - uncomment the following line. Optical-flow is supported only by
-// OpenCV 3.x - 4.x
-//#define TRACK_OPTFLOW
+
+#define TRACK_OPTFLOW
 //#define GPU
 
 // To use 3D-stereo camera ZED - uncomment the following line. ZED_SDK should be
@@ -59,7 +57,6 @@
 #endif // CV_VERSION_EPOCH
 
 #endif // OPENCV
-
 template<typename T>
 class send_one_replaceable_object_t
 {
@@ -224,6 +221,11 @@ int main(int argc, char* argv[])
     Detector detector(cfg_file, weights_file);
 
     bool detection_sync = true; // true - for video-file
+
+#ifdef TRACK_OPTFLOW // for slow GPU
+    detection_sync = false;
+    Tracker_optflow tracker_flow;
+#endif // TRACK_OPTFLOW
 
     std::atomic<bool> exit_flag(false);
 
@@ -405,6 +407,25 @@ int main(int argc, char* argv[])
                         cv::Mat draw_frame = detection_data.cap_frame.clone();
                         std::vector<bbox_t> result_vec =
                           detection_data.result_vec;
+#ifdef TRACK_OPTFLOW
+                        if (detection_data.new_detection) {
+                            tracker_flow.update_tracking_flow(
+                              detection_data.cap_frame,
+                              detection_data.result_vec);
+                            while (track_optflow_queue.size() > 0) {
+                                draw_frame = track_optflow_queue.back();
+                                result_vec = tracker_flow.tracking_flow(
+                                  track_optflow_queue.front(), false);
+                                track_optflow_queue.pop();
+                            }
+                        } else {
+                            track_optflow_queue.push(cap_frame);
+                            result_vec =
+                              tracker_flow.tracking_flow(cap_frame, false);
+                        }
+                        detection_data.new_detection =
+                          true; // to correct kalman filter
+#endif                          //TRACK_OPTFLOW
 
                         // track ID by using kalman
                         // filter
