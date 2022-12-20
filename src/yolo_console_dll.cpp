@@ -11,6 +11,8 @@
 #include <string>
 #include <thread>
 #include <vector>
+#include <memory>
+
 //#define IMAGE_DBG
 
 #define TRACK_OPTFLOW
@@ -146,7 +148,54 @@ void customizedFrame(cv::Mat& f)
         f = f(cv::Range(10, scaled_height), cv::Range(40, 460));
     }
 }
+/*
+ * this class use for creating a hide block used darknet detector it support
+ * get status, get current frames, follow multiple source at same time.
+ * */
+class DarknetDetector {
+	public:
+		explicit DarknetDetector(Logger &, Config &);
+		void subscribe(Notifier*);
+		std::string getStatus();
+		void run();
+	private:
+		bool capture();
+		bool prepare();
+		void detect();
+		void draw();
 
+	private:
+		vector<std::string> videoSources;
+    	bool const use_kalman_filter = true; // true - for stationary camera
+		std::unique_ptr<Detector> darknet;
+		Logger &logger;
+		Config &config;
+    	bool detection_sync = true;
+    	DataUpdateListener listener;
+		//a hook function list.
+};
+
+DarknetDetector::DarknetDetector(Logger &_lg, Config& _cfg) 
+	: logger(_lg), config(_cfg) {
+		darknet.reset(new Detector(config.getCfgFile(), config.getWeightFile));
+		videoSources.push_back(config.getSrc());
+}
+
+/*
+ * subscribe events when detector got a detected results
+ * @param Notifier *
+ * */
+
+bool DarknetDetector::subscribe(Notifier *ntf) {
+	bool result = true;
+	listener.addSubscriber(ntf);
+
+	return result;
+}
+
+void DarknetDetector::run() {
+
+}
 int main(int argc, char* argv[])
 {
     Logger& lg = spdLogger::getInstance();
@@ -163,13 +212,13 @@ int main(int argc, char* argv[])
     DataUpdateListener listener;
 
     listener.addSubscriber(new discordNotifier(cfg, lg, inf));
-
     auto obj_names = objects_names_from_file(names_file);
-    bool const send_network = false;     // true - for remote detection
-    bool const use_kalman_filter = true; // true - for stationary camera
     Detector detector(cfg_file, weights_file);
 
-    bool detection_sync = true; // true - for video-file
+	DarknetDetector darknetDTT(lg, cfg);
+	darknetDTT.subscribe(new discordNotifier(cfg, lg, inf));
+	darknetDTT.run();
+
 
 #ifdef TRACK_OPTFLOW // for slow GPU
     detection_sync = false;
@@ -220,13 +269,11 @@ int main(int argc, char* argv[])
                 std::cout << "\n Video size: " << frame_size << std::endl;
 
                 const bool sync = detection_sync; // sync data exchange
-                send_one_replaceable_object_t<detection_data_t> cap2prepare(
-                  sync),
+                send_one_replaceable_object_t<detection_data_t> cap2prepare(sync),
                   cap2draw(sync), prepare2detect(sync), detect2draw(sync),
-                  draw2show(sync), draw2write(sync), draw2net(sync);
+                  draw2show(sync);
 
-                std::thread t_cap, t_prepare, t_detect, t_post, t_draw, t_write,
-                  t_network;
+                std::thread t_cap, t_prepare, t_detect, t_draw;
 
                 // capture new video-frame
                 if (t_cap.joinable()) t_cap.join();
@@ -397,7 +444,6 @@ int main(int argc, char* argv[])
 #ifdef IMAGE_DBG
                         draw2show.send(detection_data);
 #endif
-                        if (send_network) draw2net.send(detection_data);
                     } while (!detection_data.exit_flag);
                     std::cout << " t_draw exit \n";
                 });
