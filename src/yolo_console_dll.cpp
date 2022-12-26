@@ -118,7 +118,7 @@ void draw_boxes(cv::Mat mat_img, std::vector<bbox_t> result_vec,
             if (obj_name != std::string("person")) { continue; }
             cv::rectangle(mat_img, cv::Rect(i.x, i.y, i.w, i.h), color, 1);
             if (i.track_id > 0) obj_name = std::to_string(i.track_id);
-	    obj_name += " - " ;
+	    obj_name += "-" ;
 
             std::ostringstream oss;
             oss << std::setprecision(2) << i.prob;
@@ -134,9 +134,9 @@ void draw_boxes(cv::Mat mat_img, std::vector<bbox_t> result_vec,
                           std::max((int)i.y - 35, 0)),
               cv::Point2f(std::min((int)i.x + max_width, mat_img.cols - 1),
                           std::min((int)i.y, mat_img.rows - 1)),
-              color, CV_FILLED, 8, 0);
+              color, 0, 8, 0);
             putText(mat_img, obj_name, cv::Point2f(i.x, i.y - 16),
-                    cv::FONT_HERSHEY_COMPLEX_SMALL, 0.8, cv::Scalar(0, 0, 0),
+                    cv::FONT_HERSHEY_COMPLEX_SMALL, 0.6, cv::Scalar(0, 0, 0),
                     1);
         }
     }
