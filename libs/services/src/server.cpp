@@ -87,7 +87,7 @@ void CrowServer::notify(NOTIFY_TYPE type, std::string content) {
         char cmd[250];
         snprintf(cmd, sizeof(cmd) - 1,
                  "/usr/bin/curl %s -X POST -H 'Content-Type: application/json' "
-                 "-d '%s' --max-time 2 -s >/dev/null",
+                 "-d '%s' --max-time 1 -s >/dev/null",
                  api.c_str(), x.dump().c_str());
         system(cmd);
     }
