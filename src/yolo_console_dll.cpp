@@ -1,4 +1,5 @@
 #include "lib.h"
+#include <sstream>
 #include "services/include/monitor.h"
 #include "services/include/server.h"
 #include "services/include/config_mgr.h"
@@ -117,8 +118,13 @@ void draw_boxes(cv::Mat mat_img, std::vector<bbox_t> result_vec,
             if (obj_name != std::string("person")) { continue; }
             cv::rectangle(mat_img, cv::Rect(i.x, i.y, i.w, i.h), color, 1);
             if (i.track_id > 0) obj_name = std::to_string(i.track_id);
+	    obj_name += " - " ;
+
+            std::ostringstream oss;
+            oss << std::setprecision(2) << i.prob;
+            obj_name += oss.str();
             cv::Size const text_size =
-              getTextSize(obj_name, cv::FONT_HERSHEY_COMPLEX_SMALL, 0.7, 1, 0);
+            getTextSize(obj_name, cv::FONT_HERSHEY_COMPLEX_SMALL, 0.7, 1, 0);
             int max_width =
               (text_size.width > i.w + 2) ? text_size.width : (i.w + 2);
             max_width = std::max(max_width, (int)i.w + 2);
@@ -130,8 +136,8 @@ void draw_boxes(cv::Mat mat_img, std::vector<bbox_t> result_vec,
                           std::min((int)i.y, mat_img.rows - 1)),
               color, CV_FILLED, 8, 0);
             putText(mat_img, obj_name, cv::Point2f(i.x, i.y - 16),
-                    cv::FONT_HERSHEY_COMPLEX_SMALL, 1.2, cv::Scalar(0, 0, 0),
-                    2);
+                    cv::FONT_HERSHEY_COMPLEX_SMALL, 0.8, cv::Scalar(0, 0, 0),
+                    1);
         }
     }
     if (current_det_fps >= 0 && current_cap_fps >= 0) {
