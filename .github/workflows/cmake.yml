@@ -30,4 +30,4 @@ jobs:
             cmake --build /home/runner/work/iot/iot/build | grep 'Linking CXX executable iot' || exit 127
             cmake -B/home/runner/work/iot/iot/unittests/build -S /home/runner/work/iot/iot/unittests/
             cmake --build /home/runner/work/iot/iot/unittests/build
-            cd /home/runner/work/iot/iot/unittests/build && make test | grep '100% tests passed' || exit 127
+            cd /home/runner/work/iot/iot/unittests/build && make test | grep '100% tests passed' || cat /home/runner/work/iot/iot/unittests/build/Testing/Temporary/LastTest.log ; exit 127
