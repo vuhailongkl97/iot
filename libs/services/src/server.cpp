@@ -10,10 +10,10 @@
 #include "crow/app.h"
 
 class CustomLogger : public crow::ILogHandler {
-private:
+ private:
     Logger& m_l;
 
-public:
+ public:
     explicit CustomLogger(Logger& l) : m_l(l) {}
     void log(std::string message, crow::LogLevel /*level*/) override {
         m_l.info(message.c_str());
@@ -86,7 +86,8 @@ void CrowServer::notify(NOTIFY_TYPE type, std::string content) {
     for (const auto& api : apis) {
         char cmd[250];
         snprintf(cmd, sizeof(cmd) - 1,
-                 "/usr/bin/curl %s -X POST -d '%s' --max-time 2 -s >/dev/null",
+                 "/usr/bin/curl %s -X POST -H 'Content-Type: application/json' "
+                 "-d '%s' --max-time 2 -s >/dev/null",
                  api.c_str(), x.dump().c_str());
         system(cmd);
     }
