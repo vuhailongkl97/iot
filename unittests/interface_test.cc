@@ -84,13 +84,13 @@ TEST_F(INTERFACETest, UPDATE)
     using ::testing::InSequence;
     {
         const char* expected_str_req =
-          "/usr/bin/curl http://localhost:1234/updated -X POST -d "
-          "'{\"content\":\"abcdef\",\"key\":\"img_path\"}' --max-time 2 -s "
+	      "/usr/bin/curl http://localhost:1234/updated -X POST -H 'Content-Type: application/json' -d "
+          "'{\"content\":\"abcdef\",\"key\":\"img_path\"}' --max-time 1 -s "
           ">/dev/null";
 
         const char* expected_str_req2 =
-          "/usr/bin/curl https://localhost:12 -X POST -d "
-          "'{\"content\":\"abcdef\",\"key\":\"img_path\"}' --max-time 2 -s "
+          "/usr/bin/curl https://localhost:12 -X POST -H 'Content-Type: application/json' -d "
+          "'{\"content\":\"abcdef\",\"key\":\"img_path\"}' --max-time 1 -s "
           ">/dev/null";
         EXPECT_CALL(*_m, system(testing::StrEq(expected_str_req))).Times(1);
         EXPECT_CALL(*_m, system(testing::StrEq(expected_str_req2))).Times(1);
@@ -136,13 +136,13 @@ TEST_F(INTERFACETest, TEST_ARRAY_NOT_DUPLICATE)
     using ::testing::InSequence;
     {
         const char* expected_str_req =
-          "/usr/bin/curl http://localhost:1234/updated -X POST -d "
-          "'{\"content\":\"abcdef\",\"key\":\"img_path\"}' --max-time 2 -s "
+          "/usr/bin/curl http://localhost:1234/updated -X POST -H 'Content-Type: application/json' -d "
+          "'{\"content\":\"abcdef\",\"key\":\"img_path\"}' --max-time 1 -s "
           ">/dev/null";
 
         const char* expected_str_req2 =
-          "/usr/bin/curl https://localhost:12 -X POST -d "
-          "'{\"content\":\"abcdef\",\"key\":\"img_path\"}' --max-time 2 -s "
+          "/usr/bin/curl https://localhost:12 -X POST -H 'Content-Type: application/json' -d "
+          "'{\"content\":\"abcdef\",\"key\":\"img_path\"}' --max-time 1 -s "
           ">/dev/null";
         EXPECT_CALL(*_m, system(testing::StrEq(expected_str_req))).Times(1);
         EXPECT_CALL(*_m, system(testing::StrEq(expected_str_req2))).Times(1);
@@ -186,8 +186,8 @@ TEST_F(INTERFACETest, TEST_ARRAY)
         cfg.setThreshold(tmpval);
     }
     const char* expected_str_req =
-      "/usr/bin/curl http://localhost:1234/updated -X POST -d "
-      "'{\"content\":\"abcdef\",\"key\":\"img_path\"}' --max-time 2 -s "
+      "/usr/bin/curl http://localhost:1234/updated -X POST -H 'Content-Type: application/json' -d "
+      "'{\"content\":\"abcdef\",\"key\":\"img_path\"}' --max-time 1 -s "
       ">/dev/null";
     EXPECT_CALL(*_m, system(testing::StrEq(expected_str_req))).Times(1);
     p->notify(NOTIFY_TYPE::DETECT_RET, "abcdef");
