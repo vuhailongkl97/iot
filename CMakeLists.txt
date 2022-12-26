@@ -29,7 +29,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 #add specific flag
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DOPENCV -DGPU  -DCUDNN -DCUDNN_HALF")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DOPENCV  -DCUDNN -DCUDNN_HALF")
 
 #add flag for warning
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wfatal-errors -Wno-unused-result -Wno-unknown-pragmas")

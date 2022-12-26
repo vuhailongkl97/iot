@@ -1,4 +1,5 @@
 #include "lib.h"
+#include <sstream>
 #include "services/include/monitor.h"
 #include "services/include/server.h"
 #include "services/include/config_mgr.h"
@@ -14,10 +15,8 @@
 #include <thread>
 #include <vector>
 //#define IMAGE_DBG
-// It makes sense only for video-Camera (not for video-File)
-// To use - uncomment the following line. Optical-flow is supported only by
-// OpenCV 3.x - 4.x
-//#define TRACK_OPTFLOW
+
+#define TRACK_OPTFLOW
 //#define GPU
 
 // To use 3D-stereo camera ZED - uncomment the following line. ZED_SDK should be
@@ -59,7 +58,6 @@
 #endif // CV_VERSION_EPOCH
 
 #endif // OPENCV
-
 template<typename T>
 class send_one_replaceable_object_t
 {
@@ -120,8 +118,13 @@ void draw_boxes(cv::Mat mat_img, std::vector<bbox_t> result_vec,
             if (obj_name != std::string("person")) { continue; }
             cv::rectangle(mat_img, cv::Rect(i.x, i.y, i.w, i.h), color, 1);
             if (i.track_id > 0) obj_name = std::to_string(i.track_id);
+	    obj_name += " - " ;
+
+            std::ostringstream oss;
+            oss << std::setprecision(2) << i.prob;
+            obj_name += oss.str();
             cv::Size const text_size =
-              getTextSize(obj_name, cv::FONT_HERSHEY_COMPLEX_SMALL, 0.7, 1, 0);
+            getTextSize(obj_name, cv::FONT_HERSHEY_COMPLEX_SMALL, 0.7, 1, 0);
             int max_width =
               (text_size.width > i.w + 2) ? text_size.width : (i.w + 2);
             max_width = std::max(max_width, (int)i.w + 2);
@@ -133,8 +136,8 @@ void draw_boxes(cv::Mat mat_img, std::vector<bbox_t> result_vec,
                           std::min((int)i.y, mat_img.rows - 1)),
               color, CV_FILLED, 8, 0);
             putText(mat_img, obj_name, cv::Point2f(i.x, i.y - 16),
-                    cv::FONT_HERSHEY_COMPLEX_SMALL, 1.2, cv::Scalar(0, 0, 0),
-                    2);
+                    cv::FONT_HERSHEY_COMPLEX_SMALL, 0.8, cv::Scalar(0, 0, 0),
+                    1);
         }
     }
     if (current_det_fps >= 0 && current_cap_fps >= 0) {
@@ -224,6 +227,11 @@ int main(int argc, char* argv[])
     Detector detector(cfg_file, weights_file);
 
     bool detection_sync = true; // true - for video-file
+
+#ifdef TRACK_OPTFLOW // for slow GPU
+    detection_sync = false;
+    Tracker_optflow tracker_flow;
+#endif // TRACK_OPTFLOW
 
     std::atomic<bool> exit_flag(false);
 
@@ -405,6 +413,25 @@ int main(int argc, char* argv[])
                         cv::Mat draw_frame = detection_data.cap_frame.clone();
                         std::vector<bbox_t> result_vec =
                           detection_data.result_vec;
+#ifdef TRACK_OPTFLOW
+                        if (detection_data.new_detection) {
+                            tracker_flow.update_tracking_flow(
+                              detection_data.cap_frame,
+                              detection_data.result_vec);
+                            while (track_optflow_queue.size() > 0) {
+                                draw_frame = track_optflow_queue.back();
+                                result_vec = tracker_flow.tracking_flow(
+                                  track_optflow_queue.front(), false);
+                                track_optflow_queue.pop();
+                            }
+                        } else {
+                            track_optflow_queue.push(cap_frame);
+                            result_vec =
+                              tracker_flow.tracking_flow(cap_frame, false);
+                        }
+                        detection_data.new_detection =
+                          true; // to correct kalman filter
+#endif                          //TRACK_OPTFLOW
 
                         // track ID by using kalman
                         // filter
