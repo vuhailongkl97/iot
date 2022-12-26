@@ -48,7 +48,7 @@ Tested on Jetson nano 2GB.
 ## Build
 ```
 git clone --recursive https://github.com/vuhailongkl97/iot.git
-cd iot && git lfs pull
+cd iot 
 mkdir build && cd build
 cmake -DIMAGE_DBG=1 ..  &&  make
 --------------------
