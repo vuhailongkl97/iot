@@ -152,7 +152,6 @@ or
 # Libraries are used (as submodules)
 + [Crow](https://github.com/ipkn/crow) - socket management
 + [spdlog](https://github.com/gabime/spdlog) - logging 
-+ [backward-cpp](https://github.com/bombela/backward-cpp) - a good backtrace when the system is crashed
 + [json](https://github.com/nlohmann/json) - read/write configuration in json
 
 # Reference
