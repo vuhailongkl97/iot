@@ -4,60 +4,25 @@
 #include "services/include/server.h"
 #include "services/include/config_mgr.h"
 #include <atomic>
-#include <cmath>
 #include <fstream>
-#include <future>
-#include <iomanip>
 #include <iostream>
-#include <mutex> // std::mutex, std::unique_lock
+#include <mutex>
 #include <queue>
 #include <string>
 #include <thread>
 #include <vector>
+#include <memory>
+
 //#define IMAGE_DBG
 
 #define TRACK_OPTFLOW
 //#define GPU
 
-// To use 3D-stereo camera ZED - uncomment the following line. ZED_SDK should be
-// installed.
-//#define ZED_STEREO
-
-#include "yolo_v2_class.hpp" // imported functions from DLL
-
-#ifdef OPENCV
+#include "yolo_v2_class.hpp"
 #include <opencv2/core/version.hpp>
-#include <opencv2/opencv.hpp> // C++
-#ifndef CV_VERSION_EPOCH      // OpenCV 3.x and 4.x
+#include <opencv2/opencv.hpp>
 #include <opencv2/videoio/videoio.hpp>
-#define OPENCV_VERSION          \
-    CVAUX_STR(CV_VERSION_MAJOR) \
-    "" CVAUX_STR(CV_VERSION_MINOR) "" CVAUX_STR(CV_VERSION_REVISION)
-#ifndef USE_CMAKE_LIBS
-#pragma comment(lib, "opencv_world" OPENCV_VERSION ".lib")
-#ifdef TRACK_OPTFLOW
-/*
-#pragma comment(lib, "opencv_cudaoptflow" OPENCV_VERSION ".lib")
-#pragma comment(lib, "opencv_cudaimgproc" OPENCV_VERSION ".lib")
-#pragma comment(lib, "opencv_core" OPENCV_VERSION ".lib")
-#pragma comment(lib, "opencv_imgproc" OPENCV_VERSION ".lib")
-#pragma comment(lib, "opencv_highgui" OPENCV_VERSION ".lib")
-*/
-#endif // TRACK_OPTFLOW
-#endif // USE_CMAKE_LIBS
-#else  // OpenCV 2.x
-#define OPENCV_VERSION          \
-    CVAUX_STR(CV_VERSION_EPOCH) \
-    "" CVAUX_STR(CV_VERSION_MAJOR) "" CVAUX_STR(CV_VERSION_MINOR)
-#ifndef USE_CMAKE_LIBS
-#pragma comment(lib, "opencv_core" OPENCV_VERSION ".lib")
-#pragma comment(lib, "opencv_imgproc" OPENCV_VERSION ".lib")
-#pragma comment(lib, "opencv_highgui" OPENCV_VERSION ".lib")
-#pragma comment(lib, "opencv_video" OPENCV_VERSION ".lib")
-#endif // USE_CMAKE_LIBS
-#endif // CV_VERSION_EPOCH
 
-#endif // OPENCV
 template<typename T>
 class send_one_replaceable_object_t
 {
@@ -149,12 +114,6 @@ void draw_boxes(cv::Mat mat_img, std::vector<bbox_t> result_vec,
     }
 }
 
-std::vector<bbox_t> get_3d_coordinates(std::vector<bbox_t> bbox_vect,
-                                       cv::Mat xyzrgba)
-{
-    return bbox_vect;
-}
-
 std::vector<std::string> objects_names_from_file(std::string const filename)
 {
     std::ifstream file(filename);
@@ -176,19 +135,9 @@ std::vector<obj_t> convertBbox2obj(const std::vector<bbox_t>& v)
     return ret;
 }
 
-
-float getMedian(std::vector<float>& v)
-{
-    size_t n = v.size() / 2;
-    std::nth_element(v.begin(), v.begin() + n, v.end());
-    return v[n];
-}
-
 void customizedFrame(cv::Mat& f)
 {
     // resize and crop to fit with 416x416 (trained data set)
-    //
-    // resize
     // current frame is 705x 578 -> 0x75 to 4aa x 4bb
     float scale = 0.75f;
     int scaled_width = f.size().width * scale;
@@ -199,7 +148,54 @@ void customizedFrame(cv::Mat& f)
         f = f(cv::Range(10, scaled_height), cv::Range(40, 460));
     }
 }
+/*
+ * this class use for creating a hide block used darknet detector it support
+ * get status, get current frames, follow multiple source at same time.
+ * */
+class DarknetDetector {
+	public:
+		explicit DarknetDetector(Logger &, Config &);
+		void subscribe(Notifier*);
+		std::string getStatus();
+		void run();
+	private:
+		bool capture();
+		bool prepare();
+		void detect();
+		void draw();
 
+	private:
+		vector<std::string> videoSources;
+    	bool const use_kalman_filter = true; // true - for stationary camera
+		std::unique_ptr<Detector> darknet;
+		Logger &logger;
+		Config &config;
+    	bool detection_sync = true;
+    	DataUpdateListener listener;
+		//a hook function list.
+};
+
+DarknetDetector::DarknetDetector(Logger &_lg, Config& _cfg) 
+	: logger(_lg), config(_cfg) {
+		darknet.reset(new Detector(config.getCfgFile(), config.getWeightFile));
+		videoSources.push_back(config.getSrc());
+}
+
+/*
+ * subscribe events when detector got a detected results
+ * @param Notifier *
+ * */
+
+bool DarknetDetector::subscribe(Notifier *ntf) {
+	bool result = true;
+	listener.addSubscriber(ntf);
+
+	return result;
+}
+
+void DarknetDetector::run() {
+
+}
 int main(int argc, char* argv[])
 {
     Logger& lg = spdLogger::getInstance();
@@ -207,26 +203,22 @@ int main(int argc, char* argv[])
     Interface& inf = CrowServer::getInstance(cfg, lg);
     Jetson jet("jetsonNano", {60, 50, 50}, lg, cfg, inf);
     HardwareManager& hw = jet;
-
     testConfig(cfg);
 
     std::string names_file = cfg.getNamesFile();
     std::string cfg_file = cfg.getCfgFile();
     std::string weights_file = cfg.getWeightFile();
     std::string filename = cfg.getSrc();
-    float thresh = cfg.getThreshold();
-
     DataUpdateListener listener;
 
     listener.addSubscriber(new discordNotifier(cfg, lg, inf));
-
     auto obj_names = objects_names_from_file(names_file);
-    bool const send_network = false;     // true - for remote detection
-    bool const use_kalman_filter = true; // true - for stationary camera
-
     Detector detector(cfg_file, weights_file);
 
-    bool detection_sync = true; // true - for video-file
+	DarknetDetector darknetDTT(lg, cfg);
+	darknetDTT.subscribe(new discordNotifier(cfg, lg, inf));
+	darknetDTT.run();
+
 
 #ifdef TRACK_OPTFLOW // for slow GPU
     detection_sync = false;
@@ -256,49 +248,32 @@ int main(int argc, char* argv[])
               filename.substr(filename.find_last_of(".") + 1);
             std::string const protocol = filename.substr(0, 7);
             if (file_ext == "avi" || file_ext == "mp4" || file_ext == "mjpg" ||
-                file_ext == "mov" || // video file
-                protocol == "rtmp://" || protocol == "rtsp://" ||
-                protocol == "http://" ||
-                protocol == "https:/" || // video network stream
-                filename == "zed_camera" || file_ext == "svo" ||
-                filename == "web_camera") // ZED stereo camera
-
+                file_ext == "mov" || protocol == "rtmp://" || protocol == "rtsp://" ||
+                protocol == "http://" || protocol == "https:/")
             {
-                if (protocol == "rtsp://" || protocol == "http://" ||
-                    protocol == "https:/" || filename == "zed_camera" ||
-                    filename == "web_camera")
+                if (protocol == "rtsp://" || protocol == "http://" || protocol == "https:/" )
                     detection_sync = false;
 
                 cv::Mat cur_frame;
                 std::atomic<int> fps_cap_counter(0), fps_det_counter(0);
                 std::atomic<int> current_fps_cap(0), current_fps_det(0);
                 std::chrono::steady_clock::time_point steady_start, steady_end;
-                bool use_zed_camera = false;
-
                 track_kalman_t track_kalman;
-
                 cv::VideoCapture cap;
-                if (filename == "web_camera") {
-                    cap.open(0);
-                    cap >> cur_frame;
-                }
-                else if (!use_zed_camera) {
-                    cap.open(cfg.getSrc());
-                    cap >> cur_frame;
-                }
+
+				cap.open(cfg.getSrc());
+				cap >> cur_frame;
 
                 customizedFrame(cur_frame);
                 cv::Size const frame_size = cur_frame.size();
                 std::cout << "\n Video size: " << frame_size << std::endl;
 
                 const bool sync = detection_sync; // sync data exchange
-                send_one_replaceable_object_t<detection_data_t> cap2prepare(
-                  sync),
+                send_one_replaceable_object_t<detection_data_t> cap2prepare(sync),
                   cap2draw(sync), prepare2detect(sync), detect2draw(sync),
-                  draw2show(sync), draw2write(sync), draw2net(sync);
+                  draw2show(sync);
 
-                std::thread t_cap, t_prepare, t_detect, t_post, t_draw, t_write,
-                  t_network;
+                std::thread t_cap, t_prepare, t_detect, t_draw;
 
                 // capture new video-frame
                 if (t_cap.joinable()) t_cap.join();
@@ -315,8 +290,6 @@ int main(int argc, char* argv[])
                         exit_flag = cfg.status();
                         if (exit_flag) { detection_data.exit_flag = true; }
                         else if (detection_data.cap_frame.empty()) {
-                            // verify and polling
-                            // here when cam is down
                             std::cout << "retrying open " << filename << "\n";
                             while (cap.open(filename) == false) {
                                 std::this_thread::sleep_for(
@@ -335,8 +308,7 @@ int main(int argc, char* argv[])
                     std::cout << " t_cap exit \n";
                 });
 
-                // pre-processing video frame (resize,
-                // convertion)
+                // pre-processing video frame (resize, convertion)
                 t_prepare = std::thread([&]() {
                     std::shared_ptr<image_t> det_image;
                     detection_data_t detection_data;
@@ -388,22 +360,16 @@ int main(int argc, char* argv[])
                         }
                         // for Video-camera
                         else {
-                            // get new Detection
-                            // result if present
                             if (detect2draw.is_object_present()) {
-                                cv::Mat old_cap_frame =
-                                  detection_data
-                                    .cap_frame; // use old captured frame
+                                cv::Mat old_cap_frame = detection_data.cap_frame;
                                 detection_data = detect2draw.receive();
                                 if (!old_cap_frame.empty())
                                     detection_data.cap_frame = old_cap_frame;
                             }
-                            // get new Captured
-                            // frame
+                            // get new Captured frame
                             else {
                                 std::vector<bbox_t> old_result_vec =
-                                  detection_data
-                                    .result_vec; // use old detections
+                                  detection_data.result_vec; // use old detections
                                 detection_data = cap2draw.receive();
                                 detection_data.result_vec = old_result_vec;
                             }
@@ -478,7 +444,6 @@ int main(int argc, char* argv[])
 #ifdef IMAGE_DBG
                         draw2show.send(detection_data);
 #endif
-                        if (send_network) draw2net.send(detection_data);
                     } while (!detection_data.exit_flag);
                     std::cout << " t_draw exit \n";
                 });
@@ -514,7 +479,6 @@ int main(int argc, char* argv[])
 
                 cv::destroyWindow("window name");
 #endif
-
                 // wait for all threads
                 if (t_cap.joinable()) t_cap.join();
                 if (t_prepare.joinable()) t_prepare.join();
@@ -524,7 +488,6 @@ int main(int argc, char* argv[])
                 // sleep here wait next event
                 while (exit_flag) {
                     exit_flag = cfg.status();
-                    //std::cout << "sleep wait for next events\n";
                     std::this_thread::sleep_for(std::chrono::seconds(2));
                 }
             }
@@ -536,6 +499,5 @@ int main(int argc, char* argv[])
             std::cerr << "unknown exception \n";
         }
     }
-
     return 0;
 }
