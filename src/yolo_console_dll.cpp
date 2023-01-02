@@ -1,4 +1,4 @@
-#include "lib.h"
+#include <DiscordNotifier.hpp>
 #include <sstream>
 #include "services/include/monitor.h"
 #include "services/include/server.h"

@@ -67,7 +67,7 @@ include_directories(${CMAKE_SOURCE_DIR}/include
 	${CMAKE_SOURCE_DIR}/libs/ 
 	${CMAKE_SOURCE_DIR}/libs/services/include )
 
-add_library(libs src/lib.cpp )
+add_library(libs src/DiscordNotifier.cpp src/Notifier.cpp )
 
 target_include_directories(iot PUBLIC /usr/local/cuda/include 
 	/usr/local/cudnn/include usr/local/cuda/include/cuda
