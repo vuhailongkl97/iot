@@ -47,7 +47,7 @@ NotifyState discordNotifier::doWork(const filteredDataResult& d) {
 void discordNotifier::updateQueueSize(int fps) {
     milliseconds timeForcus(cfg.getTimeForcus());
     m_queueEntryLimit =
-      fps * duration_cast<duration<double, std::milli>>(timeForcus).count() *
+      fps * duration_cast<duration<double>>(timeForcus).count() *
       cfg.getCorrectRate();
     if (m_queueEntryLimit < cfg.getMinQueueEntryLimit())
         m_queueEntryLimit = cfg.getMinQueueEntryLimit();

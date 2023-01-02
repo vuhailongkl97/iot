@@ -4,9 +4,11 @@ using std::chrono::duration;
 using std::chrono::milliseconds;
 using std::chrono::seconds;
 
-void Notifier::work(const DataResult& d) {
+NotifyState Notifier::work(const DataResult& d) {
     filteredDataResult f_d = filterPerson(d);
-    if (!f_d.objs.empty()) doWork(f_d);
+    if (!f_d.objs.empty()) 
+		return doWork(f_d);
+	return NotifyState::SKIPPING;
 }
 
 milliseconds Notifier::getCurrentTime() {
