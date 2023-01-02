@@ -1,3 +1,4 @@
+#pragma once
 #include <Notifier.hpp>
 
 #include <chrono>

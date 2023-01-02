@@ -1,3 +1,4 @@
+#pragma once
 #include <opencv2/highgui/highgui_c.h> // C
 #include <opencv2/imgproc/imgproc_c.h> // C
 
@@ -15,6 +16,8 @@ enum class NotifyState {
     CHECKING,
     LOCKING,
     UPDATED,
+	SKIPPING,
+	ERROR
 };
 struct obj_t {
     float prob; // confidence - probability that the object was found correctly
@@ -46,7 +49,7 @@ class Notifier {
 
  public:
     Notifier(Config& c, Logger& l, Interface& i) : cfg(c), logger(l), inf(i) {}
-    void work(const DataResult& d);
+    NotifyState work(const DataResult& d);
 
  protected:
     static std::chrono::milliseconds getCurrentTime();
