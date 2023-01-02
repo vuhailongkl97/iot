@@ -11,7 +11,11 @@
 class Config;
 class Logger;
 class Interface;
-
+enum class NotifyState {
+    CHECKING,
+    LOCKING,
+    UPDATED,
+};
 struct obj_t {
     float prob; // confidence - probability that the object was found correctly
     unsigned int obj_id; // class of object - from range [0, classes-1]
@@ -48,7 +52,7 @@ class Notifier {
     static std::chrono::milliseconds getCurrentTime();
 
  private:
-    virtual void doWork(const filteredDataResult& d) = 0;
+    virtual NotifyState doWork(const filteredDataResult& d) = 0;
     static filteredDataResult filterPerson(const DataResult& d);
 };
 

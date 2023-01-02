@@ -12,13 +12,14 @@ void show_console_result(std::vector<obj_t> const result_vec) {
     }
 }
 
-void consoleNotifier::doWork(const filteredDataResult& d) {
+NotifyState consoleNotifier::doWork(const filteredDataResult& d) {
     show_console_result(d.objs);
+    return NotifyState::UPDATED;
 }
 
-void discordNotifier::doWork(const filteredDataResult& d) {
+NotifyState discordNotifier::doWork(const filteredDataResult& d) {
     auto curTime = getCurrentTime();
-    if (curTime < m_time4rest) return;
+    if (curTime < m_time4rest) return NotifyState::LOCKING;
     this->updateQueueSize(d.fps);
 
     std::pair<obj_t, milliseconds> p = std::make_pair(d.objs[0], curTime);
@@ -35,10 +36,12 @@ void discordNotifier::doWork(const filteredDataResult& d) {
             recent_results.clear();
             logger.info("wrote an image, start skiping ");
             inf.notify(NOTIFY_TYPE::DETECT_RET, m_tmpImgPath);
+            return NotifyState::UPDATED;
         } else {
             recent_results.pop_back();
         }
     }
+    return NotifyState::CHECKING;
 }
 
 void discordNotifier::updateQueueSize(int fps) {

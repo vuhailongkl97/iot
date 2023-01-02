@@ -11,7 +11,7 @@
 
 class consoleNotifier final : public Notifier {
  public:
-    void doWork(const filteredDataResult& d) override;
+    NotifyState doWork(const filteredDataResult& d) override;
 };
 
 class discordNotifier final : public Notifier {
@@ -23,7 +23,7 @@ class discordNotifier final : public Notifier {
 
  private:
     void updateQueueSize(int fps);
-    void doWork(const filteredDataResult& d) override;
+    NotifyState doWork(const filteredDataResult& d) override;
 
     std::deque<std::pair<obj_t, std::chrono::milliseconds>> recent_results;
     const char* m_tmpImgPath = "/tmp/img.png";
