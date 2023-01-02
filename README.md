@@ -25,7 +25,6 @@
 
 # Class diagram
 Some main classes used :
-* YamlConfig : Handle read config file in yaml format
 * JsonConfig : Handle read config file in JSON format used in parsing json request from *interface* classes
 * spdLogger: Logger Libraries wrapper
 * JetsonNano: handle hardware request & monitoring
@@ -70,10 +69,10 @@ cmake  -DRUN_CLANG_TIDY=y .. && make
         "http://localhost:1234/updated"
     ],
     "Port": 18080, // Port for this app to change parameter dynamically
-    "QUEUE_ENTRY_LIMIT_MIN": 15, // Use a queue whose size is 15 to save all Frames in TIME_FORCUS seconds
+    "QUEUE_ENTRY_LIMIT_MIN": 15, // Use a queue whose size is 15 to save all Frames in TIME_FORCUS miliseconds
     "Src": "rtsp://admin:admin@192.168.1.3:554/cam/realmonitor?channel=4&subtype=1",
     "Status": false, // mean in working, is true mean disable
-    "TIME_FORCUS": 2, // All Frames in 2sec are person will be consider to be a correct result
+    "TIME_FORCUS": 100, // All Frames in 100ms are person will be consider to be a correct result
     "TIME_SKIP": 20, // After have detected result -> SKIP in next 20 secs
     "Threshold": 0.8999999761581421,
     "WeightFile": "yolov4-tiny.weights" // < path to > iot/darknet-deps/data/yolov4-tiny.weights
@@ -117,7 +116,7 @@ Create Post request to the computer which is running detection with content like
     "QUEUE_ENTRY_LIMIT_MIN": 15,
     "Src": "rtsp://admin:admin@192.168.1.3:554/cam/realmonitor?channel=4&subtype=1",
     "Status": false,
-    "TIME_FORCUS": 2,
+    "TIME_FORCUS": 1000,
     "TIME_SKIP": 20,
     "Threshold": 0.9,
     "WeightFile": "yolov4-tiny.weights"
