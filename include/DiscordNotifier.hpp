@@ -5,9 +5,9 @@
 #include <deque>
 #include <utility>
 
-#include "services/include/logger.h"
-#include "services/include/server.h"
-#include "services/include/config_mgr.h"
+#include <logger.h>
+#include <server.h>
+#include <config_mgr.h>
 
 class consoleNotifier final : public Notifier {
  public:
