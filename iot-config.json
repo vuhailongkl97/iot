@@ -1,9 +1,9 @@
 {
     "BoardName": "JetsonNano",
-    "CfgFile": "yolov4-tiny.cfg",
+    "CfgFile": "cfg/yolov4-tiny.cfg",
     "CorrectRate": 0.9,
     "Delay4CAP": 20,
-    "NameFile": "coco.names",
+    "NameFile": "data/coco.names",
     "NotifyAPI": [
         "http://localhost:1234/updated"
     ],
@@ -14,5 +14,5 @@
     "TIME_FORCUS": 100,
     "TIME_SKIP": 20,
     "Threshold": 0.9,
-    "WeightFile": "yolov4-tiny.weights"
+    "WeightFile": "data/yolov4-tiny.weights"
 }
