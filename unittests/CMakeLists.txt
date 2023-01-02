@@ -66,9 +66,21 @@ target_link_libraries(
   nlohmann_json::nlohmann_json
 )
 
+find_package( OpenCV REQUIRED )
+
+add_executable(
+  discordNotifier_test
+  discordNotifier_test.cc 
+  ${CMAKE_SOURCE_DIR}/../src/Notifier.cpp
+)
+include_directories( ${OpenCV_INCLUDE_DIRS} )
+target_link_libraries(discordNotifier_test ${OpenCV_LIBS})
+
 include(GoogleTest)
 
 include_directories(${SERVICE_PATH}/include
+	${OpenCV_INCLUDE_DIRS}
+	${CMAKE_SOURCE_DIR}/../include
 	${CMAKE_SOURCE_DIR}/../libs/dependencies/Crow/include 
 	${CMAKE_SOURCE_DIR}/../libs/dependencies/spdlog/include 
 )
@@ -79,3 +91,4 @@ gtest_discover_tests(cfg_mgr_test)
 gtest_discover_tests(hardware_test)
 gtest_discover_tests(interface_test)
 gtest_discover_tests(logger_test)
+gtest_discover_tests(discordNotifier_test)
