@@ -3,25 +3,14 @@ project(IOT)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-#add_definitions(-DBACKWARD_HAS_UNWIND=1  -DBACKWARD_HAS_DW=1  -DBACKWARD_HAS_UNWIND=1)
-#add_subdirectory(libs/dependencies/backward-cpp)
 add_subdirectory(libs/services)
 
 set(LIB_DIR "${CMAKE_SOURCE_DIR}/libs")
 set(DARKNET_DEPS "${CMAKE_SOURCE_DIR}/darknet-deps")
 
-# ############ for testing here
-#include_directories(${CMAKE_SOURCE_DIR}/include 
-#	${CMAKE_SOURCE_DIR}/libs/ 
-#	${CMAKE_SOURCE_DIR}/libs/services/include )
-#
-#set (SOURCES test.cpp )
-#add_executable(iot ${SOURCES} ${BACKWARD_ENABLE} )
-#target_link_libraries(iot services)
-#
-#add_backward(iot)
-###########
-# This will add backward.cpp to your target
+if (DEFINED IMAGE_DBG)
+  add_definitions("-DIMAGE_DBG")
+endif (DEFINED IMAGE_DBG)
 
 #add debug flag
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
@@ -56,12 +45,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${opencv_cxxflags} ${opencv_cxxflags2}")
 link_directories(/usr/local/cuda/lib64 /usr/local/cudnn/lib64 
 	${DARKNET_DEPS}/pre-built )
 
-#add_executable(iot ${SOURCES} ${BACKWARD_ENABLE} )
 add_executable(iot ${SOURCES} )
-
-# This will add libraries, definitions and include directories needed by backward
-# by setting each property on the target.
-#add_backward(iot)
 
 include_directories(${CMAKE_SOURCE_DIR}/include 
 	${CMAKE_SOURCE_DIR}/libs/ 
