@@ -4,7 +4,6 @@
 #include "services/include/server.h"
 #include "services/include/config_mgr.h"
 #include <atomic>
-#include <cmath>
 #include <fstream>
 #include <future>
 #include <iomanip>
@@ -35,15 +34,6 @@
     "" CVAUX_STR(CV_VERSION_MINOR) "" CVAUX_STR(CV_VERSION_REVISION)
 #ifndef USE_CMAKE_LIBS
 #pragma comment(lib, "opencv_world" OPENCV_VERSION ".lib")
-#ifdef TRACK_OPTFLOW
-/*
-#pragma comment(lib, "opencv_cudaoptflow" OPENCV_VERSION ".lib")
-#pragma comment(lib, "opencv_cudaimgproc" OPENCV_VERSION ".lib")
-#pragma comment(lib, "opencv_core" OPENCV_VERSION ".lib")
-#pragma comment(lib, "opencv_imgproc" OPENCV_VERSION ".lib")
-#pragma comment(lib, "opencv_highgui" OPENCV_VERSION ".lib")
-*/
-#endif // TRACK_OPTFLOW
 #endif // USE_CMAKE_LIBS
 #else  // OpenCV 2.x
 #define OPENCV_VERSION          \
