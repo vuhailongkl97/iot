@@ -8,9 +8,11 @@ add_subdirectory(libs/services)
 set(LIB_DIR "${CMAKE_SOURCE_DIR}/libs")
 set(DARKNET_DEPS "${CMAKE_SOURCE_DIR}/darknet-deps")
 
-if (DEFINED IMAGE_DBG)
-  add_definitions("-DIMAGE_DBG")
-endif (DEFINED IMAGE_DBG)
+option(IMAGE_DBG "Build with debug flags" OFF)
+
+if (IMAGE_DBG)
+    add_definitions("-DIMAGE_DBG")
+endif ()
 
 #add debug flag
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
