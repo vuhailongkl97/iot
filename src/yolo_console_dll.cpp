@@ -105,7 +105,7 @@ void draw_boxes(cv::Mat mat_img, std::vector<bbox_t> result_vec,
         cv::Scalar color = obj_id_to_color(i.obj_id);
         if (obj_names.size() > i.obj_id) {
             std::string obj_name = obj_names[i.obj_id];
-            if (obj_name != std::string("person")) { continue; }
+//if (obj_name != std::string("person")) { continue; }
             cv::rectangle(mat_img, cv::Rect(i.x, i.y, i.w, i.h), color, 1);
             if (i.track_id > 0) obj_name = std::to_string(i.track_id);
 	    obj_name += "-" ;
@@ -197,6 +197,49 @@ bool in_polygon(const std::vector<cv::Point> &polygon, cv::Point point) {
         return true;
     return false;
 }
+class PidHistoryTracker {
+	public:
+		PidHistoryTracker(size_t max_size) {
+			max_size_ = max_size;
+		}
+
+		void push(uint32_t pid) {
+			if(!pids_.size()) {
+				pids_.push_back(pid);
+			}
+			else {
+			    if(pids_.back() == pid) 
+			    	return;
+			    if(max_size_ == size()) {
+			    	pids_.pop_front();
+			    }
+			    if(!contains(pid))
+			        pids_.push_back(pid);
+			}
+		}
+		bool contains(uint32_t pid) {
+		    for(auto it : pids_) {
+			if(it == pid) {
+			   return true;
+			}
+		    }
+		    return false;
+		}
+		void dump() {
+			for(auto it : pids_) {
+				std::cout << it << " ";
+			}
+			std::cout << "\n";
+		}
+
+		size_t size() {
+			return pids_.size();
+		}
+
+	private:
+	size_t max_size_;
+	std::deque<uint32_t> pids_;
+};
 
 int main(int argc, char* argv[])
 {
@@ -223,6 +266,7 @@ int main(int argc, char* argv[])
     bool const use_kalman_filter = true; // true - for stationary camera
 
     Detector detector(cfg_file, weights_file);
+    PidHistoryTracker pid_tracker(25);
 
     bool detection_sync = true; // true - for video-file
 
@@ -456,22 +500,36 @@ int main(int argc, char* argv[])
                                 if (obj_names[obj.obj_id] == std::string("person")) {
                                     if(in_polygon(polygonVertices, cv::Point(obj.x + obj.w/2, obj.y + obj.h/2))) {
                                         is_inside_polygon = true;
-					break;
                                     }
+				    else {
+					pid_tracker.push(obj.track_id);	
+				    }
                                 }
                             }
                         }
-
+			
                         if(is_inside_polygon) {
-                            polylines(draw_frame, polygonVertices, true, cv::Scalar(0, 255, 0), 2);
-                            draw_boxes(draw_frame, result_vec, obj_names,
-                                       current_fps_det, current_fps_cap,
-                                       cfg.getThreshold());
+			    bool person_come_in = true;
+                            for (auto& obj : result_vec) {
+			        if (pid_tracker.contains(obj.track_id)) {
+			        	person_come_in = false;	
+			        	break;
+			        }
+                            }
 
-                            DataResult data_result{draw_frame,
-                                                   convertBbox2obj(result_vec),
-                                                   obj_names, current_fps_det};
-                            listener.onDataUpdate(data_result);
+			    //pid_tracker.dump();
+
+			    if (person_come_in) {
+                                polylines(draw_frame, polygonVertices, true, cv::Scalar(0, 255, 0), 2);
+                                draw_boxes(draw_frame, result_vec, obj_names,
+                                           current_fps_det, current_fps_cap,
+                                           cfg.getThreshold());
+
+                                DataResult data_result{draw_frame,
+                                                       convertBbox2obj(result_vec),
+                                                       obj_names, current_fps_det};
+                                listener.onDataUpdate(data_result);
+			    }
                         }
 		        	
                         detection_data.result_vec = result_vec;
