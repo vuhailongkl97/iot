@@ -189,6 +189,14 @@ void customizedFrame(cv::Mat& f)
         f = f(cv::Range(10, scaled_height), cv::Range(40, 460));
     }
 }
+std::vector<cv::Point> polygonVertices = {{404,236},{275,171},{273,39},{415,78},{405,232}};
+
+bool in_polygon(const std::vector<cv::Point> &polygon, cv::Point point) {
+    double dist = pointPolygonTest(polygonVertices, point, true);
+    if (dist >= 0)
+        return true;
+    return false;
+}
 
 int main(int argc, char* argv[])
 {
@@ -442,15 +450,30 @@ int main(int argc, char* argv[])
                                                               frame_story, 40);
                         }
 
-                        draw_boxes(draw_frame, result_vec, obj_names,
-                                   current_fps_det, current_fps_cap,
-                                   cfg.getThreshold());
+                        bool is_inside_polygon = false;
+                        for (auto& obj : result_vec) {
+                            if (obj_names.size() > obj.obj_id) {
+                                if (obj_names[obj.obj_id] == std::string("person")) {
+                                    if(in_polygon(polygonVertices, cv::Point(obj.x + obj.w/2, obj.y + obj.h/2))) {
+                                        is_inside_polygon = true;
+					break;
+                                    }
+                                }
+                            }
+                        }
 
-                        DataResult data_result{draw_frame,
-                                               convertBbox2obj(result_vec),
-                                               obj_names, current_fps_det};
-                        listener.onDataUpdate(data_result);
+                        if(is_inside_polygon) {
+                            polylines(draw_frame, polygonVertices, true, cv::Scalar(0, 255, 0), 2);
+                            draw_boxes(draw_frame, result_vec, obj_names,
+                                       current_fps_det, current_fps_cap,
+                                       cfg.getThreshold());
 
+                            DataResult data_result{draw_frame,
+                                                   convertBbox2obj(result_vec),
+                                                   obj_names, current_fps_det};
+                            listener.onDataUpdate(data_result);
+                        }
+		        	
                         detection_data.result_vec = result_vec;
                         detection_data.draw_frame = draw_frame;
                         steady_end = std::chrono::steady_clock::now();
