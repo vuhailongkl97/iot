@@ -49,14 +49,12 @@
 
 #endif // OPENCV
 template<typename T>
-class send_one_replaceable_object_t
-{
+class send_one_replaceable_object_t {
     const bool sync;
     std::atomic<T*> a_ptr;
 
-public:
-    void send(T const& _obj)
-    {
+ public:
+    void send(T const& _obj) {
         T* new_ptr = new T;
         *new_ptr = _obj;
         if (sync) {
@@ -66,8 +64,7 @@ public:
         std::unique_ptr<T> old_ptr(a_ptr.exchange(new_ptr));
     }
 
-    T receive()
-    {
+    T receive() {
         std::unique_ptr<T> ptr;
         do {
             while (!a_ptr.load())
@@ -83,8 +80,7 @@ public:
     send_one_replaceable_object_t(bool _sync) : sync(_sync), a_ptr(NULL) {}
 };
 
-struct detection_data_t
-{
+struct detection_data_t {
     cv::Mat cap_frame;
     std::shared_ptr<image_t> det_image;
     std::vector<bbox_t> result_vec;
@@ -99,22 +95,21 @@ struct detection_data_t
 
 void draw_boxes(cv::Mat mat_img, std::vector<bbox_t> result_vec,
                 std::vector<std::string> obj_names, int current_det_fps,
-                int current_cap_fps, float thresh)
-{
+                int current_cap_fps, float thresh) {
     for (auto& i : result_vec) {
         cv::Scalar color = obj_id_to_color(i.obj_id);
         if (obj_names.size() > i.obj_id) {
             std::string obj_name = obj_names[i.obj_id];
-//if (obj_name != std::string("person")) { continue; }
+            //if (obj_name != std::string("person")) { continue; }
             cv::rectangle(mat_img, cv::Rect(i.x, i.y, i.w, i.h), color, 1);
             if (i.track_id > 0) obj_name = std::to_string(i.track_id);
-	    obj_name += "-" ;
+            obj_name += "-";
 
             std::ostringstream oss;
             oss << std::setprecision(2) << i.prob;
             obj_name += oss.str();
             cv::Size const text_size =
-            getTextSize(obj_name, cv::FONT_HERSHEY_COMPLEX_SMALL, 0.7, 1, 0);
+              getTextSize(obj_name, cv::FONT_HERSHEY_COMPLEX_SMALL, 0.7, 1, 0);
             int max_width =
               (text_size.width > i.w + 2) ? text_size.width : (i.w + 2);
             max_width = std::max(max_width, (int)i.w + 2);
@@ -140,13 +135,11 @@ void draw_boxes(cv::Mat mat_img, std::vector<bbox_t> result_vec,
 }
 
 std::vector<bbox_t> get_3d_coordinates(std::vector<bbox_t> bbox_vect,
-                                       cv::Mat xyzrgba)
-{
+                                       cv::Mat xyzrgba) {
     return bbox_vect;
 }
 
-std::vector<std::string> objects_names_from_file(std::string const filename)
-{
+std::vector<std::string> objects_names_from_file(std::string const filename) {
     std::ifstream file(filename);
     std::vector<std::string> file_lines;
     if (!file.is_open()) return file_lines;
@@ -156,8 +149,7 @@ std::vector<std::string> objects_names_from_file(std::string const filename)
     return file_lines;
 }
 
-std::vector<obj_t> convertBbox2obj(const std::vector<bbox_t>& v)
-{
+std::vector<obj_t> convertBbox2obj(const std::vector<bbox_t>& v) {
     std::vector<obj_t> ret;
     for (auto& elem : v) {
         ret.push_back(
@@ -167,15 +159,13 @@ std::vector<obj_t> convertBbox2obj(const std::vector<bbox_t>& v)
 }
 
 
-float getMedian(std::vector<float>& v)
-{
+float getMedian(std::vector<float>& v) {
     size_t n = v.size() / 2;
     std::nth_element(v.begin(), v.begin() + n, v.end());
     return v[n];
 }
 
-void customizedFrame(cv::Mat& f)
-{
+void customizedFrame(cv::Mat& f) {
     // resize and crop to fit with 416x416 (trained data set)
     //
     // resize
@@ -189,60 +179,51 @@ void customizedFrame(cv::Mat& f)
         f = f(cv::Range(10, scaled_height), cv::Range(40, 460));
     }
 }
-std::vector<cv::Point> polygonVertices = {{404,236},{275,171},{273,39},{415,78},{405,232}};
+std::vector<cv::Point> polygonVertices = {{404, 236},
+                                          {275, 171},
+                                          {273, 39},
+                                          {415, 78},
+                                          {405, 232}};
 
-bool in_polygon(const std::vector<cv::Point> &polygon, cv::Point point) {
+bool in_polygon(const std::vector<cv::Point>& polygon, cv::Point point) {
     double dist = pointPolygonTest(polygonVertices, point, true);
-    if (dist >= 0)
-        return true;
+    if (dist >= 0) return true;
     return false;
 }
 class PidHistoryTracker {
-	public:
-		PidHistoryTracker(size_t max_size) {
-			max_size_ = max_size;
-		}
+ public:
+    PidHistoryTracker(size_t max_size) { max_size_ = max_size; }
 
-		void push(uint32_t pid) {
-			if(!pids_.size()) {
-				pids_.push_back(pid);
-			}
-			else {
-			    if(pids_.back() == pid) 
-			    	return;
-			    if(max_size_ == size()) {
-			    	pids_.pop_front();
-			    }
-			    if(!contains(pid))
-			        pids_.push_back(pid);
-			}
-		}
-		bool contains(uint32_t pid) {
-		    for(auto it : pids_) {
-			if(it == pid) {
-			   return true;
-			}
-		    }
-		    return false;
-		}
-		void dump() {
-			for(auto it : pids_) {
-				std::cout << it << " ";
-			}
-			std::cout << "\n";
-		}
+    void push(uint32_t pid) {
+        if (!pids_.size()) {
+            pids_.push_back(pid);
+        } else {
+            if (pids_.back() == pid) return;
+            if (max_size_ == size()) { pids_.pop_front(); }
+            if (!contains(pid)) pids_.push_back(pid);
+        }
+    }
+    bool contains(uint32_t pid) {
+        for (auto it : pids_) {
+            if (it == pid) { return true; }
+        }
+        return false;
+    }
+    void dump() {
+        for (auto it : pids_) {
+            std::cout << it << " ";
+        }
+        std::cout << "\n";
+    }
 
-		size_t size() {
-			return pids_.size();
-		}
+    size_t size() { return pids_.size(); }
 
-	private:
-	size_t max_size_;
-	std::deque<uint32_t> pids_;
+ private:
+    size_t max_size_;
+    std::deque<uint32_t> pids_;
 };
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
     Logger& lg = spdLogger::getInstance();
     Config& cfg = JSONConfig::getInstance("/etc/iot-config.json");
     Interface& inf = CrowServer::getInstance(cfg, lg);
@@ -323,8 +304,7 @@ int main(int argc, char* argv[])
                 if (filename == "web_camera") {
                     cap.open(0);
                     cap >> cur_frame;
-                }
-                else if (!use_zed_camera) {
+                } else if (!use_zed_camera) {
                     cap.open(cfg.getSrc());
                     cap >> cur_frame;
                 }
@@ -355,8 +335,9 @@ int main(int argc, char* argv[])
                         detection_data.frame_id = frame_id++;
 
                         exit_flag = cfg.status();
-                        if (exit_flag) { detection_data.exit_flag = true; }
-                        else if (detection_data.cap_frame.empty()) {
+                        if (exit_flag) {
+                            detection_data.exit_flag = true;
+                        } else if (detection_data.cap_frame.empty()) {
                             // verify and polling
                             // here when cam is down
                             std::cout << "retrying open " << filename << "\n";
@@ -480,8 +461,7 @@ int main(int argc, char* argv[])
                         if (use_kalman_filter) {
                             if (detection_data.new_detection) {
                                 result_vec = track_kalman.correct(result_vec);
-                            }
-                            else {
+                            } else {
                                 result_vec = track_kalman.predict();
                             }
                         }
@@ -495,43 +475,47 @@ int main(int argc, char* argv[])
                         }
 
                         bool is_inside_polygon = false;
+			int num_is_not_inside_polygon = 0;
                         for (auto& obj : result_vec) {
                             if (obj_names.size() > obj.obj_id) {
-                                if (obj_names[obj.obj_id] == std::string("person")) {
-                                    if(in_polygon(polygonVertices, cv::Point(obj.x + obj.w/2, obj.y + obj.h/2))) {
+                                if (obj_names[obj.obj_id] ==
+                                    std::string("person")) {
+                                    if (in_polygon(
+                                          polygonVertices,
+                                          cv::Point(obj.x + obj.w / 2,
+                                                    obj.y + obj.h / 2))) {
                                         is_inside_polygon = true;
+                                    } else {
+                                        pid_tracker.push(obj.track_id);
+					num_is_not_inside_polygon++;
                                     }
-				    else {
-					pid_tracker.push(obj.track_id);	
-				    }
                                 }
                             }
                         }
-			
-                        if(is_inside_polygon) {
-			    bool person_come_in = true;
+
+                        if (is_inside_polygon) {
+                            bool person_come_in = true;
                             for (auto& obj : result_vec) {
-			        if (pid_tracker.contains(obj.track_id)) {
-			        	person_come_in = false;	
-			        	break;
-			        }
+                                if (pid_tracker.contains(obj.track_id)) {
+                                    person_come_in = false;
+                                    break;
+                                }
                             }
 
-			    //pid_tracker.dump();
-
-			    if (person_come_in) {
-                                polylines(draw_frame, polygonVertices, true, cv::Scalar(0, 255, 0), 2);
+                            if (person_come_in && num_is_not_inside_polygon == 0) {
+                                polylines(draw_frame, polygonVertices, true,
+                                          cv::Scalar(0, 255, 0), 2);
                                 draw_boxes(draw_frame, result_vec, obj_names,
                                            current_fps_det, current_fps_cap,
                                            cfg.getThreshold());
 
-                                DataResult data_result{draw_frame,
-                                                       convertBbox2obj(result_vec),
-                                                       obj_names, current_fps_det};
+                                DataResult data_result{
+                                  draw_frame, convertBbox2obj(result_vec),
+                                  obj_names, current_fps_det};
                                 listener.onDataUpdate(data_result);
-			    }
+                            }
                         }
-		        	
+
                         detection_data.result_vec = result_vec;
                         detection_data.draw_frame = draw_frame;
                         steady_end = std::chrono::steady_clock::now();
@@ -599,13 +583,9 @@ int main(int argc, char* argv[])
                     std::this_thread::sleep_for(std::chrono::seconds(2));
                 }
             }
-        }
-        catch (std::exception& e) {
+        } catch (std::exception& e) {
             std::cerr << "exception: " << e.what() << "\n";
-        }
-        catch (...) {
-            std::cerr << "unknown exception \n";
-        }
+        } catch (...) { std::cerr << "unknown exception \n"; }
     }
 
     return 0;
