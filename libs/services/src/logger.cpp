@@ -26,7 +26,7 @@ void spdLogger::initialize(std::shared_ptr<impl>& _impl)
                                              max_size, max_files);
 
     spdlog::set_pattern("[%H:%M:%S] [%^---%L---%$] %v");
-    spdlog::flush_every(std::chrono::minutes(2));
+    spdlog::flush_every(std::chrono::seconds(2));
     _impl->m_logger = logger;
 }
 
