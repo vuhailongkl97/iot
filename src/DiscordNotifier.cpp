@@ -26,6 +26,7 @@ NotifyState discordNotifier::doWork(const filteredDataResult& d) {
     recent_results.push_front(p);
 
     if (recent_results.size() >= m_queueEntryLimit) {
+	//std::cout << "[discord] enough data for checking " << recent_results.size() << "\n";
         // main checking
         auto lastOneTime = recent_results.back().second;
         seconds skippingTime(cfg.getTimeSkippingDetection());
@@ -38,9 +39,11 @@ NotifyState discordNotifier::doWork(const filteredDataResult& d) {
             inf.notify(NOTIFY_TYPE::DETECT_RET, m_tmpImgPath);
             return NotifyState::UPDATED;
         } else {
+	    //std::cout << "[discord] over timeForcus : rejecting last element in history queue\n" ;
             recent_results.pop_back();
         }
     }
+    //std::cout << "[discord] haven't enough data for checking " << recent_results.size() << "\n";
     return NotifyState::CHECKING;
 }
 
