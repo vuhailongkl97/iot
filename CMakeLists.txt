@@ -70,3 +70,14 @@ add_custom_command(TARGET iot PRE_BUILD
 add_custom_command(TARGET iot PRE_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory
 				   ${DARKNET_DEPS}/cfg/ $<TARGET_FILE_DIR:iot>/cfg)
+			   # Get the hash commit in the HEAD git
+execute_process(
+    COMMAND git rev-parse HEAD
+    OUTPUT_VARIABLE GIT_COMMIT_HASH
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+# Write the version information to the header file
+file(WRITE ${CMAKE_SOURCE_DIR}/include/version.h
+    "#define VERSION_COMMIT_HASH \"${GIT_COMMIT_HASH}\"\n"
+)

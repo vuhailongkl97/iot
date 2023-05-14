@@ -13,6 +13,7 @@
 #include <string>
 #include <thread>
 #include <vector>
+#include "version.h"
 //#define IMAGE_DBG
 
 #define TRACK_OPTFLOW
@@ -48,6 +49,9 @@
 #endif // CV_VERSION_EPOCH
 
 #endif // OPENCV
+
+#include "rules.hpp"
+
 template<typename T>
 class send_one_replaceable_object_t {
     const bool sync;
@@ -179,17 +183,9 @@ void customizedFrame(cv::Mat& f) {
         f = f(cv::Range(10, scaled_height), cv::Range(40, 460));
     }
 }
-std::vector<cv::Point> polygonVertices = {{404, 236},
-                                          {275, 171},
-                                          {273, 39},
-                                          {415, 78},
-                                          {405, 236}};
 
-bool in_polygon(const std::vector<cv::Point>& polygon, cv::Point point) {
-    double dist = pointPolygonTest(polygonVertices, point, true);
-    if (dist >= 0) return true;
-    return false;
-}
+std::vector<cv::Point> polygonVertices = {{ 408,234 }, { 290,179 }, { 347,122 }, { 414,135 }};
+
 class PidHistoryTracker {
  public:
     PidHistoryTracker(size_t max_size) { max_size_ = max_size; }
@@ -229,6 +225,10 @@ int main(int argc, char* argv[]) {
     Interface& inf = CrowServer::getInstance(cfg, lg);
     Jetson jet("jetsonNano", {60, 50, 50}, lg, cfg, inf);
     HardwareManager& hw = jet;
+	std::string version("use version " );
+	version += VERSION_COMMIT_HASH;
+	lg.info(version.c_str());
+	std::cout << version << "\n";
 
     testConfig(cfg);
 
@@ -237,6 +237,8 @@ int main(int argc, char* argv[]) {
     std::string weights_file = cfg.getWeightFile();
     std::string filename = cfg.getSrc();
     float thresh = cfg.getThreshold();
+
+    AfterDetectHook after_detect_hook;
 
     DataUpdateListener listener;
 
@@ -474,44 +476,47 @@ int main(int argc, char* argv[]) {
                                                               frame_story, 40);
                         }
 
+						after_detect_hook.run(result_vec);
                         bool is_inside_polygon = false;
-			int num_is_not_inside_polygon = 0;
+                        int num_is_not_inside_polygon = 0;
                         for (auto& obj : result_vec) {
                             if (obj_names.size() > obj.obj_id) {
                                 if (obj_names[obj.obj_id] ==
                                     std::string("person")) {
-			            auto centrol_point = cv::Point(obj.x, obj.y + obj.h );
-                                    if (in_polygon(
-                                          polygonVertices,
-                                          centrol_point)) {
-					    cv::circle(draw_frame, centrol_point, 5, cv::Scalar(0, 0, 255), -1); 
+                                    auto centrol_point =
+                                      cv::Point(obj.x, obj.y + obj.h);
+                                    if (in_polygon(polygonVertices,
+                                                   centrol_point)) {
+                                        cv::circle(draw_frame, centrol_point, 5,
+                                                   cv::Scalar(0, 0, 255), -1);
                                         is_inside_polygon = true;
                                     } else {
                                         pid_tracker.push(obj.track_id);
-					num_is_not_inside_polygon++;
-					//std::cout << "push " << obj.track_id  << " to history due to centrol poin isn't in polygon " << centrol_point << "\n";
+                                        num_is_not_inside_polygon++;
+                                        //std::cout << "push " << obj.track_id  << " to history due to centrol poin isn't in polygon " << centrol_point << "\n";
                                     }
                                 }
                             }
                         }
                         draw_boxes(draw_frame, result_vec, obj_names,
-                                           current_fps_det, current_fps_cap,
-                                           cfg.getThreshold());
+                                   current_fps_det, current_fps_cap,
+                                   cfg.getThreshold());
 
                         if (is_inside_polygon) {
                             polylines(draw_frame, polygonVertices, true,
-                                          cv::Scalar(0, 255, 0), 2);
+                                      cv::Scalar(0, 255, 0), 2);
                             bool person_come_in = true;
                             for (auto& obj : result_vec) {
                                 if (pid_tracker.contains(obj.track_id)) {
                                     person_come_in = false;
-				    //std::cout << "this id is in tracker "<< obj.track_id << "\n"; 
+                                    //std::cout << "this id is in tracker "<< obj.track_id << "\n";
                                     break;
                                 }
                             }
-			    //std::cout << "person_come_in " << person_come_in << " " << num_is_not_inside_polygon << "\n";
-		            //pid_tracker.dump();
-                            if (person_come_in && num_is_not_inside_polygon == 0) {
+                            //std::cout << "person_come_in " << person_come_in << " " << num_is_not_inside_polygon << "\n";
+                            //pid_tracker.dump();
+                            if (person_come_in &&
+                                num_is_not_inside_polygon == 0) {
 
                                 DataResult data_result{
                                   draw_frame, convertBbox2obj(result_vec),

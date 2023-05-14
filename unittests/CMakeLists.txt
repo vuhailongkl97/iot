@@ -23,6 +23,7 @@ add_executable(
   cfg_mgr_test
   config_mgr_test.cc 
 )
+
 link_libraries(
   GTest::gmock
   GTest::gtest
@@ -41,6 +42,11 @@ add_executable(
 
 target_link_libraries(
   logger_test
+)
+
+add_executable(
+  rule_test 
+  rules_test.cpp
 )
 
 set (SERVICE_PATH ${CMAKE_SOURCE_DIR}/../libs/services)
@@ -73,8 +79,11 @@ add_executable(
   discordNotifier_test.cc 
   ${CMAKE_SOURCE_DIR}/../src/Notifier.cpp
 )
+
 include_directories( ${OpenCV_INCLUDE_DIRS} )
 target_link_libraries(discordNotifier_test ${OpenCV_LIBS})
+
+target_link_libraries(rule_test ${OpenCV_LIBS})
 
 include(GoogleTest)
 
@@ -84,6 +93,7 @@ include_directories(${SERVICE_PATH}/include
 	${CMAKE_SOURCE_DIR}/../libs/dependencies/Crow/include 
 	${CMAKE_SOURCE_DIR}/../libs/dependencies/spdlog/include 
 )
+
 target_link_libraries(
 		cfg_mgr_test 
 )
@@ -92,3 +102,4 @@ gtest_discover_tests(hardware_test)
 gtest_discover_tests(interface_test)
 gtest_discover_tests(logger_test)
 gtest_discover_tests(discordNotifier_test)
+gtest_discover_tests(rule_test)
