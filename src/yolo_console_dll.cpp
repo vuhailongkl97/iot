@@ -184,7 +184,10 @@ void customizedFrame(cv::Mat& f) {
     }
 }
 
-std::vector<cv::Point> polygonVertices = {{ 408,234 }, { 290,179 }, { 347,122 }, { 414,135 }};
+std::vector<cv::Point> polygonVertices = {{408, 234},
+                                          {290, 179},
+                                          {347, 122},
+                                          {414, 135}};
 
 class PidHistoryTracker {
  public:
@@ -225,10 +228,10 @@ int main(int argc, char* argv[]) {
     Interface& inf = CrowServer::getInstance(cfg, lg);
     Jetson jet("jetsonNano", {60, 50, 50}, lg, cfg, inf);
     HardwareManager& hw = jet;
-	std::string version("use version " );
-	version += VERSION_COMMIT_HASH;
-	lg.info(version.c_str());
-	std::cout << version << "\n";
+    std::string version("use version ");
+    version += VERSION_COMMIT_HASH;
+    lg.info(version.c_str());
+    std::cout << version << "\n";
 
     testConfig(cfg);
 
@@ -476,7 +479,7 @@ int main(int argc, char* argv[]) {
                                                               frame_story, 40);
                         }
 
-						after_detect_hook.run(result_vec);
+                        after_detect_hook.run(result_vec);
                         bool is_inside_polygon = false;
                         int num_is_not_inside_polygon = 0;
                         for (auto& obj : result_vec) {
