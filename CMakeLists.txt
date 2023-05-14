@@ -17,7 +17,7 @@ endif ()
 #add debug flag
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 #add flag
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 
 #add specific flag
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DOPENCV  -DCUDNN -DCUDNN_HALF")

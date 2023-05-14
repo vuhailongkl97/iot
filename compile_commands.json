@@ -1,0 +1,37 @@
+[
+{
+  "directory": "/workspace/build",
+  "command": "/usr/bin/c++  -I/workspace/include -I/workspace/libs -I/workspace/libs/services/include  -g -std=c++17 -DOPENCV  -DCUDNN -DCUDNN_HALF -Wall -Wfatal-errors -Wno-unused-result -Wno-unknown-pragmas -lm -lcudnn -lstdc++ -lgomp -lcuda -pthread -lcublas -fPIC -Ofast  -fopenmp   -o CMakeFiles/libs.dir/src/DiscordNotifier.cpp.o -c /workspace/src/DiscordNotifier.cpp",
+  "file": "/workspace/src/DiscordNotifier.cpp"
+},
+{
+  "directory": "/workspace/build",
+  "command": "/usr/bin/c++  -I/workspace/include -I/workspace/libs -I/workspace/libs/services/include  -g -std=c++17 -DOPENCV  -DCUDNN -DCUDNN_HALF -Wall -Wfatal-errors -Wno-unused-result -Wno-unknown-pragmas -lm -lcudnn -lstdc++ -lgomp -lcuda -pthread -lcublas -fPIC -Ofast  -fopenmp   -o CMakeFiles/libs.dir/src/Notifier.cpp.o -c /workspace/src/Notifier.cpp",
+  "file": "/workspace/src/Notifier.cpp"
+},
+{
+  "directory": "/workspace/build",
+  "command": "/usr/bin/c++  -I/workspace/include -I/workspace/libs -I/workspace/libs/services/include -I/usr/local/cuda/include -I/usr/local/cudnn/include -I/workspace/usr/local/cuda/include/cuda -I/workspace/build/_deps/json-src/include  -g -std=c++17 -DOPENCV  -DCUDNN -DCUDNN_HALF -Wall -Wfatal-errors -Wno-unused-result -Wno-unknown-pragmas -lm -lcudnn -lstdc++ -lgomp -lcuda -pthread -lcublas -fPIC -Ofast  -fopenmp   -o CMakeFiles/iot.dir/src/yolo_console_dll.cpp.o -c /workspace/src/yolo_console_dll.cpp",
+  "file": "/workspace/src/yolo_console_dll.cpp"
+},
+{
+  "directory": "/workspace/build/libs/services",
+  "command": "/usr/bin/c++  -I/workspace/libs/services/include -I/workspace/libs/dependencies/Crow/include -I/workspace/libs/dependencies/spdlog/include -I/workspace/build/_deps/json-src/include  -o CMakeFiles/services.dir/src/logger.cpp.o -c /workspace/libs/services/src/logger.cpp",
+  "file": "/workspace/libs/services/src/logger.cpp"
+},
+{
+  "directory": "/workspace/build/libs/services",
+  "command": "/usr/bin/c++  -I/workspace/libs/services/include -I/workspace/libs/dependencies/Crow/include -I/workspace/libs/dependencies/spdlog/include -I/workspace/build/_deps/json-src/include  -o CMakeFiles/services.dir/src/monitor.cpp.o -c /workspace/libs/services/src/monitor.cpp",
+  "file": "/workspace/libs/services/src/monitor.cpp"
+},
+{
+  "directory": "/workspace/build/libs/services",
+  "command": "/usr/bin/c++  -I/workspace/libs/services/include -I/workspace/libs/dependencies/Crow/include -I/workspace/libs/dependencies/spdlog/include -I/workspace/build/_deps/json-src/include  -o CMakeFiles/services.dir/src/server.cpp.o -c /workspace/libs/services/src/server.cpp",
+  "file": "/workspace/libs/services/src/server.cpp"
+},
+{
+  "directory": "/workspace/build/libs/services",
+  "command": "/usr/bin/c++  -I/workspace/libs/services/include -I/workspace/libs/dependencies/Crow/include -I/workspace/libs/dependencies/spdlog/include -I/workspace/build/_deps/json-src/include  -o CMakeFiles/services.dir/src/config_mgr.cpp.o -c /workspace/libs/services/src/config_mgr.cpp",
+  "file": "/workspace/libs/services/src/config_mgr.cpp"
+}
+]

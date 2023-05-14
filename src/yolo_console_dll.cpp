@@ -1,22 +1,24 @@
-#include <DiscordNotifier.hpp>
 #include <sstream>
-#include "services/include/monitor.h"
-#include "services/include/server.h"
-#include "services/include/config_mgr.h"
 #include <atomic>
 #include <fstream>
 #include <iostream>
 #include <mutex>
 #include <queue>
 #include <string>
-#include <thread>
 #include <vector>
 #include <memory>
+#include <future>
+
+#include <DiscordNotifier.hpp>
+#include "services/include/monitor.h"
+#include "services/include/server.h"
+#include "services/include/config_mgr.h"
 
 //#define IMAGE_DBG
 
 #define TRACK_OPTFLOW
-//#define GPU
+#include "main.hpp"
+#include "customized.hpp"
 
 #include "yolo_v2_class.hpp"
 #include <opencv2/core/version.hpp>
@@ -195,25 +197,59 @@ int main(int argc, char* argv[])
     Logger& lg = spdLogger::getInstance();
     Config& cfg = JSONConfig::getInstance("/etc/iot-config.json");
     Interface& inf = CrowServer::getInstance(cfg, lg);
-    Jetson jet("jetsonNano", {60, 50, 50}, lg, cfg, inf);
+    Jetson jet(std::string("jetsonNano"), std::vector<float>{60, 50, 50}, lg, cfg, inf);
     HardwareManager& hw = jet;
+
+    if (cfg.getBoardName() == std::string("JetsonNano")) {
+        auto thermometer = std::thread([&] { hw.monitor(); });
+        thermometer.detach();
+		std::cout << "monitor is started\n";
+    }
+}
+
+void serving() {
+    Logger& lg = spdLogger::getInstance();
+    Config& cfg = JSONConfig::getInstance("/etc/iot-config.json");
+    Interface& inf = CrowServer::getInstance(cfg, lg);
+    inf.initialize();
+
+    auto server = std::thread([&] { inf.run(); });
+    server.detach();
+	std::cout << "serving is started\n";
+}
+int main(int argc, char* argv[]) {
+    Logger& lg = spdLogger::getInstance();
+    Config& cfg = JSONConfig::getInstance("/etc/iot-config.json");
+    Interface& inf = CrowServer::getInstance(cfg, lg);
+
     testConfig(cfg);
+#if 1
+
+	monitor();
+	serving();
+
+    DataUpdateListener listener;
+    listener.addSubscriber(new discordNotifier(cfg, lg, inf));
+
+	DarknetDetector detector(lg, cfg);
+
+	detector.run();
+	return 0;
+#else
 
     std::string names_file = cfg.getNamesFile();
     std::string cfg_file = cfg.getCfgFile();
     std::string weights_file = cfg.getWeightFile();
     std::string filename = cfg.getSrc();
-    DataUpdateListener listener;
-
-    listener.addSubscriber(new discordNotifier(cfg, lg, inf));
+    float thresh = cfg.getThreshold();
     auto obj_names = objects_names_from_file(names_file);
+    bool const send_network = false;     // true - for remote detection
+    bool const use_kalman_filter = true; // true - for stationary camera
+
     Detector detector(cfg_file, weights_file);
     PidHistoryTracker pid_tracker(15);
 
-	DarknetDetector darknetDTT(lg, cfg);
-	darknetDTT.subscribe(new discordNotifier(cfg, lg, inf));
-	darknetDTT.run();
-
+    bool detection_sync = true; // true - for video-file
 
 #ifdef TRACK_OPTFLOW // for slow GPU
     detection_sync = false;
@@ -221,15 +257,6 @@ int main(int argc, char* argv[])
 #endif // TRACK_OPTFLOW
 
     std::atomic<bool> exit_flag(false);
-
-    if (cfg.getBoardName() == std::string("JetsonNano")) {
-        auto thermometer = std::thread([&] { hw.monitor(); });
-        thermometer.detach();
-    }
-
-    inf.initialize();
-    auto server = std::thread([&] { inf.run(); });
-    server.detach();
 
     while (true) {
         if (filename.size() == 0) {
@@ -243,32 +270,48 @@ int main(int argc, char* argv[])
               filename.substr(filename.find_last_of(".") + 1);
             std::string const protocol = filename.substr(0, 7);
             if (file_ext == "avi" || file_ext == "mp4" || file_ext == "mjpg" ||
-                file_ext == "mov" || protocol == "rtmp://" || protocol == "rtsp://" ||
-                protocol == "http://" || protocol == "https:/")
+                file_ext == "mov" || // video file
+                protocol == "rtmp://" || protocol == "rtsp://" ||
+                protocol == "http://" ||
+                protocol == "https:/" || // video network stream
+                filename == "zed_camera" || file_ext == "svo" ||
+                filename == "web_camera") // ZED stereo camera
+
             {
-                if (protocol == "rtsp://" || protocol == "http://" || protocol == "https:/" )
+                if (protocol == "rtsp://" || protocol == "http://" ||
+                    protocol == "https:/" || filename == "zed_camera" ||
+                    filename == "web_camera")
                     detection_sync = false;
 
                 cv::Mat cur_frame;
                 std::atomic<int> fps_cap_counter(0), fps_det_counter(0);
                 std::atomic<int> current_fps_cap(0), current_fps_det(0);
                 std::chrono::steady_clock::time_point steady_start, steady_end;
-                track_kalman_t track_kalman;
-                cv::VideoCapture cap;
+                bool use_zed_camera = false;
 
-				cap.open(cfg.getSrc());
-				cap >> cur_frame;
+                track_kalman_t track_kalman;
+
+                cv::VideoCapture cap;
+                if (filename == "web_camera") {
+                    cap.open(0);
+                    cap >> cur_frame;
+                } else if (!use_zed_camera) {
+                    cap.open(cfg.getSrc());
+                    cap >> cur_frame;
+                }
 
                 customizedFrame(cur_frame);
                 cv::Size const frame_size = cur_frame.size();
                 std::cout << "\n Video size: " << frame_size << std::endl;
 
                 const bool sync = detection_sync; // sync data exchange
-                send_one_replaceable_object_t<detection_data_t> cap2prepare(sync),
+                send_one_replaceable_object_t<detection_data_t> cap2prepare(
+                  sync),
                   cap2draw(sync), prepare2detect(sync), detect2draw(sync),
-                  draw2show(sync);
+                  draw2show(sync), draw2write(sync), draw2net(sync);
 
-                std::thread t_cap, t_prepare, t_detect, t_draw;
+                std::thread t_cap, t_prepare, t_detect, t_post, t_draw, t_write,
+                  t_network;
 
                 // capture new video-frame
                 if (t_cap.joinable()) t_cap.join();
@@ -283,8 +326,11 @@ int main(int argc, char* argv[])
                         detection_data.frame_id = frame_id++;
 
                         exit_flag = cfg.status();
-                        if (exit_flag) { detection_data.exit_flag = true; }
-                        else if (detection_data.cap_frame.empty()) {
+                        if (exit_flag) {
+                            detection_data.exit_flag = true;
+                        } else if (detection_data.cap_frame.empty()) {
+                            // verify and polling
+                            // here when cam is down
                             std::cout << "retrying open " << filename << "\n";
                             while (cap.open(filename) == false) {
                                 std::this_thread::sleep_for(
@@ -303,7 +349,8 @@ int main(int argc, char* argv[])
                     std::cout << " t_cap exit \n";
                 });
 
-                // pre-processing video frame (resize, convertion)
+                // pre-processing video frame (resize,
+                // convertion)
                 t_prepare = std::thread([&]() {
                     std::shared_ptr<image_t> det_image;
                     detection_data_t detection_data;
@@ -355,16 +402,22 @@ int main(int argc, char* argv[])
                         }
                         // for Video-camera
                         else {
+                            // get new Detection
+                            // result if present
                             if (detect2draw.is_object_present()) {
-                                cv::Mat old_cap_frame = detection_data.cap_frame;
+                                cv::Mat old_cap_frame =
+                                  detection_data
+                                    .cap_frame; // use old captured frame
                                 detection_data = detect2draw.receive();
                                 if (!old_cap_frame.empty())
                                     detection_data.cap_frame = old_cap_frame;
                             }
-                            // get new Captured frame
+                            // get new Captured
+                            // frame
                             else {
                                 std::vector<bbox_t> old_result_vec =
-                                  detection_data.result_vec; // use old detections
+                                  detection_data
+                                    .result_vec; // use old detections
                                 detection_data = cap2draw.receive();
                                 detection_data.result_vec = old_result_vec;
                             }
@@ -475,6 +528,7 @@ int main(int argc, char* argv[])
 #ifdef IMAGE_DBG
                         draw2show.send(detection_data);
 #endif
+                        if (send_network) draw2net.send(detection_data);
                     } while (!detection_data.exit_flag);
                     std::cout << " t_draw exit \n";
                 });
@@ -510,6 +564,7 @@ int main(int argc, char* argv[])
 
                 cv::destroyWindow("window name");
 #endif
+
                 // wait for all threads
                 if (t_cap.joinable()) t_cap.join();
                 if (t_prepare.joinable()) t_prepare.join();
@@ -519,6 +574,7 @@ int main(int argc, char* argv[])
                 // sleep here wait next event
                 while (exit_flag) {
                     exit_flag = cfg.status();
+                    //std::cout << "sleep wait for next events\n";
                     std::this_thread::sleep_for(std::chrono::seconds(2));
                 }
             }
@@ -526,5 +582,7 @@ int main(int argc, char* argv[])
             std::cerr << "exception: " << e.what() << "\n";
         } catch (...) { std::cerr << "unknown exception \n"; }
     }
+
     return 0;
+#endif
 }
