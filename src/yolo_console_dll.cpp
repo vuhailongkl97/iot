@@ -184,12 +184,6 @@ void customizedFrame(cv::Mat& f) {
     }
 }
 
-std::vector<cv::Point> polygonVertices = {{408, 234},
-                                          {290, 179},
-                                          {347, 122},
-                                          {414, 135}};
-
-
 int main(int argc, char* argv[]) {
     Logger& lg = spdLogger::getInstance();
     Config& cfg = JSONConfig::getInstance("/etc/iot-config.json");
@@ -450,7 +444,7 @@ int main(int argc, char* argv[]) {
                                    current_fps_det, current_fps_cap,
                                    cfg.getThreshold());
 
-			after_detect_hook.draw(draw_frame);
+                        after_detect_hook.draw(draw_frame);
                         after_detect_hook.run(result_vec);
 
                         for (auto& obj : result_vec) {
