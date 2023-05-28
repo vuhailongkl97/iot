@@ -450,6 +450,7 @@ int main(int argc, char* argv[]) {
                                    current_fps_det, current_fps_cap,
                                    cfg.getThreshold());
 
+			after_detect_hook.draw(draw_frame);
                         after_detect_hook.run(result_vec);
 
                         for (auto& obj : result_vec) {

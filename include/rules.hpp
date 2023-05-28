@@ -104,27 +104,26 @@ class CrossAreaRule : public Rule {
 
     bool filter(std::vector<bbox_t>& vec) override {
         bool is_inside_polygon = false;
-        int num_is_not_inside_polygon = 0;
         for (auto& obj : vec) {
             auto centrol_point = cv::Point(obj.x, obj.y + obj.h);
             if (in_polygon(area_, centrol_point)) {
                 is_inside_polygon = true;
             } else {
                 pid_tracker.push(obj.track_id);
-                num_is_not_inside_polygon++;
             }
         }
 
         if (is_inside_polygon) {
             bool person_come_in = true;
-            for (auto it = vec.begin(); it != vec.end();) {
+            for (auto it = vec.begin(); it != vec.end(); it++) {
                 auto obj = *it;
                 if (pid_tracker.contains(obj.track_id)) {
                     person_come_in = false;
                 }
-                if (person_come_in && num_is_not_inside_polygon == 0) {
-                    // 2 seconds from last active
-                    if (time(0) - pid_tracker.recent_active() >= 2) return true;
+                if (person_come_in ) {
+		    if(time(0) - pid_tracker.recent_active() >= 3) {
+			return true;
+		    }
                 }
             }
         }
@@ -146,10 +145,10 @@ class Hook {
     void clean() { hook_list_.clear(); }
 
     void run(std::vector<bbox_t>& vec,
-             std::function<void(int i)> callback = std::function<void(int)>()) {
+             std::function<void(int i, std::vector<bbox_t>)> callback = std::function<void(int, std::vector<bbox_t>)>()) {
         for (int i = 0; i < hook_list_.size(); i++) {
             hook_list_.at(i)->filter(vec);
-            if (callback) { callback(i); }
+            if (callback) { callback(i, vec); }
         }
     }
 
@@ -179,9 +178,16 @@ class AfterDetectHook {
     }
 
     void run(std::vector<bbox_t>& vec,
-             std::function<void(int i)> callback = std::function<void(int)>()) {
+             std::function<void(int i, std::vector<bbox_t>)> callback = std::function<void(int, std::vector<bbox_t>)>()) {
         hook_.run(vec, callback);
     }
+
+    void draw(cv::Mat &draw_frame) {
+	polylines(draw_frame, excluded_area, true, cv::Scalar(0, 255, 0), 2);
+	polylines(draw_frame, cross_area, true, cv::Scalar(0, 160, 0), 2);
+
+    }
+
     friend class HookTest;
 
  private:
