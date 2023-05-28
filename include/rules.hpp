@@ -27,13 +27,19 @@
 
 #endif // OPENCV
 
+#include "server.h"
+#include "config_mgr.h"
+#include "pid_tracker.hpp"
+
+std::vector<std::string> objects_names_from_file(std::string const filename);
+
 bool in_polygon(const std::vector<cv::Point>& polygon, cv::Point point) {
     return pointPolygonTest(polygon, point, true) >= 0;
 }
 
 class Rule {
  public:
-    virtual bool filter(std::vector<bbox_t>& vec) const = 0;
+    virtual bool filter(std::vector<bbox_t>& vec) = 0;
     virtual ~Rule() {}
 };
 
@@ -43,25 +49,99 @@ class ExcludeAreaRule : public Rule {
       area_(area) {}
     void set_area(std::vector<cv::Point>& area) { area_ = area; }
 
-    bool filter(std::vector<bbox_t>& vec) const override {
-        std::vector<int> be_remove_index;
-
-        for (int i = 0; i < vec.size(); i++) {
-            auto bbox = vec.at(i);
+    bool filter(std::vector<bbox_t>& vec) override {
+		for (auto it = vec.begin(); it != vec.end();) {
+            auto bbox = *it; 
             auto centrol_point =
               cv::Point(bbox.x + bbox.w / 2, bbox.y + bbox.h / 2);
             if (in_polygon(area_, centrol_point)) {
-                be_remove_index.push_back(i);
-            }
-        }
-
-        int n = be_remove_index.size();
-        while (n--) {
-            vec.erase(std::next(vec.begin(), be_remove_index.at(n)));
-        }
+				vec.erase(it);
+			} else {
+				it++;
+			}
+		}
     }
 
  private:
+    std::vector<cv::Point> area_;
+};
+
+struct MetaData {
+};
+
+struct Data : public MetaData {
+
+};
+
+class FilterPersonRule : public Rule {
+ public:
+    explicit FilterPersonRule(std::vector<std::string> obj_names) :
+     obj_names_(obj_names) {}
+
+    bool filter(std::vector<bbox_t>& vec) override {
+		for (auto it = vec.begin(); it != vec.end();) {
+			auto obj = *it;
+			if (obj_names_.size() > obj.obj_id) {
+				if (obj_names_[obj.obj_id] ==
+					std::string("person")) {
+					vec.erase(it);
+				}
+				else {
+					it++;
+				}
+			} else {
+				it++;
+			}
+		}
+		return true;
+    }
+
+ private:
+	std::vector<std::string> obj_names_;
+};
+
+// checked area is used for check a person come in or go out
+class CrossAreaRule : public Rule {
+ public:
+    explicit CrossAreaRule(const std::vector<cv::Point>& area) :
+      area_(area), pid_tracker(15) {}
+    void set_area(std::vector<cv::Point>& area) { area_ = area; }
+
+    bool filter(std::vector<bbox_t>& vec) override {
+		bool is_inside_polygon = false;
+		int num_is_not_inside_polygon = 0;
+		for (auto& obj : vec) {
+			auto centrol_point =
+			  cv::Point(obj.x, obj.y + obj.h);
+			if (in_polygon(area_,
+						   centrol_point)) {
+				is_inside_polygon = true;
+			} else {
+				pid_tracker.push(obj.track_id);
+				num_is_not_inside_polygon++;
+			} }
+
+		if (is_inside_polygon) {
+			bool person_come_in = true;
+			for(auto it = vec.begin(); it != vec.end();) {
+				auto obj = *it;
+				if (pid_tracker.contains(obj.track_id)) {
+					person_come_in = false;
+					break;
+				}
+				if (person_come_in &&
+					num_is_not_inside_polygon == 0) {
+					vec.erase(it);
+				} else {
+					it++;
+				}
+			}
+		}
+		return true;
+    }
+
+ private:
+    PidHistoryTracker pid_tracker;
     std::vector<cv::Point> area_;
 };
 
@@ -88,8 +168,13 @@ class AfterDetectHook {
     AfterDetectHook() { init(); }
 
     void init() {
-        std::unique_ptr<Rule> rule =
-          std::unique_ptr<ExcludeAreaRule>(new ExcludeAreaRule(excluded_area));
+		auto &cfg = JSONConfig::getInstance("/etc/iot-config.json");
+		auto obj_names = objects_names_from_file(cfg.getNamesFile());
+        std::unique_ptr<Rule> rule = std::unique_ptr<FilterPersonRule>(new FilterPersonRule(obj_names));
+
+        hook_.regist(std::move(rule));
+        rule = std::unique_ptr<ExcludeAreaRule>(new ExcludeAreaRule(excluded_area));
+
         hook_.regist(std::move(rule));
     }
 

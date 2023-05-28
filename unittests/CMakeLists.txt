@@ -44,12 +44,14 @@ target_link_libraries(
   logger_test
 )
 
+set (SERVICE_PATH ${CMAKE_SOURCE_DIR}/../libs/services)
 add_executable(
   rule_test 
   rules_test.cpp
+  ${SERVICE_PATH}/src/logger.cpp
+  ${SERVICE_PATH}/src/config_mgr.cpp
 )
 
-set (SERVICE_PATH ${CMAKE_SOURCE_DIR}/../libs/services)
 add_executable(
   interface_test 
   interface_test.cc 
@@ -83,7 +85,10 @@ add_executable(
 include_directories( ${OpenCV_INCLUDE_DIRS} )
 target_link_libraries(discordNotifier_test ${OpenCV_LIBS})
 
-target_link_libraries(rule_test ${OpenCV_LIBS})
+target_link_libraries(rule_test
+  ${OpenCV_LIBS}
+  nlohmann_json::nlohmann_json
+)
 
 include(GoogleTest)
 
