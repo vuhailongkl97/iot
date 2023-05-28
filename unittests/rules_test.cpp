@@ -45,6 +45,7 @@ TEST(rule, remove_inside_excluded_area) {
 	bbox_t p2 { .x = 189, .y = 96, .w = 10, .h = 10 };
 	bbox_t p3 { .x = 789, .y = 97, .w = 10, .h = 10 };
 	bbox_t p4 { .x = 289, .y = 94, .w = 10, .h = 10 };
+	p1.obj_id = p2.obj_id = p3.obj_id = p4.obj_id = 0;
 	std::vector<bbox_t> vi;
 	vi.push_back(p1);
 	vi.push_back(p2);

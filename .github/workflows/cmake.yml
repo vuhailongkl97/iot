@@ -31,5 +31,5 @@ jobs:
             cmake --build /home/runner/work/iot/iot/build | grep 'Linking CXX executable iot' || exit 127
             cmake -B/home/runner/work/iot/iot/unittests/build -S /home/runner/work/iot/iot/unittests/
             cmake --build /home/runner/work/iot/iot/unittests/build
-            cp -r /home/runner/work/iot/iot/darknet-deps/data /home/runner/work/iot/iot/unittests/build
+            cp -r /home/runner/work/iot/iot/darknet-deps/data/coco.names /home/runner/work/iot/iot/unittests/build
             cd /home/runner/work/iot/iot/unittests/build && make test | grep '100% tests passed' || ( cat /home/runner/work/iot/iot/unittests/build/Testing/Temporary/LastTest.log ; exit 127 ) 

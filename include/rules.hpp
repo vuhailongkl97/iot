@@ -79,7 +79,7 @@ class FilterPersonRule : public Rule {
         for (auto it = vec.begin(); it != vec.end();) {
             auto obj = *it;
             if (obj_names_.size() > obj.obj_id) {
-                if (obj_names_[obj.obj_id] == std::string("person")) {
+                if (obj_names_[obj.obj_id] != std::string("person")) {
                     vec.erase(it);
                 } else {
                     it++;
@@ -163,10 +163,15 @@ class AfterDetectHook {
     void init() {
         auto& cfg = JSONConfig::getInstance("/etc/iot-config.json");
         auto obj_names = objects_names_from_file(cfg.getNamesFile());
+
         std::unique_ptr<Rule> rule =
           std::unique_ptr<FilterPersonRule>(new FilterPersonRule(obj_names));
-
         hook_.regist(std::move(rule));
+
+        rule =
+          std::unique_ptr<CrossAreaRule>(new CrossAreaRule(cross_area));
+        hook_.regist(std::move(rule));
+
         rule =
           std::unique_ptr<ExcludeAreaRule>(new ExcludeAreaRule(excluded_area));
 
@@ -181,4 +186,9 @@ class AfterDetectHook {
                                             {316, 148},
                                             {312, 95},
                                             {289, 96}};
+
+    std::vector<cv::Point> cross_area = {{408, 234},
+                                          {290, 179},
+                                          {347, 122},
+                                          {414, 135}};
 };
