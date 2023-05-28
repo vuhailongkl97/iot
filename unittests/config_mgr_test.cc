@@ -2,8 +2,7 @@
 
 #include "../src/config_mgr.cpp"
 
-TEST(JSONTEST, DEFAULT_CFG)
-{
+TEST(JSONTEST, DEFAULT_CFG) {
     Config& cfg = JSONConfig::getInstance("../iot-config.json");
 
     EXPECT_TRUE(cfg.status() == false);
@@ -22,8 +21,7 @@ TEST(JSONTEST, DEFAULT_CFG)
     cfg.show();
 }
 
-TEST(JSONTEST, SET_THRESHOLD)
-{
+TEST(JSONTEST, SET_THRESHOLD) {
     Config& cfg = JSONConfig::getInstance("../iot-config.json");
 
     auto tmpval = cfg.getThreshold();
@@ -34,8 +32,7 @@ TEST(JSONTEST, SET_THRESHOLD)
     EXPECT_TRUE(fabs(cfg.getThreshold() - tmpval) < 0.001);
 }
 
-TEST(JSONTEST, PARSE)
-{
+TEST(JSONTEST, PARSE) {
     using json = nlohmann::json;
 
     Config& cfg = JSONConfig::getInstance("../iot-config.json");
@@ -50,8 +47,7 @@ TEST(JSONTEST, PARSE)
     EXPECT_EQ(apis[1], std::string("admins:8080"));
 }
 
-TEST(JSONTEST, PARSE_NOT_ARRAY)
-{
+TEST(JSONTEST, PARSE_NOT_ARRAY) {
     using json = nlohmann::json;
 
     Config& cfg = JSONConfig::getInstance("../iot-config.json");

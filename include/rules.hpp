@@ -60,6 +60,7 @@ class ExcludeAreaRule : public Rule {
                 it++;
             }
         }
+        return true;
     }
 
  private:
@@ -99,7 +100,7 @@ class FilterPersonRule : public Rule {
 class CrossAreaRule : public Rule {
  public:
     explicit CrossAreaRule(const std::vector<cv::Point>& area) :
-      area_(area), pid_tracker(15) {}
+      pid_tracker(15), area_(area) {}
     void set_area(std::vector<cv::Point>& area) { area_ = area; }
 
     bool filter(std::vector<bbox_t>& vec) override {
@@ -120,10 +121,10 @@ class CrossAreaRule : public Rule {
                 if (pid_tracker.contains(obj.track_id)) {
                     person_come_in = false;
                 }
-                if (person_come_in ) {
-		    if(time(0) - pid_tracker.recent_active() >= 3) {
-			return true;
-		    }
+                if (person_come_in) {
+                    if (time(0) - pid_tracker.recent_active() >= 3) {
+                        return true;
+                    }
                 }
             }
         }
@@ -145,7 +146,8 @@ class Hook {
     void clean() { hook_list_.clear(); }
 
     void run(std::vector<bbox_t>& vec,
-             std::function<void(int i, std::vector<bbox_t>)> callback = std::function<void(int, std::vector<bbox_t>)>()) {
+             std::function<void(int i, std::vector<bbox_t>)> callback =
+               std::function<void(int, std::vector<bbox_t>)>()) {
         for (int i = 0; i < hook_list_.size(); i++) {
             hook_list_.at(i)->filter(vec);
             if (callback) { callback(i, vec); }
@@ -178,14 +180,14 @@ class AfterDetectHook {
     }
 
     void run(std::vector<bbox_t>& vec,
-             std::function<void(int i, std::vector<bbox_t>)> callback = std::function<void(int, std::vector<bbox_t>)>()) {
+             std::function<void(int i, std::vector<bbox_t>)> callback =
+               std::function<void(int, std::vector<bbox_t>)>()) {
         hook_.run(vec, callback);
     }
 
-    void draw(cv::Mat &draw_frame) {
-	polylines(draw_frame, excluded_area, true, cv::Scalar(0, 255, 0), 2);
-	polylines(draw_frame, cross_area, true, cv::Scalar(0, 160, 0), 2);
-
+    void draw(cv::Mat& draw_frame) {
+        polylines(draw_frame, excluded_area, true, cv::Scalar(0, 255, 0), 2);
+        polylines(draw_frame, cross_area, true, cv::Scalar(0, 160, 0), 2);
     }
 
     friend class HookTest;

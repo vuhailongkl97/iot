@@ -5,22 +5,19 @@
 #include "../src/server.cpp"
 #include "../src/monitor.cpp"
 
-class fakeJetson : public HardwareManager
-{
-private:
+class fakeJetson : public HardwareManager {
+ private:
     float getTemperature(Jetsonhardware);
 
-public:
+ public:
     fakeJetson(std::string name, std::vector<float> thresholds, Logger& _l,
                Config& c, Interface& i) :
-      HardwareManager(name, thresholds, _l, c, i)
-    {}
+      HardwareManager(name, thresholds, _l, c, i) {}
     int getAvailableMem() { return 0; }
     std::vector<float> getTemperatures() { return {1, 2, 3}; }
 };
 
-TEST(HARDWAREMONITOR, BASIC)
-{
+TEST(HARDWAREMONITOR, BASIC) {
 
     Logger& lg = spdLogger().getInstance();
     Config& cfg = JSONConfig::getInstance("../iot-config.json");

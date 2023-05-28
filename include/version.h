@@ -1,0 +1,1 @@
+#define VERSION_COMMIT_HASH "a4c522ceb469ce44db72297556f6df6679ecbd3d"

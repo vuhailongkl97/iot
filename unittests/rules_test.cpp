@@ -78,7 +78,7 @@ TEST(rule, remove_inside_excluded_area) {
                                             {289, 96}};
     std::unique_ptr<Rule> rule = std::unique_ptr<ExcludeAreaRule>(new ExcludeAreaRule(excluded_area));
 	h.regist(std::move(rule));
-	hook.run(vi, [](int i) {
+	hook.run(vi, [](int i, std::vector<bbox_t> vec) {
 			std::cout << "callback at " << i << "\n";
 			});
 
