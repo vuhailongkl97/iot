@@ -15,6 +15,16 @@ struct bbox_t {
 };
  * */
 
+std::vector<std::string> objects_names_from_file(std::string const filename) {
+    std::ifstream file(filename);
+    std::vector<std::string> file_lines;
+    if (!file.is_open()) return file_lines;
+    for (std::string line; getline(file, line);)
+        file_lines.push_back(line);
+    std::cout << "object names loaded \n";
+    return file_lines;
+}
+
 TEST(rule, init) {
 	AfterDetectHook hook;
 	bbox_t p1 { .x = 289, .y = 96, .w = 10, .h = 10 };

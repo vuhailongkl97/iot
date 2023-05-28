@@ -220,7 +220,6 @@ int main(int argc, char* argv[]) {
     bool const use_kalman_filter = true; // true - for stationary camera
 
     Detector detector(cfg_file, weights_file);
-    PidHistoryTracker pid_tracker(15);
 
     bool detection_sync = true; // true - for video-file
 
@@ -447,53 +446,17 @@ int main(int argc, char* argv[]) {
                                                               frame_story, 40);
                         }
 
-                        after_detect_hook.run(result_vec);
-                        bool is_inside_polygon = false;
-                        int num_is_not_inside_polygon = 0;
-                        for (auto& obj : result_vec) {
-                            if (obj_names.size() > obj.obj_id) {
-                                if (obj_names[obj.obj_id] ==
-                                    std::string("person")) {
-                                    auto centrol_point =
-                                      cv::Point(obj.x, obj.y + obj.h);
-                                    if (in_polygon(polygonVertices,
-                                                   centrol_point)) {
-                                        cv::circle(draw_frame, centrol_point, 5,
-                                                   cv::Scalar(0, 0, 255), -1);
-                                        is_inside_polygon = true;
-                                    } else {
-                                        pid_tracker.push(obj.track_id);
-                                        num_is_not_inside_polygon++;
-                                        //std::cout << "push " << obj.track_id  << " to history due to centrol poin isn't in polygon " << centrol_point << "\n";
-                                    }
-                                }
-                            }
-                        }
                         draw_boxes(draw_frame, result_vec, obj_names,
                                    current_fps_det, current_fps_cap,
                                    cfg.getThreshold());
 
-                        if (is_inside_polygon) {
-                            polylines(draw_frame, polygonVertices, true,
-                                      cv::Scalar(0, 255, 0), 2);
-                            bool person_come_in = true;
-                            for (auto& obj : result_vec) {
-                                if (pid_tracker.contains(obj.track_id)) {
-                                    person_come_in = false;
-                                    //std::cout << "this id is in tracker "<< obj.track_id << "\n";
-                                    break;
-                                }
-                            }
-                            //std::cout << "person_come_in " << person_come_in << " " << num_is_not_inside_polygon << "\n";
-                            //pid_tracker.dump();
-                            if (person_come_in &&
-                                num_is_not_inside_polygon == 0) {
+                        after_detect_hook.run(result_vec);
 
-                                DataResult data_result{
-                                  draw_frame, convertBbox2obj(result_vec),
-                                  obj_names, current_fps_det};
-                                listener.onDataUpdate(data_result);
-                            }
+                        for (auto& obj : result_vec) {
+                            DataResult data_result{draw_frame,
+                                                   convertBbox2obj(result_vec),
+                                                   obj_names, current_fps_det};
+                            listener.onDataUpdate(data_result);
                         }
 
                         detection_data.result_vec = result_vec;

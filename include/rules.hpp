@@ -50,54 +50,49 @@ class ExcludeAreaRule : public Rule {
     void set_area(std::vector<cv::Point>& area) { area_ = area; }
 
     bool filter(std::vector<bbox_t>& vec) override {
-		for (auto it = vec.begin(); it != vec.end();) {
-            auto bbox = *it; 
+        for (auto it = vec.begin(); it != vec.end();) {
+            auto bbox = *it;
             auto centrol_point =
               cv::Point(bbox.x + bbox.w / 2, bbox.y + bbox.h / 2);
             if (in_polygon(area_, centrol_point)) {
-				vec.erase(it);
-			} else {
-				it++;
-			}
-		}
+                vec.erase(it);
+            } else {
+                it++;
+            }
+        }
     }
 
  private:
     std::vector<cv::Point> area_;
 };
 
-struct MetaData {
-};
+struct MetaData {};
 
-struct Data : public MetaData {
-
-};
+struct Data : public MetaData {};
 
 class FilterPersonRule : public Rule {
  public:
     explicit FilterPersonRule(std::vector<std::string> obj_names) :
-     obj_names_(obj_names) {}
+      obj_names_(obj_names) {}
 
     bool filter(std::vector<bbox_t>& vec) override {
-		for (auto it = vec.begin(); it != vec.end();) {
-			auto obj = *it;
-			if (obj_names_.size() > obj.obj_id) {
-				if (obj_names_[obj.obj_id] ==
-					std::string("person")) {
-					vec.erase(it);
-				}
-				else {
-					it++;
-				}
-			} else {
-				it++;
-			}
-		}
-		return true;
+        for (auto it = vec.begin(); it != vec.end();) {
+            auto obj = *it;
+            if (obj_names_.size() > obj.obj_id) {
+                if (obj_names_[obj.obj_id] == std::string("person")) {
+                    vec.erase(it);
+                } else {
+                    it++;
+                }
+            } else {
+                it++;
+            }
+        }
+        return true;
     }
 
  private:
-	std::vector<std::string> obj_names_;
+    std::vector<std::string> obj_names_;
 };
 
 // checked area is used for check a person come in or go out
@@ -108,36 +103,34 @@ class CrossAreaRule : public Rule {
     void set_area(std::vector<cv::Point>& area) { area_ = area; }
 
     bool filter(std::vector<bbox_t>& vec) override {
-		bool is_inside_polygon = false;
-		int num_is_not_inside_polygon = 0;
-		for (auto& obj : vec) {
-			auto centrol_point =
-			  cv::Point(obj.x, obj.y + obj.h);
-			if (in_polygon(area_,
-						   centrol_point)) {
-				is_inside_polygon = true;
-			} else {
-				pid_tracker.push(obj.track_id);
-				num_is_not_inside_polygon++;
-			} }
+        bool is_inside_polygon = false;
+        int num_is_not_inside_polygon = 0;
+        for (auto& obj : vec) {
+            auto centrol_point = cv::Point(obj.x, obj.y + obj.h);
+            if (in_polygon(area_, centrol_point)) {
+                is_inside_polygon = true;
+            } else {
+                pid_tracker.push(obj.track_id);
+                num_is_not_inside_polygon++;
+            }
+        }
 
-		if (is_inside_polygon) {
-			bool person_come_in = true;
-			for(auto it = vec.begin(); it != vec.end();) {
-				auto obj = *it;
-				if (pid_tracker.contains(obj.track_id)) {
-					person_come_in = false;
-					break;
-				}
-				if (person_come_in &&
-					num_is_not_inside_polygon == 0) {
-					vec.erase(it);
-				} else {
-					it++;
-				}
-			}
-		}
-		return true;
+        if (is_inside_polygon) {
+            bool person_come_in = true;
+            for (auto it = vec.begin(); it != vec.end();) {
+                auto obj = *it;
+                if (pid_tracker.contains(obj.track_id)) {
+                    person_come_in = false;
+                    break;
+                }
+                if (person_come_in && num_is_not_inside_polygon == 0) {
+                    vec.erase(it);
+                } else {
+                    it++;
+                }
+            }
+        }
+        return true;
     }
 
  private:
@@ -168,19 +161,19 @@ class AfterDetectHook {
     AfterDetectHook() { init(); }
 
     void init() {
-		auto &cfg = JSONConfig::getInstance("/etc/iot-config.json");
-		auto obj_names = objects_names_from_file(cfg.getNamesFile());
-        std::unique_ptr<Rule> rule = std::unique_ptr<FilterPersonRule>(new FilterPersonRule(obj_names));
+        auto& cfg = JSONConfig::getInstance("/etc/iot-config.json");
+        auto obj_names = objects_names_from_file(cfg.getNamesFile());
+        std::unique_ptr<Rule> rule =
+          std::unique_ptr<FilterPersonRule>(new FilterPersonRule(obj_names));
 
         hook_.regist(std::move(rule));
-        rule = std::unique_ptr<ExcludeAreaRule>(new ExcludeAreaRule(excluded_area));
+        rule =
+          std::unique_ptr<ExcludeAreaRule>(new ExcludeAreaRule(excluded_area));
 
         hook_.regist(std::move(rule));
     }
 
-	void run(std::vector<bbox_t>& vec) {
-		hook_.run(vec);
-	}
+    void run(std::vector<bbox_t>& vec) { hook_.run(vec); }
 
  private:
     Hook hook_;
