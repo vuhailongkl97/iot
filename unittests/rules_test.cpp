@@ -25,6 +25,13 @@ std::vector<std::string> objects_names_from_file(std::string const filename) {
     return file_lines;
 }
 
+class HookTest {
+	public:
+		Hook &get_hooks(AfterDetectHook &h) {
+			return h.hook_;
+		}
+};
+
 TEST(rule, init) {
 	AfterDetectHook hook;
 	bbox_t p1 { .x = 289, .y = 96, .w = 10, .h = 10 };
@@ -35,6 +42,16 @@ TEST(rule, init) {
 
 	p1.x = 0;
 	vi.push_back(p1);
+	HookTest ht;
+	auto& h = ht.get_hooks(hook);
+	h.clean();
+
+    std::vector<cv::Point> excluded_area = {{282, 175},
+                                            {316, 148},
+                                            {312, 95},
+                                            {289, 96}};
+    std::unique_ptr<Rule> rule = std::unique_ptr<ExcludeAreaRule>(new ExcludeAreaRule(excluded_area));
+	h.regist(std::move(rule));
 	hook.run(vi);
 	EXPECT_FALSE(vi.empty());
 }
@@ -51,7 +68,19 @@ TEST(rule, remove_inside_excluded_area) {
 	vi.push_back(p2);
 	vi.push_back(p3);
 	vi.push_back(p4);
-	hook.run(vi);
+	HookTest ht;
+	auto& h = ht.get_hooks(hook);
+	h.clean();
+
+    std::vector<cv::Point> excluded_area = {{282, 175},
+                                            {316, 148},
+                                            {312, 95},
+                                            {289, 96}};
+    std::unique_ptr<Rule> rule = std::unique_ptr<ExcludeAreaRule>(new ExcludeAreaRule(excluded_area));
+	h.regist(std::move(rule));
+	hook.run(vi, [](int i) {
+			std::cout << "callback at " << i << "\n";
+			});
 
 	EXPECT_EQ(2, vi.size());
 

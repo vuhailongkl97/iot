@@ -121,15 +121,14 @@ class CrossAreaRule : public Rule {
                 auto obj = *it;
                 if (pid_tracker.contains(obj.track_id)) {
                     person_come_in = false;
-                    break;
                 }
                 if (person_come_in && num_is_not_inside_polygon == 0) {
-                    vec.erase(it);
-                } else {
-                    it++;
+                    // 2 seconds from last active
+                    if (time(0) - pid_tracker.recent_active() >= 2) return true;
                 }
             }
         }
+        vec.clear();
         return true;
     }
 
@@ -144,11 +143,13 @@ class Hook {
         hook_list_.push_back(std::move(rule));
     }
 
-    void clean(std::unique_ptr<Rule> rule) { hook_list_.clear(); }
+    void clean() { hook_list_.clear(); }
 
-    void run(std::vector<bbox_t>& vec) {
+    void run(std::vector<bbox_t>& vec,
+             std::function<void(int i)> callback = std::function<void(int)>()) {
         for (int i = 0; i < hook_list_.size(); i++) {
             hook_list_.at(i)->filter(vec);
+            if (callback) { callback(i); }
         }
     }
 
@@ -168,8 +169,7 @@ class AfterDetectHook {
           std::unique_ptr<FilterPersonRule>(new FilterPersonRule(obj_names));
         hook_.regist(std::move(rule));
 
-        rule =
-          std::unique_ptr<CrossAreaRule>(new CrossAreaRule(cross_area));
+        rule = std::unique_ptr<CrossAreaRule>(new CrossAreaRule(cross_area));
         hook_.regist(std::move(rule));
 
         rule =
@@ -178,7 +178,11 @@ class AfterDetectHook {
         hook_.regist(std::move(rule));
     }
 
-    void run(std::vector<bbox_t>& vec) { hook_.run(vec); }
+    void run(std::vector<bbox_t>& vec,
+             std::function<void(int i)> callback = std::function<void(int)>()) {
+        hook_.run(vec, callback);
+    }
+    friend class HookTest;
 
  private:
     Hook hook_;
@@ -188,7 +192,7 @@ class AfterDetectHook {
                                             {289, 96}};
 
     std::vector<cv::Point> cross_area = {{408, 234},
-                                          {290, 179},
-                                          {347, 122},
-                                          {414, 135}};
+                                         {290, 179},
+                                         {347, 122},
+                                         {414, 135}};
 };

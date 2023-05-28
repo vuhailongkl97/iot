@@ -7,6 +7,7 @@ class PidHistoryTracker {
     PidHistoryTracker(size_t max_size) { max_size_ = max_size; }
 
     void push(uint32_t pid) {
+        recent_active_ = time(0);
         if (!pids_.size()) {
             pids_.push_back(pid);
         } else {
@@ -21,6 +22,10 @@ class PidHistoryTracker {
         }
         return false;
     }
+
+    void set_recent_active(time_t recent) { recent_active_ = recent; }
+    time_t recent_active() const { return recent_active_; }
+
     void dump() {
         for (auto it : pids_) {
             std::cout << it << " ";
@@ -31,6 +36,7 @@ class PidHistoryTracker {
     size_t size() { return pids_.size(); }
 
  private:
+    time_t recent_active_ = 0;
     size_t max_size_;
     std::deque<uint32_t> pids_;
 };
