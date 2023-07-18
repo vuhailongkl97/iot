@@ -162,3 +162,32 @@ or
 ## Configure systemd
 To make the app run as a service in your Linux system:  
 follow [this](https://wiki.archlinux.org/title/systemd), and [my config](https://github.com/vuhailongkl97/iot/blob/master/iot.service)
+
+## Docker config for jetson nano 
+Inside docker [longkl/jetpack4_6_iot](https://hub.docker.com/r/longkl/jetpack4_6_iot) has:
+
+Jetpack 32.7.1 
+``` 
+apt update
+apt install cuda cmake pkg-config wget 
+apt install build-essential
+
+wget https://github.com/Kitware/CMake/releases/download/v3.25.1/cmake-3.25.1-linux-aarch64.sh
+bash ./cmake-3.25.1-linux-aarch64.sh
+
+https://sourceforge.net/projects/asio/files/asio/1.24.0%20%28Stable%29/
+download unzip and make install
+
+Lib Dependencies
+https://repo.download.nvidia.com/jetson/#Jetpack%204.6.1
+total 364M
+-rw-rw-r-- 1 1000 1000 2.4K Nov 30 18:31 cuda-compiler-10-2_10.2.460-1_arm64.deb
+-rw-rw-r-- 1 1000 1000 123K Nov 30 18:31 cuda-cudart-10-2_10.2.300-1_arm64.deb
+-rw-rw-r-- 1 1000 1000 2.5K Nov 30 18:31 cuda-libraries-10-2_10.2.460-1_arm64.deb
+-rw-rw-r-- 1 1000 1000  44M Nov 30 18:35 libcublas10_10.2.3.300-1_arm64.deb
+-rw-rw-r-- 1 1000 1000 272M Nov 30 18:34 libcudnn8_8.2.1.32-1+cuda10.2_arm64.deb
+-rw-rw-r-- 1 1000 1000  38M Nov 30 18:36 libcurand-10-2_10.1.2.300-1_arm64.deb
+-rw-rw-r-- 1 1000 1000 999K Nov 30 18:36 libopencv-dev_4.1.1-2-gd5a58aa75_arm64.deb
+-rw-rw-r-- 1 1000 1000 9.5M Nov 30 18:36 libopencv_4.1.1-2-gd5a58aa75_arm64.deb
+
+```

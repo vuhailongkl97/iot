@@ -20,15 +20,17 @@ jobs:
     - uses: actions/checkout@v3
       with:
         submodules: recursive
+    - name: test arch
+      run: uname -a ; lscpu
     - name: Run the build process with Docker
       uses: addnab/docker-run-action@v3
       with:
-          image: longkl/iot:latest
+          image: longkl/jetpack4_6_iot:manifest-latest
           options: -v ${{ github.workspace }}:${{ github.workspace }}
           run: |
             cp /home/runner/work/iot/iot/iot-config.json /etc/
             cmake -B/home/runner/work/iot/iot/build -S /home/runner/work/iot/iot/
-            cmake --build /home/runner/work/iot/iot/build | grep 'Linking CXX executable iot' || exit 127
+            cmake --build /home/runner/work/iot/iot/build | grep '[100%] Built target' || exit 127
             cmake -B/home/runner/work/iot/iot/unittests/build -S /home/runner/work/iot/iot/unittests/
             cmake --build /home/runner/work/iot/iot/unittests/build
             cp -r /home/runner/work/iot/iot/darknet-deps/data/coco.names /home/runner/work/iot/iot/unittests/build
