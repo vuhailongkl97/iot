@@ -5,12 +5,12 @@
 using testing::_;
 
 namespace cv {
-bool imwrite( const String& filename, InputArray img,
-              const std::vector<int>& params) {
-		return false;
-	}
+    bool imwrite(const String& filename, InputArray img,
+                 const std::vector<int>& params) {
+        return false;
+    }
 
-};
+}; // namespace cv
 #include "../src/DiscordNotifier.cpp"
 
 class MockLogger : public Logger {
@@ -133,7 +133,7 @@ TEST_F(DiscordNotifierTest, work_locking) {
     EXPECT_CALL(*interface, notify(_, _)).Times(1);
     EXPECT_EQ(NotifyState::UPDATED, m_ptr->work(d));
 
-//  main judge
+    //  main judge
     EXPECT_EQ(NotifyState::LOCKING, m_ptr->work(d));
 }
 

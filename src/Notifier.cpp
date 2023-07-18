@@ -6,9 +6,8 @@ using std::chrono::seconds;
 
 NotifyState Notifier::work(const DataResult& d) {
     filteredDataResult f_d = filterPerson(d);
-    NotifyState result =  NotifyState::SKIPPING;
-    if (!f_d.objs.empty()) 
-	result = doWork(f_d);
+    NotifyState result = NotifyState::SKIPPING;
+    if (!f_d.objs.empty()) result = doWork(f_d);
     //std::cout << "[notify] result " << static_cast<int>(result) << "\n";
     return result;
 }

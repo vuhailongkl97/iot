@@ -12,13 +12,7 @@
 class Config;
 class Logger;
 class Interface;
-enum class NotifyState {
-    CHECKING,
-    LOCKING,
-    UPDATED,
-	SKIPPING,
-	ERROR
-};
+enum class NotifyState { CHECKING, LOCKING, UPDATED, SKIPPING, ERROR };
 struct obj_t {
     float prob; // confidence - probability that the object was found correctly
     unsigned int obj_id; // class of object - from range [0, classes-1]

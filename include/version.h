@@ -1,0 +1,1 @@
+#define VERSION_COMMIT_HASH "48af197"

@@ -3,29 +3,25 @@
 
 #include "../src/server.cpp"
 
-class MockSystem
-{
-public:
+class MockSystem {
+ public:
     MOCK_METHOD(int, system, (const char*));
 };
 
 MockSystem* _m = nullptr;
-int system(const char* command)
-{
+int system(const char* command) {
     if (_m) { return _m->system(command); }
     return 0;
 }
 
-class INTERFACETest : public ::testing::Test
-{
-public:
+class INTERFACETest : public ::testing::Test {
+ public:
     INTERFACETest() :
       lg(spdLogger().getInstance()),
       cfg(JSONConfig::getInstance("../iot-config.json")),
-      p(new CrowServer(cfg, lg))
-    {}
+      p(new CrowServer(cfg, lg)) {}
 
-protected:
+ protected:
     void SetUp() noexcept override { _m = new MockSystem(); }
 
     void TearDown() override { delete _m; }
@@ -34,8 +30,7 @@ protected:
     std::unique_ptr<Interface> p;
 };
 
-TEST_F(INTERFACETest, RETURN400)
-{
+TEST_F(INTERFACETest, RETURN400) {
     p->initialize();
     {
         crow::request req;
@@ -48,8 +43,7 @@ TEST_F(INTERFACETest, RETURN400)
     }
 }
 
-TEST_F(INTERFACETest, UPDATE)
-{
+TEST_F(INTERFACETest, UPDATE) {
     p->initialize();
     {
         crow::request req;
@@ -84,12 +78,14 @@ TEST_F(INTERFACETest, UPDATE)
     using ::testing::InSequence;
     {
         const char* expected_str_req =
-	      "/usr/bin/curl http://localhost:1234/updated -X POST -H 'Content-Type: application/json' -d "
+          "/usr/bin/curl http://localhost:1234/updated -X POST -H "
+          "'Content-Type: application/json' -d "
           "'{\"content\":\"abcdef\",\"key\":\"img_path\"}' --max-time 1 -s "
           ">/dev/null";
 
         const char* expected_str_req2 =
-          "/usr/bin/curl https://localhost:12 -X POST -H 'Content-Type: application/json' -d "
+          "/usr/bin/curl https://localhost:12 -X POST -H 'Content-Type: "
+          "application/json' -d "
           "'{\"content\":\"abcdef\",\"key\":\"img_path\"}' --max-time 1 -s "
           ">/dev/null";
         EXPECT_CALL(*_m, system(testing::StrEq(expected_str_req))).Times(1);
@@ -99,8 +95,7 @@ TEST_F(INTERFACETest, UPDATE)
     }
 }
 
-TEST_F(INTERFACETest, TEST_ARRAY_NOT_DUPLICATE)
-{
+TEST_F(INTERFACETest, TEST_ARRAY_NOT_DUPLICATE) {
     p->initialize();
     {
         crow::request req;
@@ -136,12 +131,14 @@ TEST_F(INTERFACETest, TEST_ARRAY_NOT_DUPLICATE)
     using ::testing::InSequence;
     {
         const char* expected_str_req =
-          "/usr/bin/curl http://localhost:1234/updated -X POST -H 'Content-Type: application/json' -d "
+          "/usr/bin/curl http://localhost:1234/updated -X POST -H "
+          "'Content-Type: application/json' -d "
           "'{\"content\":\"abcdef\",\"key\":\"img_path\"}' --max-time 1 -s "
           ">/dev/null";
 
         const char* expected_str_req2 =
-          "/usr/bin/curl https://localhost:12 -X POST -H 'Content-Type: application/json' -d "
+          "/usr/bin/curl https://localhost:12 -X POST -H 'Content-Type: "
+          "application/json' -d "
           "'{\"content\":\"abcdef\",\"key\":\"img_path\"}' --max-time 1 -s "
           ">/dev/null";
         EXPECT_CALL(*_m, system(testing::StrEq(expected_str_req))).Times(1);
@@ -151,8 +148,7 @@ TEST_F(INTERFACETest, TEST_ARRAY_NOT_DUPLICATE)
     }
 }
 
-TEST_F(INTERFACETest, TEST_ARRAY)
-{
+TEST_F(INTERFACETest, TEST_ARRAY) {
     p->initialize();
     {
         crow::request req;
@@ -186,7 +182,8 @@ TEST_F(INTERFACETest, TEST_ARRAY)
         cfg.setThreshold(tmpval);
     }
     const char* expected_str_req =
-      "/usr/bin/curl http://localhost:1234/updated -X POST -H 'Content-Type: application/json' -d "
+      "/usr/bin/curl http://localhost:1234/updated -X POST -H 'Content-Type: "
+      "application/json' -d "
       "'{\"content\":\"abcdef\",\"key\":\"img_path\"}' --max-time 1 -s "
       ">/dev/null";
     EXPECT_CALL(*_m, system(testing::StrEq(expected_str_req))).Times(1);

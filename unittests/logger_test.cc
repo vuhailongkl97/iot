@@ -5,8 +5,7 @@
 #include <fstream>
 #include "../src/logger.cpp"
 template<typename... T>
-void log(LOGLV lv, const char* fmt, T&&... args)
-{
+void log(LOGLV lv, const char* fmt, T&&... args) {
     char buf[150];
     Logger& lg = spdLogger::getInstance();
     snprintf(buf, sizeof(buf) - 1, fmt, std::forward<T>(args)...);
@@ -20,8 +19,7 @@ void log(LOGLV lv, const char* fmt, T&&... args)
     }
 }
 
-TEST(LOGGERTEST, BASIC)
-{
+TEST(LOGGERTEST, BASIC) {
     log(LOGLV::INFO, "%s - %d", "hello", 1234);
     log(LOGLV::WARNING, "%s - %d", "hello", 1234);
     log(LOGLV::ERROR, "%s - %d", "hello", 1234);
