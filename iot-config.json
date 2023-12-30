@@ -10,7 +10,7 @@
     ],
     "Port": 18080,
     "QUEUE_ENTRY_LIMIT_MIN": 5,
-    "Src": "rtsp://admin:Mrtang123@192.168.1.100:554/cam/realmonitor?channel=1&subtype=1",
+    "Src": "rtsp://user:pass@192.168.x.xx:554/cam/realmonitor?channel=1&subtype=1",
     "Status": false,
     "TIME_FORCUS": 500,
     "TIME_SKIP": 10,
